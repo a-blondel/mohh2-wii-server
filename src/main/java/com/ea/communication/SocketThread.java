@@ -47,9 +47,11 @@ public class SocketThread implements Runnable {
             // TODO : parse requests (between '@' and last '\0'), create objects (id, content)
             while ((line = reader.readLine()) != null) {
                 log.info("Received: " + line);
-                if (line.contains("BUILDDATE")) {
-                    response.append("@dir\0\0\0\0\0\0\0");
-                    response.append("aADDR=127.0.0.1\n");
+                if (line.contains("@tic")) {;
+                    writer.println("@tic\0\0\0\0\0\0\0");
+                } else if (line.contains("BUILDDATE")) {
+                    response.append("@dir\0\0\0\0\0\0\0.");
+                    response.append("ADDR=127.0.0.1\n");
                     response.append("PORT=21171\n");
                     response.append("SESS=" + sslSocket.hashCode() + "\n");
                     response.append("MASK=dbbcc81057aa718bbdafe887591112b4\0");
