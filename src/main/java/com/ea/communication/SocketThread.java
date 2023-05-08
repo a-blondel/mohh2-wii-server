@@ -43,19 +43,24 @@ public class SocketThread implements Runnable {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
                 PrintWriter writer = new PrintWriter(sslSocket.getOutputStream(), true)) {
             String line;
+            StringBuffer response = new StringBuffer();
+            // TODO : parse requests (between '@' and last '\0'), create objects (id, content)
             while ((line = reader.readLine()) != null) {
                 log.info("Received: " + line);
-                switch (line) {
-                    case ("BUILDDATE=\"Sep  6 2007\""):
-                        log.info("Answering OK to client");
-                        writer.println("OK");
-                        break;
+                if (line.contains("BUILDDATE")) {
+                    response.append("@dir\0\0\0\0\0\0\0");
+                    response.append("aADDR=127.0.0.1\n");
+                    response.append("PORT=21171\n");
+                    response.append("SESS=" + sslSocket.hashCode() + "\n");
+                    response.append("MASK=dbbcc81057aa718bbdafe887591112b4\0");
+                    log.info("Send: \n" + response);
+                    writer.println(response);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            sslSocket.close();
+            //sslSocket.close();
         }
     }
 
