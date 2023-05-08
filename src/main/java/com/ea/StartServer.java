@@ -1,10 +1,12 @@
 package com.ea;
 
+import com.ea.communication.SSLSocketThread;
 import com.ea.communication.SocketThread;
 import com.ea.config.ServerConfig;
 import lombok.extern.slf4j.Slf4j;
 import javax.net.ssl.*;
 import java.io.*;
+import java.net.ServerSocket;
 import java.security.*;
 
 /**
@@ -33,12 +35,20 @@ public class StartServer {
      */
     private static void run() {
         try {
-            log.info("Starting server...");
+            log.info("Starting servers...");
             SSLServerSocket sslServerSocket = ServerConfig.createSslServerSocket();
-            log.info("Server started. Waiting for client connections...");
+            ServerSocket serverSocket = ServerConfig.createServerSocket();
+            log.info("Servers started. Waiting for client connections...");
             while(true){
+                // SSL sockets
+                SSLSocketThread sslSocketThread = new SSLSocketThread();
+                sslSocketThread.setClientSocket((SSLSocket) sslServerSocket.accept());
+                Thread threadSSL = new Thread(sslSocketThread);
+                threadSSL.start();
+
+                // Plain TCP sockets
                 SocketThread socketThread = new SocketThread();
-                socketThread.setClientSocket((SSLSocket) sslServerSocket.accept());
+                socketThread.setClientSocket(serverSocket.accept());
                 Thread thread = new Thread(socketThread);
                 thread.start();
             }
