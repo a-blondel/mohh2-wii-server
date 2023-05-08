@@ -2,8 +2,10 @@ package com.ea.config;
 
 import nl.altindag.ssl.SSLFactory;
 import nl.altindag.ssl.util.PemUtils;
+import javax.net.ServerSocketFactory;
 import javax.net.ssl.*;
 import java.io.IOException;
+import java.net.ServerSocket;
 
 /**
  * Server's configuration
@@ -11,7 +13,7 @@ import java.io.IOException;
 public class ServerConfig {
 
     /**
-     * Initiate the server socket
+     * Initiate the SSL server socket
      * @return SSLServerSocket
      * @throws IOException
      */
@@ -40,6 +42,16 @@ public class ServerConfig {
                 .build();
 
         return sslFactory.getSslContext();
+    }
+
+    /**
+     * Initiate the server socket
+     * @return ServerSocket
+     * @throws IOException
+     */
+    public static ServerSocket createServerSocket() throws IOException {
+        ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(21172);
+        return serverSocket;
     }
 
 }

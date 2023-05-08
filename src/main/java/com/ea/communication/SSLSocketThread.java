@@ -1,23 +1,19 @@
 package com.ea.communication;
 
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
+import javax.net.ssl.SSLSocket;
+import java.io.*;
 import java.net.SocketException;
 
 /**
- * Thread to handle a unique socket
+ * Thread to handle a unique SSL socket
  */
 @Slf4j
-public class SocketThread implements Runnable {
+public class SSLSocketThread implements Runnable {
 
-    Socket clientSocket;
+    SSLSocket clientSocket;
 
-    public void setClientSocket(Socket clientSocket) throws SocketException {
+    public void setClientSocket(SSLSocket clientSocket) throws SocketException {
         this.clientSocket = clientSocket;
         // Set timeout for reading from client socket
         // this.clientSocket.setSoTimeout(30000);
@@ -40,22 +36,33 @@ public class SocketThread implements Runnable {
 
     /**
      * Read and write on the socket
-     * @param socket
+     * @param sslSocket
      * @throws IOException
      */
-    private static void exchangeWithSocket(Socket socket) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)) {
+    private static void exchangeWithSocket(SSLSocket sslSocket) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+                PrintWriter writer = new PrintWriter(sslSocket.getOutputStream(), true)) {
             String line;
             StringBuffer response = new StringBuffer();
             // TODO : parse requests (between '@' and last '\0'), create objects (id, content)
             while ((line = reader.readLine()) != null) {
                 log.info("Received: " + line);
+                if (line.contains("@tic")) {;
+                    writer.println("@tic\0\0\0\0\0\0\0");
+                } else if (line.contains("BUILDDATE")) {
+                    response.append("@dir\0\0\0\0\0\0\0.");
+                    response.append("ADDR=127.0.0.1\n");
+                    response.append("PORT=21172\n");
+                    response.append("SESS=" + sslSocket.hashCode() + "\n");
+                    response.append("MASK=dbbcc81057aa718bbdafe887591112b4\0");
+                    log.info("Send: \n" + response);
+                    writer.println(response);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            socket.close();
+            sslSocket.close();
         }
     }
 
