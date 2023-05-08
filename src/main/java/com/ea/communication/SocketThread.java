@@ -47,10 +47,41 @@ public class SocketThread implements Runnable {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)) {
             String line;
-            StringBuffer response = new StringBuffer();
-            // TODO : parse requests (between '@' and last '\0'), create objects (id, content)
             while ((line = reader.readLine()) != null) {
+                String header = "";
+                String flags = "";
+                StringBuffer content = new StringBuffer();
                 log.info("Received: " + line);
+                if (line.contains("addr")) {
+                    header = "addr";
+                    flags = Const.PAD;
+                    content.append("ADDR=" + socket.getLocalAddress().getHostAddress());
+                } else if (line.contains("skey")) {
+                    header = "skey";
+                    flags = Const.PAD;
+                    content.append("SKEY=$51ba8aee64ddfacae5baefa6bf61e009" + Const.LF);
+                    content.append("PLATFORM=wii");
+                } else if (line.contains("news")) {
+                    header = "news";
+                    flags = Const.PAD;
+                    content.append("BUDDY_SERVER=" + socket.getLocalAddress().getHostAddress() + Const.LF);
+                    content.append("BUDDY_PORT=21172" + Const.LF);
+                    content.append("BUDDY_URL=http://wiimoh08.ea.com/" + Const.LF);
+                    content.append("TOSAC_URL=http://wiimoh08.ea.com/TOSAC.txt" + Const.LF);
+                    content.append("TOSA_URL=http://wiimoh08.ea.com/TOSA.txt" + Const.LF);
+                    content.append("TOS_URL=http://wiimoh08.ea.com/TOS.txt" + Const.LF);
+                    content.append("NEWS_TEXT=DEMO" + Const.LF);
+                    content.append("TOS_TEXT=DEMO" + Const.LF);
+                    content.append("NEWS_DATE=2008.6.11 21:00:00" + Const.LF);
+                    content.append("NEWS_URL=http://wiimoh08.ea.com/news.txt");
+                }
+                content.append(Const.NUL);
+                int size = header.length() + flags.length() + content.length();
+                if(size > 1) {
+                    String reply = header + flags + size + content;
+                    log.info("Send: " + Const.LF + reply);
+                    writer.println(reply);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

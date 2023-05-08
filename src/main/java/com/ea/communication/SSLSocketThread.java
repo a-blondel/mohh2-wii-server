@@ -43,20 +43,26 @@ public class SSLSocketThread implements Runnable {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
                 PrintWriter writer = new PrintWriter(sslSocket.getOutputStream(), true)) {
             String line;
-            StringBuffer response = new StringBuffer();
-            // TODO : parse requests (between '@' and last '\0'), create objects (id, content)
             while ((line = reader.readLine()) != null) {
+                String header = "";
+                String flags = "";
+                StringBuffer content = new StringBuffer();
                 log.info("Received: " + line);
-                if (line.contains("@tic")) {;
-                    writer.println("@tic\0\0\0\0\0\0\0");
-                } else if (line.contains("BUILDDATE")) {
-                    response.append("@dir\0\0\0\0\0\0\0.");
-                    response.append("ADDR=127.0.0.1\n");
-                    response.append("PORT=21172\n");
-                    response.append("SESS=" + sslSocket.hashCode() + "\n");
-                    response.append("MASK=dbbcc81057aa718bbdafe887591112b4\0");
-                    log.info("Send: \n" + response);
-                    writer.println(response);
+                // @tic request is optional, skipping it
+                if (line.contains("@dir")) {
+                    header = "@dir";
+                    flags = Const.PAD + "."; // Length replaced by "." (working hack)
+                    content.append("ADDR=127.0.0.1" + Const.LF);
+                    content.append("PORT=21172" + Const.LF);
+                    content.append("SESS=" + sslSocket.hashCode() + Const.LF);
+                    content.append("MASK=dbbcc81057aa718bbdafe887591112b4");
+                }
+                content.append(Const.NUL);
+                int size = header.length() + flags.length() + content.length();
+                if (size > 1) {
+                    String reply = header + flags + content; // No length specified (working hack)
+                    log.info("Send: " + Const.LF + reply);
+                    writer.println(reply);
                 }
             }
         } catch (IOException e) {
