@@ -51,16 +51,18 @@ public class SSLSocketThread implements Runnable {
                 // @tic request is optional, skipping it
                 if (line.contains("@dir")) {
                     header = "@dir";
-                    flags = Const.PAD + "."; // Length replaced by "." (working hack)
+                    flags = "\0\0\0\0";
                     content.append("ADDR=127.0.0.1" + Const.LF);
                     content.append("PORT=21172" + Const.LF);
                     content.append("SESS=" + sslSocket.hashCode() + Const.LF);
                     content.append("MASK=dbbcc81057aa718bbdafe887591112b4");
                 }
                 content.append(Const.NUL);
-                int size = header.length() + flags.length() + content.length();
-                if (size > 1) {
-                    String reply = header + flags + content; // No length specified (working hack)
+                int size = 12 + content.toString().getBytes().length; // 12 = header (4) + flags (4) + length (4)
+                if (size > 13) {
+                    String formattedSize = String.format("%4s", Character.toString(size))
+                            .replace(' ', '\0');
+                    String reply = header + flags + formattedSize + content;
                     log.info("Send: " + Const.LF + reply);
                     writer.println(reply);
                 }

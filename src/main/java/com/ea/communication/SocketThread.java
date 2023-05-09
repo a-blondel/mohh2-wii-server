@@ -54,16 +54,16 @@ public class SocketThread implements Runnable {
                 log.info("Received: " + line);
                 if (line.contains("addr")) {
                     header = "addr";
-                    flags = Const.PAD;
+                    flags = "\0\0\0\0";
                     content.append("ADDR=" + socket.getLocalAddress().getHostAddress());
                 } else if (line.contains("skey")) {
                     header = "skey";
-                    flags = Const.PAD;
+                    flags = "\0\0\0\0";
                     content.append("SKEY=$51ba8aee64ddfacae5baefa6bf61e009" + Const.LF);
                     content.append("PLATFORM=wii");
                 } else if (line.contains("news")) {
                     header = "news";
-                    flags = Const.PAD;
+                    flags = "\0\0\0\0";
                     content.append("BUDDY_SERVER=" + socket.getLocalAddress().getHostAddress() + Const.LF);
                     content.append("BUDDY_PORT=21172" + Const.LF);
                     content.append("BUDDY_URL=http://wiimoh08.ea.com/" + Const.LF);
@@ -76,9 +76,11 @@ public class SocketThread implements Runnable {
                     content.append("NEWS_URL=http://wiimoh08.ea.com/news.txt");
                 }
                 content.append(Const.NUL);
-                int size = header.length() + flags.length() + content.length();
-                if(size > 1) {
-                    String reply = header + flags + size + content;
+                int size = 12 + content.toString().getBytes().length; // 12 = header (4) + flags (4) + length (4)
+                if (size > 13) {
+                    String formattedSize = String.format("%4s", Character.toString(size))
+                            .replace(' ', '\0');
+                    String reply = header + flags + formattedSize + content;
                     log.info("Send: " + Const.LF + reply);
                     writer.println(reply);
                 }
