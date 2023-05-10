@@ -40,31 +40,25 @@ public class SSLSocketThread implements Runnable {
      * @throws IOException
      */
     private static void exchangeWithSocket(SSLSocket sslSocket) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
-                PrintWriter writer = new PrintWriter(sslSocket.getOutputStream(), true)) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String header = "";
-                String flags = "";
-                StringBuffer content = new StringBuffer();
                 log.info("Received: " + line);
-                // @tic request is optional, skipping it
-                if (line.contains("@dir")) {
-                    header = "@dir";
-                    flags = "\0\0\0\0";
-                    content.append("ADDR=127.0.0.1" + Const.LF);
-                    content.append("PORT=21172" + Const.LF);
-                    content.append("SESS=" + sslSocket.hashCode() + Const.LF);
-                    content.append("MASK=dbbcc81057aa718bbdafe887591112b4");
-                }
-                content.append(Const.NUL);
-                int size = 12 + content.toString().getBytes().length; // 12 = header (4) + flags (4) + length (4)
-                if (size > 13) {
-                    String formattedSize = String.format("%4s", Character.toString(size))
-                            .replace(' ', '\0');
-                    String reply = header + flags + formattedSize + content;
-                    log.info("Send: " + Const.LF + reply);
-                    writer.println(reply);
+                StringBuffer content = new StringBuffer();
+                String header = "";
+                try (ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                     DataOutputStream writer = new DataOutputStream(buffer)) {
+                    // @tic request is optional, skipping it
+                    if (line.contains("@dir")) {
+                        header = "@dir";
+                        content.append("ADDR=127.0.0.1" + Const.LF);
+                        content.append("PORT=21172" + Const.LF);
+                        content.append("SESS=1337420011" + Const.LF);
+                        content.append("MASK=dbbcc81057aa718bbdafe887591112b4" + Const.NUL);
+                    }
+                    if (header.length() > 0) {
+                        SocketUtils.writeToSocket(sslSocket, buffer, writer, header, content);
+                    }
                 }
             }
         } catch (IOException e) {
