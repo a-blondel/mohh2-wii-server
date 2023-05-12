@@ -1,5 +1,6 @@
-package com.ea.communication;
+package com.ea.config;
 
+import com.ea.services.SocketReader;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
@@ -21,7 +22,7 @@ public class SocketThread implements Runnable {
     public void run() {
         log.info("Client session started: {} | {}", clientSocket.hashCode(), clientSocket.getInetAddress().getHostName());
         try {
-            SocketUtils.readSocket(clientSocket);
+            SocketReader.read(clientSocket);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

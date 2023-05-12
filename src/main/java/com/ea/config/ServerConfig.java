@@ -7,9 +7,6 @@ import javax.net.ssl.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-/**
- * Server's configuration
- */
 public class ServerConfig {
 
     /**
