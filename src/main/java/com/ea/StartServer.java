@@ -1,7 +1,7 @@
 package com.ea;
 
-import com.ea.communication.SSLSocketThread;
-import com.ea.communication.SocketThread;
+import com.ea.config.SSLSocketThread;
+import com.ea.config.SocketThread;
 import com.ea.config.ServerConfig;
 import lombok.extern.slf4j.Slf4j;
 import javax.net.ssl.*;
