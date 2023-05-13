@@ -4,7 +4,6 @@ import com.ea.models.SocketData;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 public class SocketParser {
@@ -14,15 +13,17 @@ public class SocketParser {
      * Loops until all complete requests are parsed
      * Sends complete requests to the processor
      * Remaining data represents an incomplete request (requires more data from stream)
-     * @param socket
-     * @param data
+     * @param socket the socket to exchange with
+     * @param buffer the buffer to read from
+     * @param data the data to parse
      * @return String the remaining data (not parsed)
      */
-    public static String parse(Socket socket, String data) {
+    public static String parse(Socket socket, byte[] buffer, String data) {
         boolean loop = true;
+        int length = 0;
         while (data.length() > 11 && loop) {
-            String id = data.substring(0,4);
-            int length = getlength(data);
+            String id = data.substring(0, 4);
+            length = getlength(buffer, length);
             if (data.length() >= length) {
                 log.info("Request: {}", data.substring(0, length).replaceAll("\n", " "));
                 String content = data.substring(12, length);
@@ -38,13 +39,14 @@ public class SocketParser {
 
     /**
      * Calculate length of the content to parse
-     * @param data the request
+     * @param buffer the request buffer (only efficient way to get the length)
+     * @param lastPos the position to begin in the buffer (there can be multiple requests in a buffer)
      * @return int - the size of the content
      */
-    private static int getlength(String data) {
+    private static int getlength(byte[] buffer, int lastPos) {
         String size = "";
-        for(byte b : data.substring(8, 12).getBytes(StandardCharsets.UTF_8)) {
-            size += String.format("%02x", b);
+        for (int i = lastPos + 8; i < lastPos + 12; i++) {
+            size += String.format("%02x", buffer[i]);
         }
         return Integer.parseInt(size, 16);
     }
