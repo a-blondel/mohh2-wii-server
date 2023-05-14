@@ -14,10 +14,10 @@ public class SocketWriter {
 
 
     /**
-     * Builds the full response based on the data id and content
+     * Builds the full output message based on the data id and content
      * Then sends it through the socket
      * @param socket the socket to write into
-     * @param socketData the object to use to write the response
+     * @param socketData the object to use to write the message
      * @throws IOException
      */
     public static void write(Socket socket, SocketData socketData) {
@@ -25,10 +25,10 @@ public class SocketWriter {
         try (ByteArrayOutputStream buffer = new ByteArrayOutputStream();
              DataOutputStream writer = new DataOutputStream(buffer)) {
 
-            writer.write(socketData.getId().getBytes(StandardCharsets.UTF_8));
-            writer.writeInt(socketData.getResponseFlags());
-            if (null != socketData.getResponse()) {
-                byte[] contentBytes = socketData.getResponse().getBytes(StandardCharsets.UTF_8);
+            writer.write(socketData.getIdMessage().getBytes(StandardCharsets.UTF_8));
+            writer.writeInt(0);
+            if (null != socketData.getOutputMessage()) {
+                byte[] contentBytes = socketData.getOutputMessage().getBytes(StandardCharsets.UTF_8);
                 writer.writeInt(12 + contentBytes.length);
                 writer.write(contentBytes);
             } else {

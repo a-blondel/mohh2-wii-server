@@ -9,9 +9,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SocketData {
 
-    private String id;
-    private String request;
-    private String response;
-    private int responseFlags;
+    private String idMessage;
+    private String inputMessage;
+    private String outputMessage;
 
 }

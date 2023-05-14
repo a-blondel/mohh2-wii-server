@@ -11,27 +11,29 @@ public class SocketProcessor {
     public static final String NUL = "\0";
     public static final String LF = "\n";
 
-    private static int currentPingValue = 22;
-
     /**
-     * Prepares the response based on request type,
+     * Prepares the output message based on request type,
      * then calls the writer
      * @param socket the socket to give to the writer
      * @param socketData the object to process
      */
     public static void process(Socket socket, SocketData socketData) {
         StringBuffer content = new StringBuffer();
-        switch (socketData.getId()) {
-            case ("@tic"):
+        boolean send = true;
+        switch (socketData.getIdMessage()) {
+            case ("@tic"), ("~png"):
+                send = false;
                 break;
             case ("@dir"):
                 content.append("ADDR=127.0.0.1" + LF);
                 content.append("PORT=21172" + LF);
+                //content.append("PORT=10901" + LF);
                 content.append("SESS=1337420011" + LF);
                 content.append("MASK=dbbcc81057aa718bbdafe887591112b4" + NUL);
                 break;
             case ("addr"):
                 content.append("ADDR=" + socket.getLocalAddress().getHostAddress() + NUL);
+                setInterval(() -> startPing(socket), socket, 15000);
                 break;
             case ("skey"):
                 content.append("SKEY=$37940faf2a8d1381a3b7d0d2f570e6a7" + NUL);
@@ -56,28 +58,25 @@ public class SocketProcessor {
                 content.append("PERS=User" + LF);
                 content.append("LKEY=3fcf27540c92935b0a66fd3b0000283c" + LF);
                 content.append("LOC=frFR" + NUL);
-                setTimeout(() -> startPing(socket), socket, 15000);
                 break;
-            case ("~png"):
-                //content.append("TIME=" + time++ + LF);
-                //content.append("REF=2023.05.13-21:22:34" + NUL);
+            case ("llvl"):
                 break;
             default:
-                log.info("Unsupported operation: {}", socketData.getId());
+                log.info("Unsupported operation: {}", socketData.getIdMessage());
                 break;
         }
-        if (content.length() > 0) {
-            socketData.setResponse(content.toString());
+        if (send) {
+            socketData.setOutputMessage(content.toString());
             SocketWriter.write(socket, socketData);
         }
     }
 
     public static void startPing(Socket socket) {
-        SocketData socketData = new SocketData("~png", null, null, currentPingValue++);
+        SocketData socketData = new SocketData("~png", null, null);
         SocketWriter.write(socket, socketData);
     }
 
-    public static void setTimeout(Runnable runnable, Socket socket, int delay){
+    public static void setInterval(Runnable runnable, Socket socket, int delay){
         new Thread(() -> {
             try {
                 while(!socket.isClosed()) {

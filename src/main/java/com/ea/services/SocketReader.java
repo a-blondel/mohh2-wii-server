@@ -11,7 +11,7 @@ public class SocketReader {
 
     /**
      * Waits for data to come from the client
-     * Calls a parser to handle requests from the stream
+     * Calls a parser to handle input messages from the stream
      * @param socket the socket to read
      * @throws IOException
      */

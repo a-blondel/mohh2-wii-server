@@ -6,12 +6,12 @@ Designed to replace EA's closed ones.
 
 ### 1/ Hosts file
 
-In order to intercept requests from the server, you must add this line to your hosts file (`C:\Windows\System32\drivers\etc`) :
+In order to intercept messages from the server, you must add this line to your hosts file (`C:\Windows\System32\drivers\etc`) :
 ```
 127.0.0.1 wiimoh08.ea.com
 ```
 
-The server port is defined to `21171` in **ServerConfig**. That way it'll receive the game's requests, don't change it.
+The server port is defined to `21171` in **ServerConfig**. That way it'll receive the game's messages, don't change it.
 
 
 ### 2/ JDK
