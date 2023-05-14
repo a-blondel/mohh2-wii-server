@@ -12,29 +12,30 @@ public class SocketParser {
      * Parses requests based on current content of the stream
      * Loops until all complete requests are parsed
      * Sends complete requests to the processor
-     * Remaining data represents an incomplete request (requires more data from stream)
      * @param socket the socket to exchange with
      * @param buffer the buffer to read from
-     * @param data the data to parse
-     * @return String the remaining data (not parsed)
+     * @param readLength the size of written content in buffer
      */
-    public static String parse(Socket socket, byte[] buffer, String data) {
+    public static void parse(Socket socket, byte[] buffer, int readLength) {
         boolean loop = true;
-        int length = 0;
-        while (data.length() > 11 && loop) {
-            String id = data.substring(0, 4);
-            length = getlength(buffer, length);
-            if (data.length() >= length) {
-                log.info("Receive: {}", data.substring(0, length).replaceAll("\n", " "));
-                String content = data.substring(12, length);
+        int readRemaining = Integer.valueOf(readLength);
+        int lastPos = 0;
+        while (readRemaining > 11 && loop) {
+            int currentMessageBegin = readLength - readRemaining;
+            int currentMessageLength = getlength(buffer, lastPos);
+            if (readRemaining >= currentMessageLength) {
+                log.info("Receive: {}", new String(buffer, currentMessageBegin, currentMessageLength).replaceAll("\n", " "));
+                String id = new String(buffer, currentMessageBegin, 4);
+                String content = new String(buffer, currentMessageBegin + 12, currentMessageLength);
                 SocketData socketData = new SocketData(id, content, null, 0);
                 SocketProcessor.process(socket, socketData);
-                data = data.substring(length);
+                readRemaining -= currentMessageLength;
+                lastPos += currentMessageLength;
             } else {
+                log.info("Cannot parse data");
                 loop = false;
             }
         }
-        return data;
     }
 
     /**
