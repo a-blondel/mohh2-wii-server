@@ -26,15 +26,19 @@ public class SocketWriter {
              DataOutputStream writer = new DataOutputStream(buffer)) {
 
             writer.write(socketData.getId().getBytes(StandardCharsets.UTF_8));
-            writer.writeInt(0);
-            byte[] contentBytes = socketData.getResponse().getBytes(StandardCharsets.UTF_8);
-            writer.writeInt(12 + contentBytes.length);
-            writer.write(contentBytes);
+            writer.writeInt(socketData.getResponseFlags());
+            if (null != socketData.getResponse()) {
+                byte[] contentBytes = socketData.getResponse().getBytes(StandardCharsets.UTF_8);
+                writer.writeInt(12 + contentBytes.length);
+                writer.write(contentBytes);
+            } else {
+                writer.writeInt(12 );
+            }
 
             byte[] bufferBytes = buffer.toByteArray();
             String bufferString = new String(bufferBytes, StandardCharsets.UTF_8);
 
-            log.info("Reply: {}", bufferString.replaceAll("\n", " "));
+            log.info("Send: {}", bufferString.replaceAll("\n", " "));
             socket.getOutputStream().write(bufferBytes);
 
         } catch (IOException e) {

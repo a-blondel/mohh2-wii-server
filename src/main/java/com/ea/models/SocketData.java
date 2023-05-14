@@ -12,5 +12,6 @@ public class SocketData {
     private String id;
     private String request;
     private String response;
+    private int responseFlags;
 
 }

@@ -25,9 +25,9 @@ public class SocketParser {
             String id = data.substring(0, 4);
             length = getlength(buffer, length);
             if (data.length() >= length) {
-                log.info("Request: {}", data.substring(0, length).replaceAll("\n", " "));
+                log.info("Receive: {}", data.substring(0, length).replaceAll("\n", " "));
                 String content = data.substring(12, length);
-                SocketData socketData = new SocketData(id, content, null);
+                SocketData socketData = new SocketData(id, content, null, 0);
                 SocketProcessor.process(socket, socketData);
                 data = data.substring(length);
             } else {

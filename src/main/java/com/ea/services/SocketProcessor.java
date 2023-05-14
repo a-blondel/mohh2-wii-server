@@ -11,6 +11,8 @@ public class SocketProcessor {
     public static final String NUL = "\0";
     public static final String LF = "\n";
 
+    private static int currentPingValue = 22;
+
     /**
      * Prepares the response based on request type,
      * then calls the writer
@@ -54,6 +56,11 @@ public class SocketProcessor {
                 content.append("PERS=User" + LF);
                 content.append("LKEY=3fcf27540c92935b0a66fd3b0000283c" + LF);
                 content.append("LOC=frFR" + NUL);
+                setTimeout(() -> startPing(socket), socket, 15000);
+                break;
+            case ("~png"):
+                //content.append("TIME=" + time++ + LF);
+                //content.append("REF=2023.05.13-21:22:34" + NUL);
                 break;
             default:
                 log.info("Unsupported operation: {}", socketData.getId());
@@ -63,6 +70,25 @@ public class SocketProcessor {
             socketData.setResponse(content.toString());
             SocketWriter.write(socket, socketData);
         }
+    }
+
+    public static void startPing(Socket socket) {
+        SocketData socketData = new SocketData("~png", null, null, currentPingValue++);
+        SocketWriter.write(socket, socketData);
+    }
+
+    public static void setTimeout(Runnable runnable, Socket socket, int delay){
+        new Thread(() -> {
+            try {
+                while(!socket.isClosed()) {
+                    Thread.sleep(delay);
+                    runnable.run();
+                }
+            }
+            catch (Exception e){
+                System.err.println(e);
+            }
+        }).start();
     }
 
 }
