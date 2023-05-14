@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class SocketWriter {
 
-
     /**
      * Builds the full output message based on the data id and content
      * Then sends it through the socket
@@ -29,9 +28,10 @@ public class SocketWriter {
             writer.write(socketData.getIdMessage().getBytes(StandardCharsets.UTF_8));
             writer.writeInt(0);
             int outputLength = 12;
+
             if (null != socketData.getOutputMessage()) {
                 byte[] contentBytes = socketData.getOutputMessage().getBytes(StandardCharsets.UTF_8);
-                outputLength = 12 + contentBytes.length;
+                outputLength += contentBytes.length;
                 writer.writeInt(outputLength);
                 writer.write(contentBytes);
             } else {
@@ -40,7 +40,10 @@ public class SocketWriter {
 
             byte[] bufferBytes = buffer.toByteArray();
 
-            log.info("Send:\n{}", HexDumpUtil.formatHexDump(bufferBytes, 0, outputLength));
+            if (!HexDumpUtil.NO_DUMP_MSG.contains(socketData.getIdMessage())) {
+                log.info("Send:\n{}", HexDumpUtil.formatHexDump(bufferBytes, 0, outputLength));
+            }
+
             socket.getOutputStream().write(bufferBytes);
 
         } catch (IOException e) {

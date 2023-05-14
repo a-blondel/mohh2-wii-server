@@ -21,14 +21,19 @@ public class SocketParser {
         boolean loop = true;
         int readRemaining = Integer.valueOf(readLength);
         int lastPos = 0;
+
         while (readRemaining > 11 && loop) {
             int currentMessageBegin = readLength - readRemaining;
             int currentMessageLength = getlength(buffer, lastPos);
             if (readRemaining >= currentMessageLength) {
-                log.info("Receive:\n{}", HexDumpUtil.formatHexDump(buffer, currentMessageBegin, currentMessageLength));
                 String id = new String(buffer, currentMessageBegin, 4);
                 String content = new String(buffer, currentMessageBegin + 12, currentMessageLength);
                 SocketData socketData = new SocketData(id, content, null);
+
+                if (!HexDumpUtil.NO_DUMP_MSG.contains(socketData.getIdMessage())) {
+                    log.info("Receive:\n{}", HexDumpUtil.formatHexDump(buffer, currentMessageBegin, currentMessageLength));
+                }
+
                 SocketProcessor.process(socket, socketData);
                 readRemaining -= currentMessageLength;
                 lastPos += currentMessageLength;

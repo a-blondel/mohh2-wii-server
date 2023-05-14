@@ -39,7 +39,7 @@ public class SocketProcessor {
             case ("addr"):
                 content.append("ADDR=" + socket.getLocalAddress().getHostAddress() + NUL);
                 pingExecutor = Executors.newSingleThreadScheduledExecutor();
-                pingExecutor.scheduleAtFixedRate(() -> startPing(socket), 15, 15, TimeUnit.SECONDS);
+                pingExecutor.scheduleAtFixedRate(() -> startPing(socket), 30, 30, TimeUnit.SECONDS);
                 break;
             case ("skey"):
                 content.append("SKEY=$37940faf2a8d1381a3b7d0d2f570e6a7" + NUL);
