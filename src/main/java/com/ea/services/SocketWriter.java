@@ -1,6 +1,7 @@
 package com.ea.services;
 
 import com.ea.models.SocketData;
+import com.ea.utils.HexDumpUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
@@ -27,18 +28,19 @@ public class SocketWriter {
 
             writer.write(socketData.getIdMessage().getBytes(StandardCharsets.UTF_8));
             writer.writeInt(0);
+            int outputLength = 12;
             if (null != socketData.getOutputMessage()) {
                 byte[] contentBytes = socketData.getOutputMessage().getBytes(StandardCharsets.UTF_8);
-                writer.writeInt(12 + contentBytes.length);
+                outputLength = 12 + contentBytes.length;
+                writer.writeInt(outputLength);
                 writer.write(contentBytes);
             } else {
-                writer.writeInt(12 );
+                writer.writeInt(outputLength);
             }
 
             byte[] bufferBytes = buffer.toByteArray();
-            String bufferString = new String(bufferBytes, StandardCharsets.UTF_8);
 
-            log.info("Send: {}", bufferString.replaceAll("\n", " "));
+            log.info("Send:\n{}", HexDumpUtil.formatHexDump(bufferBytes, 0, outputLength));
             socket.getOutputStream().write(bufferBytes);
 
         } catch (IOException e) {

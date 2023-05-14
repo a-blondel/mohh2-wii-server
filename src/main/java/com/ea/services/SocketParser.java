@@ -1,6 +1,7 @@
 package com.ea.services;
 
 import com.ea.models.SocketData;
+import com.ea.utils.HexDumpUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.Socket;
@@ -24,7 +25,7 @@ public class SocketParser {
             int currentMessageBegin = readLength - readRemaining;
             int currentMessageLength = getlength(buffer, lastPos);
             if (readRemaining >= currentMessageLength) {
-                log.info("Receive: {}", new String(buffer, currentMessageBegin, currentMessageLength).replaceAll("\n", " "));
+                log.info("Receive:\n{}", HexDumpUtil.formatHexDump(buffer, currentMessageBegin, currentMessageLength));
                 String id = new String(buffer, currentMessageBegin, 4);
                 String content = new String(buffer, currentMessageBegin + 12, currentMessageLength);
                 SocketData socketData = new SocketData(id, content, null);
