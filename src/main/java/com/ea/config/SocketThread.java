@@ -1,5 +1,6 @@
 package com.ea.config;
 
+import com.ea.services.SocketProcessor;
 import com.ea.services.SocketReader;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +27,7 @@ public class SocketThread implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            SocketProcessor.pingExecutor.shutdown();
             log.info("Client session ended: " + clientSocket.hashCode());
         }
     }

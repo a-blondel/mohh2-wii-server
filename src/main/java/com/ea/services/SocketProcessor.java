@@ -4,12 +4,17 @@ import com.ea.models.SocketData;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.Socket;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class SocketProcessor {
 
     public static final String NUL = "\0";
     public static final String LF = "\n";
+
+    public static ScheduledExecutorService pingExecutor;
 
     /**
      * Prepares the output message based on request type,
@@ -33,7 +38,8 @@ public class SocketProcessor {
                 break;
             case ("addr"):
                 content.append("ADDR=" + socket.getLocalAddress().getHostAddress() + NUL);
-                setInterval(() -> startPing(socket), socket, 15000);
+                pingExecutor = Executors.newSingleThreadScheduledExecutor();
+                pingExecutor.scheduleAtFixedRate(() -> startPing(socket), 15, 15, TimeUnit.SECONDS);
                 break;
             case ("skey"):
                 content.append("SKEY=$37940faf2a8d1381a3b7d0d2f570e6a7" + NUL);
@@ -74,20 +80,6 @@ public class SocketProcessor {
     public static void startPing(Socket socket) {
         SocketData socketData = new SocketData("~png", null, null);
         SocketWriter.write(socket, socketData);
-    }
-
-    public static void setInterval(Runnable runnable, Socket socket, int delay){
-        new Thread(() -> {
-            try {
-                while(!socket.isClosed()) {
-                    Thread.sleep(delay);
-                    runnable.run();
-                }
-            }
-            catch (Exception e){
-                System.err.println(e);
-            }
-        }).start();
     }
 
 }
