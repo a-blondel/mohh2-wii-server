@@ -35,7 +35,6 @@ public class SocketProcessor {
             case ("@dir"):
                 content.append("ADDR=127.0.0.1" + LF);
                 content.append("PORT=21172" + LF);
-                //content.append("PORT=10901" + LF);
                 content.append("SESS=1337420011" + LF);
                 content.append("MASK=dbbcc81057aa718bbdafe887591112b4" + NUL);
                 break;
@@ -71,6 +70,10 @@ public class SocketProcessor {
                 sendAfter.add(new SocketData("+who", null, null));
                 break;
             case ("llvl"):
+                break;
+            case ("gsea"):
+                content.append("COUNT=3" + NUL);
+                sendAfter.add(new SocketData("+gam", null, null));
                 break;
             case ("gpsc"):
                 content.append("IDENT=User" + LF);
@@ -127,7 +130,10 @@ public class SocketProcessor {
                     sendProfile(socket, otherSocketData);
                     break;
                 case ("+mgm"):
-                    createGame(socket, otherSocketData);
+                    createLobby(socket, otherSocketData);
+                    break;
+                case ("+gam"):
+                    showLobbies(socket, otherSocketData.getIdMessage());
                     break;
                 default:
                     log.info("Unsupported operation: {}", socketData.getIdMessage());
@@ -136,8 +142,65 @@ public class SocketProcessor {
         }
     }
 
-    public static void createGame(Socket socket, SocketData socketData) {
+    public static void createLobby(Socket socket, SocketData socketData) {
         SocketWriter.write(socket, socketData);
+    }
+
+    /** PARAMS
+     * 1 = Mode (2 = CTF, 7 = TDM, 8 = DM)
+     * 2 = Map (191 = Village, 65 = Port, 1f5 = monastery, c9 = City, 12d = sewers, 259 = base)
+     * 3 = Friendly fire (1 = true, 2 = reverse fire, empty = false)
+     * 4 = Equilibrate (1 = true, empty = false)
+     * 5 = number of rounds
+     * 6 = points limit
+     * 7 = score limit
+     * 8 = round time limit
+     * 9 = max team kills
+     * 10 = controls (empty = Elite, ? = Zapper, -1 = all)
+     * 11 = SMG (1 = true, empty = false)
+     * 12 = HMG
+     * 13 = Rifle
+     * 14 = Scoped Rifle
+     * 15 = Shotgun
+     * 16 = Bazooka
+     * 17 = Grenades
+     * 18 = Ranked - Must come with SYSFLAGS (ranked = 262656, unranked = 512) !
+     * 19 = max players
+     */
+    public static void showLobbies(Socket socket, String messageId) {
+        StringBuffer content = new StringBuffer();
+        content.append("IDENT=1" + LF);
+        content.append("NAME=\"Modded lobby\"" + LF);
+        content.append("PARAMS=2,191,,,,,,,,-1,1,1,1,1,1,1,1,1,20" + LF);
+        content.append("SYSFLAGS=262656" + LF);
+        content.append("COUNT=31" + LF);
+        content.append("MAXSIZE=33" + NUL);
+        //content.append("PASS=" + LF);
+
+        SocketData socketData = new SocketData(messageId, null, content.toString());
+        SocketWriter.write(socket, socketData);
+
+        content = new StringBuffer();
+        content.append("IDENT=2" + LF);
+        content.append("NAME=\"Glitch\"" + LF);
+        content.append("PARAMS=7,65,,,a,,32,,,-1,1,1,1,1,1,1,1,,5" + LF);
+        content.append("SYSFLAGS=512" + LF);
+        content.append("COUNT=2" + LF);
+        content.append("MAXSIZE=6" + NUL);
+
+        SocketData socketData2 = new SocketData(messageId, null, content.toString());
+        SocketWriter.write(socket, socketData2);
+
+        content = new StringBuffer();
+        content.append("IDENT=3" + LF);
+        content.append("NAME=\"Join :)\"" + LF);
+        content.append("PARAMS=8,1f5,,,5,,14,,,-1,1,1,1,1,1,1,1,1,10" + LF);
+        content.append("SYSFLAGS=262656" + LF);
+        content.append("COUNT=9" + LF);
+        content.append("MAXSIZE=17" + NUL);
+
+        SocketData socketData3 = new SocketData(messageId, null, content.toString());
+        SocketWriter.write(socket, socketData3);
     }
 
     public static void sendProfile(Socket socket, SocketData socketData) {
