@@ -1,4 +1,4 @@
-package com.ea.services;
+package com.ea.steps;
 
 import lombok.extern.slf4j.Slf4j;
 

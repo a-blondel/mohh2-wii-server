@@ -1,6 +1,6 @@
 package com.ea.config;
 
-import com.ea.services.SocketReader;
+import com.ea.steps.SocketReader;
 import lombok.extern.slf4j.Slf4j;
 import javax.net.ssl.SSLSocket;
 import java.io.*;

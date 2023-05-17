@@ -1,7 +1,7 @@
 package com.ea.config;
 
-import com.ea.services.SocketProcessor;
-import com.ea.services.SocketReader;
+import com.ea.services.AuthService;
+import com.ea.steps.SocketReader;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
@@ -27,7 +27,7 @@ public class SocketThread implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            SocketProcessor.pingExecutor.shutdown();
+            AuthService.pingExecutor.shutdown();
             log.info("Client session ended: " + clientSocket.hashCode());
         }
     }

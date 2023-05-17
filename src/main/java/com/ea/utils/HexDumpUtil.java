@@ -8,6 +8,8 @@ import java.util.List;
 public final class HexDumpUtil {
 
     public static final List<String> NO_DUMP_MSG = new ArrayList<>(Arrays.asList("~png"));
+    public static final String NUL = "\0";
+    public static final String LF = "\n";
 
     public static String formatHexDump(byte[] array, int offset, int length) {
         final int width = 16;
