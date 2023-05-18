@@ -36,16 +36,20 @@ public class PlayerService {
     public static void sendPers(Socket socket, SocketData socketData) {
         String content = new StringBuffer()
                 .append("PERS=Player" + LF)
-                .append("LKEY=3fcf27540c92935b0a66fd3b0000283c" + LF)
+                .append("LKEY=" + LF)
+                .append("EX-ticker=" + LF)
+                .append("A=127.0.0.1" + LF)
+                .append("LA=127.0.0.1" + LF)
+                .append("IDLE=600000" + LF)
                 .append("LOC=frFR" + NUL).toString();
 
         socketData.setOutputMessage(content);
         SocketWriter.write(socket, socketData);
 
-        sendWho(socket, new SocketData("+who", null, null));
+        sendWho(socket);
     }
 
-    public static void sendWho(Socket socket, SocketData socketData) {
+    public static void sendWho(Socket socket) {
         String content = new StringBuffer()
                 .append("M=Player" + LF)
                 .append("N=Player" + LF)
@@ -79,8 +83,7 @@ public class PlayerService {
                 .append("MA=" + LF)
                 .append("X=0" + NUL).toString();
 
-        socketData.setOutputMessage(content);
-        SocketWriter.write(socket, socketData);
+        SocketWriter.write(socket, new SocketData("+who", null, content));
     }
 
 }

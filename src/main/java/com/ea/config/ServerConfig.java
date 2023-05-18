@@ -7,6 +7,9 @@ import javax.net.ssl.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+import static com.ea.utils.PropertiesLoader.getIntegerProperty;
+import static com.ea.utils.PropertiesLoader.getStringProperty;
+
 public class ServerConfig {
 
     /**
@@ -18,9 +21,9 @@ public class ServerConfig {
         SSLContext sslContext = createSslContext();
         SSLServerSocketFactory serverSocketFactory = sslContext.getServerSocketFactory();
 
-        SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(21171);
-        serverSocket.setEnabledProtocols(new String[]{"SSLv3"});
-        serverSocket.setEnabledCipherSuites(new String[]{"SSL_RSA_WITH_RC4_128_MD5","SSL_RSA_WITH_RC4_128_SHA"});
+        SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(getIntegerProperty("ssl.port"));
+        serverSocket.setEnabledProtocols(getStringProperty("ssl.protocols").split(","));
+        serverSocket.setEnabledCipherSuites(getStringProperty("ssl.cipher-suites").split(","));
 
         return serverSocket;
     }
@@ -47,7 +50,7 @@ public class ServerConfig {
      * @throws IOException
      */
     public static ServerSocket createServerSocket() throws IOException {
-        ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(21172);
+        ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(getIntegerProperty("tcp.port"));
         return serverSocket;
     }
 
