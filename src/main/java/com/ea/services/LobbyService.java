@@ -76,59 +76,39 @@ public class LobbyService {
     }
 
     public static void sendGjoi(Socket socket, SocketData socketData) {
+        SocketWriter.write(socket, socketData);
+
+        sendAgm(socket);
+
+        sendSes(socket);
+    }
+
+    public static void sendAgm(Socket socket) {
         String content = new StringBuffer()
                 .append("IDENT=1" + LF)
-                .append("WHEN=2003.12.8 15:52:54" + LF)
-                //.append("WHENC=2003.12.8 15:52:54" + LF)
-                .append("ROOM=0" + LF)
-                .append("HOST=127.0.0.1" + LF)
-                .append("GPSHOST=127.0.0.1" + LF)
-                .append("ADDR=127.0.0.1" + LF)
-                .append("GAMEPORT=21172" + LF)
-                .append("COUNT=2" + LF)
-                .append("PRIV=0" + LF)
-                .append("GPSREGION=2" + LF)
-                .append("SEED=9351261" + LF)
-                .append("GAMEMODE=2" + LF)
-                .append("PARTPARAMS=0" + LF)
-                .append("OPGUEST=0" + LF)
-                .append("PARTSIZE0=17" + LF)
-                .append("VOIPPORT=9667" + LF)
-                .append("EVGID=0" + LF)
-                .append("EVID=0" + LF)
-                .append("PARAMS=2,191,,,,,,,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" + LF) // From request
-                .append("USERPARAMS=AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" + LF)
-                .append("NAME=Player" + LF)
-                .append("MAXSIZE=20" + LF)
+                .append("NAME=abcd" + LF)
+                .append("HOST=player" + LF)
+                .append("GPSHOST=player" + LF)
+                .append("PARAMS=8,12d,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" + LF)
+                .append("ROOM=efgh" + LF)
                 .append("CUSTFLAGS=0" + LF)
-                .append("NUMPART=1" + LF)
-                .append("USERPART=0" + LF)
-                .append("USERFLAGS=1" + LF)
-                .append("PASS=" + LF)
                 .append("SYSFLAGS=262656" + LF)
-                .append("OPID=0" + LF)
-                .append("OPPO=0" + LF)
-                .append("LADDR=127.0.0.1" + LF)
+                .append("COUNT=1" + LF)
+                .append("PRIV=0" + LF)
+                .append("MINSIZE=0" + LF)
+                .append("MAXSIZE=33" + LF)
+                .append("NUMPART=1" + LF)
+                .append("SEED=randomseed" + LF)
+                .append("WHEN=2009.2.8-9:44:15" + LF)
+                .append("GAMEPORT=21173" + LF)
+                .append("VOIPPORT=21173" + LF)
+                .append("OPID0=0" + LF)
+                .append("OPPO0=player" + LF)
                 .append("ADDR0=127.0.0.1" + LF)
-                .append("LADDR0=127.0.0.1" + LF)
-                .append("LADDR1=127.0.0.1" + LF)
-                .append("ADDR1=127.0.0.1" + LF)
-                .append("MADDR=" + LF)
-                .append("MADDR0=" + LF)
-                .append("MADDR1=$001fc61bc95c" + LF)
-                .append("OPPART=" + LF)
-                .append("OPPARAM=" + LF)
-                .append("OPFLAGS=" + LF)
-                .append("PRES=" + LF)
-                .append("FORCE_LEAVE=1" + LF)
-                .append("SESS=@brobot2583-bixop-498ea96f" + NUL)
-                .toString();
+                .append("PARTSIZE0=17" + LF)
+                .append("PARTPARAMS0=0" + NUL).toString();
 
-        socketData.setOutputMessage(content);
-        SocketWriter.write(socket, socketData);
-
-        socketData.setIdMessage("+agm");
-        SocketWriter.write(socket, socketData);
+        SocketWriter.write(socket, new SocketData("+agm", null, content));
     }
 
     public static void sendGspc(Socket socket, SocketData socketData) {
@@ -146,39 +126,53 @@ public class LobbyService {
                 .append("HOST=player" + LF)
                 .append("GPSHOST=player" + LF)
                 .append("PARAMS=8,12d,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" + LF)
-                // .append("PLATPARAMS=0" + LF)
                 .append("ROOM=efgh" + LF)
                 .append("CUSTFLAGS=0" + LF)
                 .append("SYSFLAGS=262656" + LF)
                 .append("COUNT=1" + LF)
                 .append("PRIV=0" + LF)
-                .append("MINSIZE=1" + LF)
+                .append("MINSIZE=0" + LF)
                 .append("MAXSIZE=33" + LF)
                 .append("NUMPART=1" + LF)
-                .append("SEED=randomseed" + LF) // random seed
+                .append("SEED=randomseed" + LF)
                 .append("WHEN=2009.2.8-9:44:15" + LF)
                 .append("GAMEPORT=21173" + LF)
                 .append("VOIPPORT=21173" + LF)
-                // .append("GAMEMODE=0" + LF)
-                // .append("AUTH=0" + LF)
-                .append("OPID0=1" + LF)
+                .append("OPID0=0" + LF)
                 .append("OPPO0=player" + LF)
                 .append("ADDR0=127.0.0.1" + LF)
-                .append("LADDR0=127.0.0.1" + LF)
-                .append("MADDR0=" + LF)
-                .append("OPPART0=0" + LF)
-                .append("OPPARAM0=AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" + LF)
-                .append("OPFLAGS0=0" + LF)
-                // .append("PRES0=0" + LF)
                 .append("PARTSIZE0=17" + LF)
-                // .append("SESS=0" + LF)
                 .append("PARTPARAMS0=0" + NUL).toString();
 
         SocketWriter.write(socket, new SocketData("+mgm", null, content));
     }
 
     public static void sendSes(Socket socket) {
-        SocketWriter.write(socket, new SocketData("+ses", null, null));
+        String content = new StringBuffer()
+                .append("IDENT=1" + LF)
+                .append("NAME=abcd" + LF)
+                .append("HOST=player" + LF)
+                .append("GPSHOST=player" + LF)
+                .append("PARAMS=8,12d,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" + LF)
+                .append("ROOM=efgh" + LF)
+                .append("CUSTFLAGS=0" + LF)
+                .append("SYSFLAGS=262656" + LF)
+                .append("COUNT=1" + LF)
+                .append("PRIV=0" + LF)
+                .append("MINSIZE=0" + LF)
+                .append("MAXSIZE=33" + LF)
+                .append("NUMPART=1" + LF)
+                .append("SEED=randomseed" + LF)
+                .append("WHEN=2009.2.8-9:44:15" + LF)
+                .append("GAMEPORT=21173" + LF)
+                .append("VOIPPORT=21173" + LF)
+                .append("OPID0=0" + LF)
+                .append("OPPO0=player" + LF)
+                .append("ADDR0=127.0.0.1" + LF)
+                .append("PARTSIZE0=17" + LF)
+                .append("PARTPARAMS0=0" + NUL).toString();
+
+        SocketWriter.write(socket, new SocketData("+ses", null, content));
     }
 
 }
