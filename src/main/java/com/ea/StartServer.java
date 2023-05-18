@@ -3,9 +3,11 @@ package com.ea;
 import com.ea.config.SslSocketThread;
 import com.ea.config.TcpSocketThread;
 import com.ea.config.ServerConfig;
+import com.ea.config.UdpSocketThread;
 import lombok.extern.slf4j.Slf4j;
 import javax.net.ssl.*;
 import java.io.*;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.security.*;
 
@@ -14,6 +16,7 @@ import java.security.*;
  */
 @Slf4j
 public class StartServer {
+    private static byte[] buf = new byte[256];
 
     public static void main(String[] args) {
         // JVM config
@@ -37,20 +40,24 @@ public class StartServer {
         try {
             log.info("Starting servers...");
             SSLServerSocket sslServerSocket = ServerConfig.createSslServerSocket();
-            ServerSocket serverSocket = ServerConfig.createServerSocket();
+            ServerSocket tcpServerSocket = ServerConfig.createTcpServerSocket();
+            DatagramSocket udpServerSocket = ServerConfig.createUdpServerSocket();
             log.info("Servers started. Waiting for client connections...");
             while(true){
-                // SSL sockets
                 SslSocketThread sslSocketThread = new SslSocketThread();
                 sslSocketThread.setClientSocket((SSLSocket) sslServerSocket.accept());
                 Thread threadSSL = new Thread(sslSocketThread);
                 threadSSL.start();
 
-                // Plain TCP sockets
                 TcpSocketThread tcpSocketThread = new TcpSocketThread();
-                tcpSocketThread.setClientSocket(serverSocket.accept());
-                Thread thread = new Thread(tcpSocketThread);
-                thread.start();
+                tcpSocketThread.setClientSocket(tcpServerSocket.accept());
+                Thread threadTCP = new Thread(tcpSocketThread);
+                threadTCP.start();
+
+                UdpSocketThread udpSocketThread = new UdpSocketThread();
+                udpSocketThread.setClientSocket(udpServerSocket);
+                Thread threadUDP = new Thread(udpSocketThread);
+                threadUDP.start();
             }
         } catch (IOException e) {
             e.printStackTrace();

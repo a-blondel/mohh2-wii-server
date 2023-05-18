@@ -19,13 +19,13 @@ public class SslSocketThread implements Runnable {
     }
 
     public void run() {
-        log.info("Client session started: {} | {}", clientSocket.hashCode(), clientSocket.getRemoteSocketAddress());
+        log.info("SSL client session started: {} | {}", clientSocket.hashCode(), clientSocket.getRemoteSocketAddress());
         try {
             SocketReader.read(clientSocket);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            log.info("Client session ended: " + clientSocket.hashCode());
+            log.info("SSL client session ended: " + clientSocket.hashCode());
         }
     }
 

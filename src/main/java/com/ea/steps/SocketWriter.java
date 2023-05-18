@@ -41,7 +41,7 @@ public class SocketWriter {
             byte[] bufferBytes = buffer.toByteArray();
 
             if (!HexDumpUtil.NO_DUMP_MSG.contains(socketData.getIdMessage())) {
-                log.info("Send:\n{}", HexDumpUtil.formatHexDump(bufferBytes, 0, outputLength));
+                //log.info("Send:\n{}", HexDumpUtil.formatHexDump(bufferBytes, 0, outputLength));
             }
 
             socket.getOutputStream().write(bufferBytes);

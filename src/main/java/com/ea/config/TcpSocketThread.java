@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.net.SocketException;
 
 /**
- * Thread to handle a unique socket
+ * Thread to handle a unique tcp socket
  */
 @Slf4j
 public class TcpSocketThread implements Runnable {
@@ -21,14 +21,14 @@ public class TcpSocketThread implements Runnable {
     }
 
     public void run() {
-        log.info("Client session started: {} | {}", clientSocket.hashCode(), clientSocket.getInetAddress().getHostName());
+        log.info("TCP client session started: {} | {}", clientSocket.hashCode(), clientSocket.getInetAddress().getHostName());
         try {
             SocketReader.read(clientSocket);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             AuthService.pingExecutor.shutdown();
-            log.info("Client session ended: " + clientSocket.hashCode());
+            log.info("TCP client session ended: " + clientSocket.hashCode());
         }
     }
 

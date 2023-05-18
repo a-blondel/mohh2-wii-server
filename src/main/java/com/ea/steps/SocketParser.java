@@ -31,7 +31,7 @@ public class SocketParser {
                 SocketData socketData = new SocketData(id, content, null);
 
                 if (!HexDumpUtil.NO_DUMP_MSG.contains(socketData.getIdMessage())) {
-                    log.info("Receive:\n{}", HexDumpUtil.formatHexDump(buffer, currentMessageBegin, currentMessageLength));
+                    //log.info("Receive:\n{}", HexDumpUtil.formatHexDump(buffer, currentMessageBegin, currentMessageLength));
                 }
 
                 SocketProcessor.process(socket, socketData);

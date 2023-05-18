@@ -5,6 +5,7 @@ import nl.altindag.ssl.util.PemUtils;
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.*;
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 
 import static com.ea.utils.PropertiesLoader.getIntegerProperty;
@@ -45,12 +46,22 @@ public class ServerConfig {
     }
 
     /**
-     * Initiate the server socket
+     * Initiate the TCP server socket
      * @return ServerSocket
      * @throws IOException
      */
-    public static ServerSocket createServerSocket() throws IOException {
+    public static ServerSocket createTcpServerSocket() throws IOException {
         ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(getIntegerProperty("tcp.port"));
+        return serverSocket;
+    }
+
+    /**
+     * Initiate the UDP server socket
+     * @return ServerSocket
+     * @throws IOException
+     */
+    public static DatagramSocket createUdpServerSocket() throws IOException {
+        DatagramSocket serverSocket = new DatagramSocket(getIntegerProperty("udp.port"));
         return serverSocket;
     }
 
