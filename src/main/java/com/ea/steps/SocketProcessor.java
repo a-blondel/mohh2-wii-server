@@ -48,6 +48,9 @@ public class SocketProcessor {
             case ("gsea"):
                 LobbyService.sendGsea(socket, socketData);
                 break;
+            case ("gjoi"):
+                LobbyService.sendGjoi(socket, socketData);
+                break;
             case ("gpsc"):
                 LobbyService.sendGspc(socket, socketData);
                 break;

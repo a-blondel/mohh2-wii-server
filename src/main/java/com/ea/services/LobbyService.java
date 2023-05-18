@@ -18,7 +18,7 @@ public class LobbyService {
         socketData.setOutputMessage(content);
         SocketWriter.write(socket, socketData);
 
-        sendLobbyList(socket,"+gam");
+        sendLobbyList(socket);
     }
 
     /** PARAMS
@@ -42,7 +42,7 @@ public class LobbyService {
      * 18 = Ranked - Must come with SYSFLAGS (ranked = 262656, unranked = 512) !
      * 19 = max players
      */
-    public static void sendLobbyList(Socket socket, String messageId) {
+    public static void sendLobbyList(Socket socket) {
         String lobby1 = new StringBuffer()
                 .append("IDENT=1" + LF)
                 .append("NAME=\"Modded lobby\"" + LF)
@@ -69,48 +69,116 @@ public class LobbyService {
                 .append("MAXSIZE=17" + NUL).toString();
 
         for (String lobby : Arrays.asList(lobby1, lobby2, lobby3)) {
-            SocketData socketData = new SocketData(messageId, null, lobby);
+            SocketData socketData = new SocketData("+gam", null, lobby);
             SocketWriter.write(socket, socketData);
         }
 
     }
 
-    public static void sendGspc(Socket socket, SocketData socketData) {
+    public static void sendGjoi(Socket socket, SocketData socketData) {
         String content = new StringBuffer()
-                .append("IDENT=User" + LF)
+                .append("IDENT=1" + LF)
                 .append("WHEN=2003.12.8 15:52:54" + LF)
-                .append("WHENC=2003.12.8 15:52:54" + LF)
-                .append("ROOM=User" + LF)
-                .append("HOST=User" + LF)
-                .append("GPSHOST=User" + LF)
+                //.append("WHENC=2003.12.8 15:52:54" + LF)
+                .append("ROOM=0" + LF)
+                .append("HOST=127.0.0.1" + LF)
+                .append("GPSHOST=127.0.0.1" + LF)
                 .append("ADDR=127.0.0.1" + LF)
                 .append("GAMEPORT=21172" + LF)
-                .append("COUNT=1" + LF)
+                .append("COUNT=2" + LF)
                 .append("PRIV=0" + LF)
                 .append("GPSREGION=2" + LF)
-                .append("SEED=12345" + LF)
-                .append("GAMEMODE=0" + LF)
+                .append("SEED=9351261" + LF)
+                .append("GAMEMODE=2" + LF)
                 .append("PARTPARAMS=0" + LF)
                 .append("OPGUEST=0" + LF)
                 .append("PARTSIZE0=17" + LF)
                 .append("VOIPPORT=9667" + LF)
                 .append("EVGID=0" + LF)
                 .append("EVID=0" + LF)
-                .append("PARTPARAMS0=" + LF)
-                .append("PARAMS=8,65,,1,5,,,a,3,-1,1,1,1,1,1,1,1,1,10,,,15f90,122d0022" + LF) // From request
+                .append("PARAMS=2,191,,,,,,,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" + LF) // From request
                 .append("USERPARAMS=AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" + LF)
-                .append("NAME=User" + LF)
-                .append("MAXSIZE=17" + LF)
+                .append("NAME=Player" + LF)
+                .append("MAXSIZE=20" + LF)
                 .append("CUSTFLAGS=0" + LF)
                 .append("NUMPART=1" + LF)
                 .append("USERPART=0" + LF)
                 .append("USERFLAGS=1" + LF)
                 .append("PASS=" + LF)
                 .append("SYSFLAGS=262656" + LF)
-                .append("MINSIZE=1" + NUL).toString();
+                .append("OPID=0" + LF)
+                .append("OPPO=0" + LF)
+                .append("LADDR=127.0.0.1" + LF)
+                .append("ADDR0=127.0.0.1" + LF)
+                .append("LADDR0=127.0.0.1" + LF)
+                .append("LADDR1=127.0.0.1" + LF)
+                .append("ADDR1=127.0.0.1" + LF)
+                .append("MADDR=" + LF)
+                .append("MADDR0=" + LF)
+                .append("MADDR1=$001fc61bc95c" + LF)
+                .append("OPPART=" + LF)
+                .append("OPPARAM=" + LF)
+                .append("OPFLAGS=" + LF)
+                .append("PRES=" + LF)
+                .append("FORCE_LEAVE=1" + LF)
+                .append("SESS=@brobot2583-bixop-498ea96f" + NUL)
+                .toString();
 
         socketData.setOutputMessage(content);
         SocketWriter.write(socket, socketData);
+
+        socketData.setIdMessage("+agm");
+        SocketWriter.write(socket, socketData);
+    }
+
+    public static void sendGspc(Socket socket, SocketData socketData) {
+        SocketWriter.write(socket, socketData);
+
+        sendMgm(socket);
+
+        sendSes(socket);
+    }
+
+    public static void sendMgm(Socket socket) {
+        String content = new StringBuffer()
+                .append("IDENT=1" + LF)
+                .append("NAME=abcd" + LF)
+                .append("HOST=player" + LF)
+                .append("GPSHOST=player" + LF)
+                .append("PARAMS=8,12d,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" + LF)
+                // .append("PLATPARAMS=0" + LF)
+                .append("ROOM=efgh" + LF)
+                .append("CUSTFLAGS=0" + LF)
+                .append("SYSFLAGS=262656" + LF)
+                .append("COUNT=1" + LF)
+                .append("PRIV=0" + LF)
+                .append("MINSIZE=1" + LF)
+                .append("MAXSIZE=33" + LF)
+                .append("NUMPART=1" + LF)
+                .append("SEED=randomseed" + LF) // random seed
+                .append("WHEN=2009.2.8-9:44:15" + LF)
+                .append("GAMEPORT=21173" + LF)
+                .append("VOIPPORT=21173" + LF)
+                // .append("GAMEMODE=0" + LF)
+                // .append("AUTH=0" + LF)
+                .append("OPID0=1" + LF)
+                .append("OPPO0=player" + LF)
+                .append("ADDR0=127.0.0.1" + LF)
+                .append("LADDR0=127.0.0.1" + LF)
+                .append("MADDR0=" + LF)
+                .append("OPPART0=0" + LF)
+                .append("OPPARAM0=AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" + LF)
+                .append("OPFLAGS0=0" + LF)
+                // .append("PRES0=0" + LF)
+                .append("PARTSIZE0=17" + LF)
+                // .append("SESS=0" + LF)
+                .append("PARTPARAMS0=0" + NUL).toString();
+
+        SocketWriter.write(socket, new SocketData("+mgm", null, content));
+    }
+
+    public static void sendSes(Socket socket) {
+        SocketWriter.write(socket, new SocketData("+ses", null, null));
     }
 
 }

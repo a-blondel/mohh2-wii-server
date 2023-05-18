@@ -35,7 +35,7 @@ public class PlayerService {
 
     public static void sendPers(Socket socket, SocketData socketData) {
         String content = new StringBuffer()
-                .append("PERS=User" + LF)
+                .append("PERS=Player" + LF)
                 .append("LKEY=3fcf27540c92935b0a66fd3b0000283c" + LF)
                 .append("LOC=frFR" + NUL).toString();
 
@@ -47,11 +47,11 @@ public class PlayerService {
 
     public static void sendWho(Socket socket, SocketData socketData) {
         String content = new StringBuffer()
-                .append("M=User" + LF)
-                .append("N=User" + LF)
+                .append("M=Player" + LF)
+                .append("N=Player" + LF)
                 .append("MA=$7a790554222c" + LF)
                 .append("A=" + socket.getLocalAddress().getHostAddress() + LF)
-                .append("LA=User" + LF)
+                .append("LA=Player" + LF)
                 .append("P=1" + LF)
                 .append("AT=" + LF)
                 .append("C=4000,,7,1,1,,1,1,5553" + LF)
