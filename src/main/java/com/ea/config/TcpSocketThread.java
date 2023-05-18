@@ -1,30 +1,33 @@
 package com.ea.config;
 
+import com.ea.services.AuthService;
 import com.ea.steps.SocketReader;
 import lombok.extern.slf4j.Slf4j;
-import javax.net.ssl.SSLSocket;
+
 import java.io.*;
+import java.net.Socket;
 import java.net.SocketException;
 
 /**
- * Thread to handle a unique SSL socket
+ * Thread to handle a unique socket
  */
 @Slf4j
-public class SSLSocketThread implements Runnable {
+public class TcpSocketThread implements Runnable {
 
-    SSLSocket clientSocket;
+    Socket clientSocket;
 
-    public void setClientSocket(SSLSocket clientSocket) throws SocketException {
+    public void setClientSocket(Socket clientSocket) throws SocketException {
         this.clientSocket = clientSocket;
     }
 
     public void run() {
-        log.info("Client session started: {} | {}", clientSocket.hashCode(), clientSocket.getRemoteSocketAddress());
+        log.info("Client session started: {} | {}", clientSocket.hashCode(), clientSocket.getInetAddress().getHostName());
         try {
             SocketReader.read(clientSocket);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            AuthService.pingExecutor.shutdown();
             log.info("Client session ended: " + clientSocket.hashCode());
         }
     }
