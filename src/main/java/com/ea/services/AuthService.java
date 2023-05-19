@@ -5,57 +5,48 @@ import com.ea.steps.SocketWriter;
 import com.ea.utils.Props;
 
 import java.net.Socket;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import static com.ea.utils.HexDumpUtil.LF;
-import static com.ea.utils.HexDumpUtil.NUL;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AuthService {
 
-    public static ScheduledExecutorService pingExecutor;
-
     public static void sendDir(Socket socket, SocketData socketData) {
-        String content = new StringBuffer()
-                .append("ADDR=127.0.0.1" + LF)
-                .append("PORT=" + Props.getInt("tcp.port") + LF)
-                .append("SESS=1337420011" + LF)
-                .append("MASK=dbbcc81057aa718bbdafe887591112b4" + NUL).toString();
+        Map<String, String> content = Stream.of(new String[][] {
+                // { "DIRECT", "0" }, // 0x8001FC04
+                // if DIRECT == 0 then read ADDR and PORT
+                { "ADDR", "127.0.0.1" }, // 0x8001FC18
+                { "PORT", Props.getString("tcp.port") }, // 0x8001fc30
+                // { "SESS", "0" }, // 0x8001fc48 %s-%s-%08x 0--498ea96f
+                // { "MASK", "0" }, // 0x8001fc60
+                // if ADDR == 0 then read DOWN
+                // { "DOWN", "0" }, // 0x8001FC90
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        socketData.setOutputMessage(content);
+        socketData.setOutputData(content);
         SocketWriter.write(socket, socketData);
     }
 
     public static void sendAddr(Socket socket, SocketData socketData) {
-        String content = new StringBuffer()
-                .append("ADDR=" + socket.getLocalAddress().getHostAddress() + NUL).toString();
-
-        socketData.setOutputMessage(content);
-        SocketWriter.write(socket, socketData);
-
-        pingExecutor = Executors.newSingleThreadScheduledExecutor();
-        pingExecutor.scheduleAtFixedRate(() -> startPing(socket), 30, 30, TimeUnit.SECONDS);
-    }
-
-    public static void startPing(Socket socket) {
-        SocketData socketData = new SocketData("~png", null, null);
         SocketWriter.write(socket, socketData);
     }
 
     public static void sendSkey(Socket socket, SocketData socketData) {
-        String content = new StringBuffer()
-                .append("SKEY=$37940faf2a8d1381a3b7d0d2f570e6a7" + NUL).toString();
+        Map<String, String> content = Stream.of(new String[][] {
+                { "SKEY", "$51ba8aee64ddfacae5baefa6bf61e009" },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        socketData.setOutputMessage(content);
+        socketData.setOutputData(content);
         SocketWriter.write(socket, socketData);
     }
 
     public static void sendNews(Socket socket, SocketData socketData) {
-        String content = new StringBuffer()
-                .append("Official servers are down" + NUL).toString();
+        Map<String, String> content = Stream.of(new String[][] {
+                { "BUDDY_SERVER", "127.0.0.1" },
+                { "BUDDY_PORT", Props.getString("tcp.port") },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        socketData.setOutputMessage(content);
+        socketData.setOutputData(content);
         SocketWriter.write(socket, socketData);
     }
 

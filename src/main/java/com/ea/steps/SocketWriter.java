@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
+import static java.util.stream.Collectors.joining;
+
 @Slf4j
 public class SocketWriter {
 
@@ -30,8 +32,12 @@ public class SocketWriter {
             writer.writeInt(0);
             int outputLength = 12;
 
-            if (null != socketData.getOutputMessage()) {
-                byte[] contentBytes = socketData.getOutputMessage().getBytes(StandardCharsets.UTF_8);
+            if (null != socketData.getOutputData()) {
+                byte[] contentBytes = (socketData.getOutputData().entrySet()
+                        .stream()
+                        .map(param -> param.getKey() + "=" + param.getValue())
+                        .collect(joining("\n")) + "\0").getBytes(StandardCharsets.UTF_8);
+
                 outputLength += contentBytes.length;
                 writer.writeInt(outputLength);
                 writer.write(contentBytes);

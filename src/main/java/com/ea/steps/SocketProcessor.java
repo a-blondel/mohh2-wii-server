@@ -43,7 +43,7 @@ public class SocketProcessor {
                 PlayerService.sendPers(socket, socketData);
                 break;
             case ("llvl"):
-                SocketWriter.write(socket, socketData);
+                PlayerService.sendLlvl(socket, socketData);
                 break;
             case ("gsea"):
                 LobbyService.sendGsea(socket, socketData);

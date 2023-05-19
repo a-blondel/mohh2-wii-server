@@ -2,21 +2,21 @@ package com.ea.services;
 
 import com.ea.models.SocketData;
 import com.ea.steps.SocketWriter;
-import com.ea.utils.Props;
 
 import java.net.Socket;
 import java.util.Arrays;
-
-import static com.ea.utils.HexDumpUtil.LF;
-import static com.ea.utils.HexDumpUtil.NUL;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LobbyService {
 
     public static void sendGsea(Socket socket, SocketData socketData) {
-        String content = new StringBuffer()
-                .append("COUNT=3" + NUL).toString();
+        Map<String, String> content = Stream.of(new String[][] {
+                { "COUNT", "3" },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        socketData.setOutputMessage(content);
+        socketData.setOutputData(content);
         SocketWriter.write(socket, socketData);
 
         sendLobbyList(socket);
@@ -44,70 +44,87 @@ public class LobbyService {
      * 19 = max players
      */
     public static void sendLobbyList(Socket socket) {
-        String lobby1 = new StringBuffer()
-                .append("IDENT=1" + LF)
-                .append("NAME=\"Modded lobby\"" + LF)
-                .append("PARAMS=2,191,,,,,,,,-1,1,1,1,1,1,1,1,1,20" + LF)
-                .append("SYSFLAGS=262656" + LF)
-                .append("COUNT=31" + LF)
-                .append("MAXSIZE=33" + NUL).toString();
-                //.append("PASS=" + LF);
+        Map<String, String> lobby1 = Stream.of(new String[][] {
+                { "IDENT", "1" },
+                { "NAME", "\"Modded lobby\"" },
+                { "PARAMS", "2,191,,,,,,,,-1,1,1,1,1,1,1,1,1,20" },
+                { "SYSFLAGS", "262656" },
+                { "COUNT", "31" },
+                { "MAXSIZE", "33" },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        String lobby2 = new StringBuffer()
-                .append("IDENT=2" + LF)
-                .append("NAME=\"Glitch\"" + LF)
-                .append("PARAMS=7,65,,,a,,32,,,-1,1,1,1,1,1,1,1,,5" + LF)
-                .append("SYSFLAGS=512" + LF)
-                .append("COUNT=2" + LF)
-                .append("MAXSIZE=6" + NUL).toString();
+        Map<String, String> lobby2 = Stream.of(new String[][] {
+                { "IDENT", "2" },
+                { "NAME", "\"Glitch\"" },
+                { "PARAMS", "7,65,,,a,,32,,,-1,1,1,1,1,1,1,1,,5" },
+                { "SYSFLAGS", "512" },
+                { "COUNT", "2" },
+                { "MAXSIZE", "6" },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        String lobby3 = new StringBuffer()
-                .append("IDENT=3" + LF)
-                .append("NAME=\"Join :)\"" + LF)
-                .append("PARAMS=8,1f5,,,5,,14,,,-1,1,1,1,1,1,1,1,1,10" + LF)
-                .append("SYSFLAGS=262656" + LF)
-                .append("COUNT=9" + LF)
-                .append("MAXSIZE=17" + NUL).toString();
+        Map<String, String> lobby3 = Stream.of(new String[][] {
+                { "IDENT", "3" },
+                { "NAME", "\"Bazooka only\"" },
+                { "PARAMS", "8,1f5,,,5,,14,,,-1,1,1,1,1,1,1,1,1,10" },
+                { "SYSFLAGS", "262656" },
+                { "COUNT", "9" },
+                { "MAXSIZE", "17" },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        for (String lobby : Arrays.asList(lobby1, lobby2, lobby3)) {
+        for (Map<String, String> lobby : Arrays.asList(lobby1, lobby2, lobby3)) {
             SocketData socketData = new SocketData("+gam", null, lobby);
             SocketWriter.write(socket, socketData);
         }
-
     }
 
     public static void sendGjoi(Socket socket, SocketData socketData) {
         SocketWriter.write(socket, socketData);
 
-        sendAgm(socket);
-
         sendSes(socket);
+
+        sendAgm(socket);
     }
 
     public static void sendAgm(Socket socket) {
-        String content = new StringBuffer()
-                .append("IDENT=1" + LF)
-                .append("NAME=abcd" + LF)
-                .append("HOST=player" + LF)
-                .append("GPSHOST=player" + LF)
-                .append("PARAMS=8,12d,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" + LF)
-                .append("ROOM=efgh" + LF)
-                .append("CUSTFLAGS=0" + LF)
-                .append("SYSFLAGS=262656" + LF)
-                .append("COUNT=1" + LF)
-                .append("PRIV=0" + LF)
-                .append("MINSIZE=0" + LF)
-                .append("MAXSIZE=33" + LF)
-                .append("NUMPART=1" + LF)
-                .append("SEED=randomseed" + LF)
-                .append("WHEN=2009.2.8-9:44:15" + LF)
-                .append("GAMEPORT=" + Props.getInt("udp.port") + LF)
-                .append("VOIPPORT=" + Props.getInt("udp.port") + LF)
-                .append("OPID0=0" + LF)
-                .append("OPPO0=player" + LF)
-                .append("ADDR0=127.0.0.1" + LF)
-                .append("PARTSIZE0=17" + LF)
-                .append("PARTPARAMS0=0" + NUL).toString();
+        Map<String, String> content = Stream.of(new String[][] {
+                { "IDENT", "1" },
+                { "NAME", "abcd" },
+                { "HOST", "player" },
+                { "GPSHOST", "player" },
+                { "PARAMS", "8,12d,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" },
+                // { "PLATPARAMS", "0" },  // ???
+                { "ROOM", "0" },
+                { "CUSTFLAGS", "0" },
+                { "SYSFLAGS", "262656" },
+                { "COUNT", "1" },
+                { "PRIV", "0" },
+                { "MINSIZE", "0" },
+                { "MAXSIZE", "33" },
+                { "NUMPART", "1" },
+                { "SEED", "012345" }, // random seed
+                { "WHEN", "2009.2.8-9:44:15" },
+                { "GAMEPORT", "21173" },
+                { "VOIPPORT", "21173" },
+                // { "GAMEMODE", "0" }, // ???
+                // { "AUTH", "0" }, // ???
+
+                // loop 0x80022058 only if COUNT>=0
+                { "OPID0", "0" }, // OPID%d
+                { "OPPO0", "player" }, // OPPO%d
+                { "ADDR0", "127.0.0.1" }, // ADDR%d
+                { "LADDR0", "127.0.0.1" }, // LADDR%d
+                { "MADDR0", "$0017ab8f4451" }, // MADDR%d
+                // { "OPPART0", "0" }, // OPPART%d
+                // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
+                // { "OPFLAGS0", "0" }, // OPFLAGS%d
+                // { "PRES0", "0" }, // PRES%d ???
+
+                // another loop 0x8002225C only if NUMPART>=0
+                { "PARTSIZE0", "17" }, // PARTSIZE%d
+                { "PARTPARAMS0", "0" }, // PARTPARAMS%d
+
+                // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         SocketWriter.write(socket, new SocketData("+agm", null, content));
     }
@@ -115,63 +132,95 @@ public class LobbyService {
     public static void sendGspc(Socket socket, SocketData socketData) {
         SocketWriter.write(socket, socketData);
 
-        sendMgm(socket);
-
         sendSes(socket);
+
+        sendMgm(socket);
     }
 
     public static void sendMgm(Socket socket) {
-        String content = new StringBuffer()
-                .append("IDENT=1" + LF)
-                .append("NAME=abcd" + LF)
-                .append("HOST=player" + LF)
-                .append("GPSHOST=player" + LF)
-                .append("PARAMS=8,12d,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" + LF)
-                .append("ROOM=efgh" + LF)
-                .append("CUSTFLAGS=0" + LF)
-                .append("SYSFLAGS=262656" + LF)
-                .append("COUNT=1" + LF)
-                .append("PRIV=0" + LF)
-                .append("MINSIZE=0" + LF)
-                .append("MAXSIZE=33" + LF)
-                .append("NUMPART=1" + LF)
-                .append("SEED=randomseed" + LF)
-                .append("WHEN=2009.2.8-9:44:15" + LF)
-                .append("GAMEPORT=" + Props.getInt("udp.port") + LF)
-                .append("VOIPPORT=" + Props.getInt("udp.port") + LF)
-                .append("OPID0=0" + LF)
-                .append("OPPO0=player" + LF)
-                .append("ADDR0=127.0.0.1" + LF)
-                .append("PARTSIZE0=17" + LF)
-                .append("PARTPARAMS0=0" + NUL).toString();
+        Map<String, String> content = Stream.of(new String[][] {
+                { "IDENT", "1" },
+                { "NAME", "abcd" },
+                { "HOST", "player" },
+                { "GPSHOST", "player" },
+                { "PARAMS", "8,12d,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" },
+                // { "PLATPARAMS", "0" },  // ???
+                { "ROOM", "0" },
+                { "CUSTFLAGS", "0" },
+                { "SYSFLAGS", "262656" },
+                { "COUNT", "1" },
+                { "PRIV", "0" },
+                { "MINSIZE", "0" },
+                { "MAXSIZE", "33" },
+                { "NUMPART", "1" },
+                { "SEED", "012345" }, // random seed
+                { "WHEN", "2009.2.8-9:44:15" },
+                { "GAMEPORT", "21173" },
+                { "VOIPPORT", "21173" },
+                // { "GAMEMODE", "0" }, // ???
+                // { "AUTH", "0" }, // ???
+
+                // loop 0x80022058 only if COUNT>=0
+                { "OPID0", "0" }, // OPID%d
+                { "OPPO0", "player" }, // OPPO%d
+                { "ADDR0", "127.0.0.1" }, // ADDR%d
+                { "LADDR0", "127.0.0.1" }, // LADDR%d
+                { "MADDR0", "$0017ab8f4451" }, // MADDR%d
+                // { "OPPART0", "0" }, // OPPART%d
+                // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
+                // { "OPFLAGS0", "0" }, // OPFLAGS%d
+                // { "PRES0", "0" }, // PRES%d ???
+
+                // another loop 0x8002225C only if NUMPART>=0
+                { "PARTSIZE0", "17" }, // PARTSIZE%d
+                { "PARTPARAMS0", "0" }, // PARTPARAMS%d
+
+                // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         SocketWriter.write(socket, new SocketData("+mgm", null, content));
     }
 
     public static void sendSes(Socket socket) {
-        String content = new StringBuffer()
-                .append("IDENT=1" + LF)
-                .append("NAME=abcd" + LF)
-                .append("HOST=player" + LF)
-                .append("GPSHOST=player" + LF)
-                .append("PARAMS=8,12d,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" + LF)
-                .append("ROOM=efgh" + LF)
-                .append("CUSTFLAGS=0" + LF)
-                .append("SYSFLAGS=262656" + LF)
-                .append("COUNT=1" + LF)
-                .append("PRIV=0" + LF)
-                .append("MINSIZE=0" + LF)
-                .append("MAXSIZE=33" + LF)
-                .append("NUMPART=1" + LF)
-                .append("SEED=randomseed" + LF)
-                .append("WHEN=2009.2.8-9:44:15" + LF)
-                .append("GAMEPORT=" + Props.getInt("udp.port") + LF)
-                .append("VOIPPORT=" + Props.getInt("udp.port") + LF)
-                .append("OPID0=0" + LF)
-                .append("OPPO0=player" + LF)
-                .append("ADDR0=127.0.0.1" + LF)
-                .append("PARTSIZE0=17" + LF)
-                .append("PARTPARAMS0=0" + NUL).toString();
+        Map<String, String> content = Stream.of(new String[][] {
+                { "IDENT", "1" },
+                { "NAME", "abcd" },
+                { "HOST", "player" },
+                { "GPSHOST", "player" },
+                { "PARAMS", "8,12d,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" },
+                // { "PLATPARAMS", "0" },  // ???
+                { "ROOM", "0" },
+                { "CUSTFLAGS", "0" },
+                { "SYSFLAGS", "262656" },
+                { "COUNT", "1" },
+                { "PRIV", "0" },
+                { "MINSIZE", "0" },
+                { "MAXSIZE", "33" },
+                { "NUMPART", "1" },
+                { "SEED", "012345" }, // random seed
+                { "WHEN", "2009.2.8-9:44:15" },
+                { "GAMEPORT", "21173" },
+                { "VOIPPORT", "21173" },
+                // { "GAMEMODE", "0" }, // ???
+                // { "AUTH", "0" }, // ???
+
+                // loop 0x80022058 only if COUNT>=0
+                { "OPID0", "0" }, // OPID%d
+                { "OPPO0", "player" }, // OPPO%d
+                { "ADDR0", "127.0.0.1" }, // ADDR%d
+                { "LADDR0", "127.0.0.1" }, // LADDR%d
+                { "MADDR0", "$0017ab8f4451" }, // MADDR%d
+                // { "OPPART0", "0" }, // OPPART%d
+                // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
+                // { "OPFLAGS0", "0" }, // OPFLAGS%d
+                // { "PRES0", "0" }, // PRES%d ???
+
+                // another loop 0x8002225C only if NUMPART>=0
+                { "PARTSIZE0", "17" }, // PARTSIZE%d
+                { "PARTPARAMS0", "0" }, // PARTPARAMS%d
+
+                // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         SocketWriter.write(socket, new SocketData("+ses", null, content));
     }
