@@ -2,6 +2,7 @@ package com.ea.steps;
 
 import com.ea.models.SocketData;
 import com.ea.utils.HexDumpUtil;
+import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
@@ -40,8 +41,8 @@ public class SocketWriter {
 
             byte[] bufferBytes = buffer.toByteArray();
 
-            if (!HexDumpUtil.NO_DUMP_MSG.contains(socketData.getIdMessage())) {
-                //log.info("Send:\n{}", HexDumpUtil.formatHexDump(bufferBytes, 0, outputLength));
+            if (Props.isActive("tcp.debug") && !HexDumpUtil.NO_DUMP_MSG.contains(socketData.getIdMessage())) {
+                log.info("Send:\n{}", HexDumpUtil.formatHexDump(bufferBytes, 0, outputLength));
             }
 
             socket.getOutputStream().write(bufferBytes);

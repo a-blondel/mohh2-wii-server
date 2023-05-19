@@ -2,6 +2,7 @@ package com.ea.services;
 
 import com.ea.models.SocketData;
 import com.ea.steps.SocketWriter;
+import com.ea.utils.Props;
 
 import java.net.Socket;
 import java.util.concurrent.Executors;
@@ -10,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.ea.utils.HexDumpUtil.LF;
 import static com.ea.utils.HexDumpUtil.NUL;
-import static com.ea.utils.PropertiesLoader.getIntegerProperty;
 
 public class AuthService {
 
@@ -19,7 +19,7 @@ public class AuthService {
     public static void sendDir(Socket socket, SocketData socketData) {
         String content = new StringBuffer()
                 .append("ADDR=127.0.0.1" + LF)
-                .append("PORT=" + getIntegerProperty("tcp.port") + LF)
+                .append("PORT=" + Props.getInt("tcp.port") + LF)
                 .append("SESS=1337420011" + LF)
                 .append("MASK=dbbcc81057aa718bbdafe887591112b4" + NUL).toString();
 

@@ -2,13 +2,13 @@ package com.ea.services;
 
 import com.ea.models.SocketData;
 import com.ea.steps.SocketWriter;
+import com.ea.utils.Props;
 
 import java.net.Socket;
 import java.util.Arrays;
 
 import static com.ea.utils.HexDumpUtil.LF;
 import static com.ea.utils.HexDumpUtil.NUL;
-import static com.ea.utils.PropertiesLoader.getIntegerProperty;
 
 public class LobbyService {
 
@@ -101,8 +101,8 @@ public class LobbyService {
                 .append("NUMPART=1" + LF)
                 .append("SEED=randomseed" + LF)
                 .append("WHEN=2009.2.8-9:44:15" + LF)
-                .append("GAMEPORT=" + getIntegerProperty("udp.port") + LF)
-                .append("VOIPPORT=" + getIntegerProperty("udp.port") + LF)
+                .append("GAMEPORT=" + Props.getInt("udp.port") + LF)
+                .append("VOIPPORT=" + Props.getInt("udp.port") + LF)
                 .append("OPID0=0" + LF)
                 .append("OPPO0=player" + LF)
                 .append("ADDR0=127.0.0.1" + LF)
@@ -137,8 +137,8 @@ public class LobbyService {
                 .append("NUMPART=1" + LF)
                 .append("SEED=randomseed" + LF)
                 .append("WHEN=2009.2.8-9:44:15" + LF)
-                .append("GAMEPORT=" + getIntegerProperty("udp.port") + LF)
-                .append("VOIPPORT=" + getIntegerProperty("udp.port") + LF)
+                .append("GAMEPORT=" + Props.getInt("udp.port") + LF)
+                .append("VOIPPORT=" + Props.getInt("udp.port") + LF)
                 .append("OPID0=0" + LF)
                 .append("OPPO0=player" + LF)
                 .append("ADDR0=127.0.0.1" + LF)
@@ -165,8 +165,8 @@ public class LobbyService {
                 .append("NUMPART=1" + LF)
                 .append("SEED=randomseed" + LF)
                 .append("WHEN=2009.2.8-9:44:15" + LF)
-                .append("GAMEPORT=" + getIntegerProperty("udp.port") + LF)
-                .append("VOIPPORT=" + getIntegerProperty("udp.port") + LF)
+                .append("GAMEPORT=" + Props.getInt("udp.port") + LF)
+                .append("VOIPPORT=" + Props.getInt("udp.port") + LF)
                 .append("OPID0=0" + LF)
                 .append("OPPO0=player" + LF)
                 .append("ADDR0=127.0.0.1" + LF)

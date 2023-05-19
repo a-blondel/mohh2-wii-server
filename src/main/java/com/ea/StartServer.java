@@ -4,6 +4,7 @@ import com.ea.config.SslSocketThread;
 import com.ea.config.TcpSocketThread;
 import com.ea.config.ServerConfig;
 import com.ea.config.UdpSocketThread;
+import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 import javax.net.ssl.*;
 import java.io.*;
@@ -27,7 +28,9 @@ public class StartServer {
         System.setProperty("jdk.tls.server.cipherSuites", "SSL_RSA_WITH_RC4_128_MD5,SSL_RSA_WITH_RC4_128_SHA");
 
         // Debug
-        // System.setProperty("javax.net.debug", "all");
+        if (Props.isActive("ssl.debug")) {
+            System.setProperty("javax.net.debug", "all");
+        }
 
         // Launch server
         run();

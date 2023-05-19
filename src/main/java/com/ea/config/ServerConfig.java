@@ -1,5 +1,6 @@
 package com.ea.config;
 
+import com.ea.utils.Props;
 import nl.altindag.ssl.SSLFactory;
 import nl.altindag.ssl.util.PemUtils;
 import javax.net.ServerSocketFactory;
@@ -7,9 +8,6 @@ import javax.net.ssl.*;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
-
-import static com.ea.utils.PropertiesLoader.getIntegerProperty;
-import static com.ea.utils.PropertiesLoader.getStringProperty;
 
 public class ServerConfig {
 
@@ -22,9 +20,9 @@ public class ServerConfig {
         SSLContext sslContext = createSslContext();
         SSLServerSocketFactory serverSocketFactory = sslContext.getServerSocketFactory();
 
-        SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(getIntegerProperty("ssl.port"));
-        serverSocket.setEnabledProtocols(getStringProperty("ssl.protocols").split(","));
-        serverSocket.setEnabledCipherSuites(getStringProperty("ssl.cipher-suites").split(","));
+        SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(Props.getInt("ssl.port"));
+        serverSocket.setEnabledProtocols(Props.getString("ssl.protocols").split(","));
+        serverSocket.setEnabledCipherSuites(Props.getString("ssl.cipher-suites").split(","));
 
         return serverSocket;
     }
@@ -51,7 +49,7 @@ public class ServerConfig {
      * @throws IOException
      */
     public static ServerSocket createTcpServerSocket() throws IOException {
-        ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(getIntegerProperty("tcp.port"));
+        ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(Props.getInt("tcp.port"));
         return serverSocket;
     }
 
@@ -61,7 +59,7 @@ public class ServerConfig {
      * @throws IOException
      */
     public static DatagramSocket createUdpServerSocket() throws IOException {
-        DatagramSocket serverSocket = new DatagramSocket(getIntegerProperty("udp.port"));
+        DatagramSocket serverSocket = new DatagramSocket(Props.getInt("udp.port"));
         return serverSocket;
     }
 

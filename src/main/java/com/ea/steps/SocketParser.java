@@ -2,6 +2,7 @@ package com.ea.steps;
 
 import com.ea.models.SocketData;
 import com.ea.utils.HexDumpUtil;
+import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.Socket;
@@ -30,8 +31,8 @@ public class SocketParser {
                 String content = new String(buffer, currentMessageBegin + 12, currentMessageLength);
                 SocketData socketData = new SocketData(id, content, null);
 
-                if (!HexDumpUtil.NO_DUMP_MSG.contains(socketData.getIdMessage())) {
-                    //log.info("Receive:\n{}", HexDumpUtil.formatHexDump(buffer, currentMessageBegin, currentMessageLength));
+                if (Props.isActive("tcp.debug") && !HexDumpUtil.NO_DUMP_MSG.contains(socketData.getIdMessage())) {
+                    log.info("Receive:\n{}", HexDumpUtil.formatHexDump(buffer, currentMessageBegin, currentMessageLength));
                 }
 
                 SocketProcessor.process(socket, socketData);
