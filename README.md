@@ -43,3 +43,26 @@ After a successful build, get into the target folder and execute the following c
 java -jar wii-moh-tcp-server-1.0.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
+## Lobby PARAMS description
+
+```
+1 = Mode (2 = CTF, 7 = TDM, 8 = DM)
+2 = Map (191 = Village, 65 = Port, 1f5 = monastery, c9 = City, 12d = sewers, 259 = base)
+3 = Friendly fire (1 = true, 2 = reverse fire, empty = false)
+4 = Equilibrate (1 = true, empty = false)
+5 = number of rounds
+6 = points limit
+7 = score limit
+8 = round time limit
+9 = max team kills
+10 = controls (empty = Elite, ? = Zapper, -1 = all)
+11 = SMG (1 = true, empty = false)
+12 = HMG
+13 = Rifle
+14 = Scoped Rifle
+15 = Shotgun
+16 = Bazooka
+17 = Grenades
+18 = Ranked - Must come with SYSFLAGS (ranked = 262656, unranked = 512) !
+19 = max players
+```

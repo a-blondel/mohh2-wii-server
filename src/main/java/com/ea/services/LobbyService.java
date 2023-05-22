@@ -11,6 +11,11 @@ import java.util.stream.Stream;
 
 public class LobbyService {
 
+    /**
+     * Lobby count
+     * @param socket
+     * @param socketData
+     */
     public static void sendGsea(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "COUNT", "3" },
@@ -22,26 +27,9 @@ public class LobbyService {
         sendLobbyList(socket);
     }
 
-    /** PARAMS
-     * 1 = Mode (2 = CTF, 7 = TDM, 8 = DM)
-     * 2 = Map (191 = Village, 65 = Port, 1f5 = monastery, c9 = City, 12d = sewers, 259 = base)
-     * 3 = Friendly fire (1 = true, 2 = reverse fire, empty = false)
-     * 4 = Equilibrate (1 = true, empty = false)
-     * 5 = number of rounds
-     * 6 = points limit
-     * 7 = score limit
-     * 8 = round time limit
-     * 9 = max team kills
-     * 10 = controls (empty = Elite, ? = Zapper, -1 = all)
-     * 11 = SMG (1 = true, empty = false)
-     * 12 = HMG
-     * 13 = Rifle
-     * 14 = Scoped Rifle
-     * 15 = Shotgun
-     * 16 = Bazooka
-     * 17 = Grenades
-     * 18 = Ranked - Must come with SYSFLAGS (ranked = 262656, unranked = 512) !
-     * 19 = max players
+    /**
+     * List lobbies
+     * @param socket
      */
     public static void sendLobbyList(Socket socket) {
         Map<String, String> lobby1 = Stream.of(new String[][] {
@@ -77,14 +65,63 @@ public class LobbyService {
         }
     }
 
+    /**
+     * Join lobby
+     * @param socket
+     * @param socketData
+     */
     public static void sendGjoi(Socket socket, SocketData socketData) {
+        Map<String, String> content = Stream.of(new String[][] {
+                { "IDENT", "1" },
+                { "NAME", "abcd" },
+                { "HOST", "player" },
+                { "GPSHOST", "player" },
+                { "PARAMS", "2,191,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" },
+                // { "PLATPARAMS", "0" },  // ???
+                { "ROOM", "0" },
+                { "CUSTFLAGS", "0" },
+                { "SYSFLAGS", "262656" },
+                { "COUNT", "1" },
+                { "PRIV", "0" },
+                { "MINSIZE", "0" },
+                { "MAXSIZE", "33" },
+                { "NUMPART", "1" },
+                { "SEED", "012345" }, // random seed
+                { "WHEN", "2009.2.8-9:44:15" },
+                { "GAMEPORT", "21173" },
+                { "VOIPPORT", "21173" },
+                // { "GAMEMODE", "0" }, // ???
+                // { "AUTH", "0" }, // ???
+
+                // loop 0x80022058 only if COUNT>=0
+                { "OPID0", "1" }, // OPID%d
+                { "OPPO0", "player" }, // OPPO%d
+                { "ADDR0", "127.0.0.1" }, // ADDR%d
+                { "LADDR0", "127.0.0.1" }, // LADDR%d
+                { "MADDR0", "$0017ab8f4451" }, // MADDR%d
+                // { "OPPART0", "0" }, // OPPART%d
+                // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
+                // { "OPFLAGS0", "0" }, // OPFLAGS%d
+                // { "PRES0", "0" }, // PRES%d ???
+
+                // another loop 0x8002225C only if NUMPART>=0
+                { "PARTSIZE0", "17" }, // PARTSIZE%d
+                { "PARTPARAMS0", "0" }, // PARTPARAMS%d
+
+                // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+        socketData.setOutputData(content);
         SocketWriter.write(socket, socketData);
 
         sendSes(socket);
 
-        sendAgm(socket);
     }
 
+    /**
+     * Unused yet
+     * @param socket
+     */
     public static void sendAgm(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
@@ -109,7 +146,7 @@ public class LobbyService {
                 // { "AUTH", "0" }, // ???
 
                 // loop 0x80022058 only if COUNT>=0
-                { "OPID0", "0" }, // OPID%d
+                { "OPID0", "1" }, // OPID%d
                 { "OPPO0", "player" }, // OPPO%d
                 { "ADDR0", "127.0.0.1" }, // ADDR%d
                 { "LADDR0", "127.0.0.1" }, // LADDR%d
@@ -122,6 +159,7 @@ public class LobbyService {
                 // another loop 0x8002225C only if NUMPART>=0
                 { "PARTSIZE0", "17" }, // PARTSIZE%d
                 { "PARTPARAMS0", "0" }, // PARTPARAMS%d
+                { "SELF", "player" }, // PARTPARAMS%d
 
                 // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
@@ -129,14 +167,21 @@ public class LobbyService {
         SocketWriter.write(socket, new SocketData("+agm", null, content));
     }
 
+    /**
+     * Create lobby
+     * @param socket
+     * @param socketData
+     */
     public static void sendGspc(Socket socket, SocketData socketData) {
         SocketWriter.write(socket, socketData);
 
         sendSes(socket);
-
-        sendMgm(socket);
     }
 
+    /**
+     * Unused yet
+     * @param socket
+     */
     public static void sendMgm(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
@@ -161,7 +206,7 @@ public class LobbyService {
                 // { "AUTH", "0" }, // ???
 
                 // loop 0x80022058 only if COUNT>=0
-                { "OPID0", "0" }, // OPID%d
+                { "OPID0", "1" }, // OPID%d
                 { "OPPO0", "player" }, // OPPO%d
                 { "ADDR0", "127.0.0.1" }, // ADDR%d
                 { "LADDR0", "127.0.0.1" }, // LADDR%d
@@ -174,6 +219,7 @@ public class LobbyService {
                 // another loop 0x8002225C only if NUMPART>=0
                 { "PARTSIZE0", "17" }, // PARTSIZE%d
                 { "PARTPARAMS0", "0" }, // PARTPARAMS%d
+                { "SELF", "player" }, // PARTPARAMS%d
 
                 // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
@@ -181,6 +227,10 @@ public class LobbyService {
         SocketWriter.write(socket, new SocketData("+mgm", null, content));
     }
 
+    /**
+     * Lobby info based on IDENT
+     * @param socket
+     */
     public static void sendSes(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
@@ -205,7 +255,7 @@ public class LobbyService {
                 // { "AUTH", "0" }, // ???
 
                 // loop 0x80022058 only if COUNT>=0
-                { "OPID0", "0" }, // OPID%d
+                { "OPID0", "1" }, // OPID%d
                 { "OPPO0", "player" }, // OPPO%d
                 { "ADDR0", "127.0.0.1" }, // ADDR%d
                 { "LADDR0", "127.0.0.1" }, // LADDR%d
@@ -218,11 +268,127 @@ public class LobbyService {
                 // another loop 0x8002225C only if NUMPART>=0
                 { "PARTSIZE0", "17" }, // PARTSIZE%d
                 { "PARTPARAMS0", "0" }, // PARTPARAMS%d
+                { "SELF", "player" }, // PARTPARAMS%d
 
                 // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         SocketWriter.write(socket, new SocketData("+ses", null, content));
+    }
+
+    /**
+     * Unused yet
+     * @param socket
+     */
+    public static void sendGget(Socket socket) {
+        Map<String, String> content = Stream.of(new String[][] {
+                { "IDENT", "1" },
+                { "WHEN", "2003.12.8 15:52:54" },
+                { "NAME", "GameName" },
+                { "HOST", "IDK" },
+                { "PARAMS", "2,191,,,,,,,,-1,1,1,1,1,1,1,1,1,20" },
+                { "ROOM", "1" },
+                { "MAXSIZE", "33" },
+                { "MINSIZE", "2" },
+                { "COUNT", "3" },
+                { "USERFLAGS", "0" },
+                { "SYSFLAGS", "262656" },
+
+                { "OPID0", "1" }, // OPID%d // must be > 0
+                { "OPPO0", "player1" }, // OPPO%d
+                { "ADDR0", "127.0.0.1" }, // ADDR%d
+                { "LADDR0", "127.0.0.1" }, // LADDR%d
+                { "MADDR0", "$0017ab8f4451" }, // MADDR%d
+                { "OPPART0", "0" }, // OPPART%d
+                { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
+                { "OPFLAGS0", "0" }, // OPFLAGS%d
+                { "PRES0", "0" }, // PRES%d
+
+                { "OPID1", "2" }, // OPID%d // must be > 0
+                { "OPPO1", "player2" }, // OPPO%d
+                { "ADDR1", "127.0.0.1" }, // ADDR%d
+                { "LADDR1", "127.0.0.1" }, // LADDR%d
+                { "MADDR1", "$0017ab8f4451" }, // MADDR%d
+                { "OPPART1", "0" }, // OPPART%d
+                { "OPPARAM1", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
+                { "OPFLAGS1", "0" }, // OPFLAGS%d
+                { "PRES1", "0" }, // PRES%d
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+        SocketWriter.write(socket, new SocketData("gget", null, content));
+    }
+
+    /**
+     * Unused yet
+     * @param socket
+     */
+    public static void sendUsr(Socket socket) {
+        Map<String, String> content = Stream.of(new String[][] {
+                { "I", "1" },
+                { "N", "player" },
+                { "M", "player" },
+                { "F", "H" },
+                { "A", "127.0.0.1" },
+                { "P", "211" },
+                { "S", "0" },
+                { "X", "" },
+                { "G", "0" },
+                { "T", "2" },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+        SocketWriter.write(socket, new SocketData("+usr", null, content));
+    }
+
+    /**
+     * Unused yet
+     * @param socket
+     */
+    public static void sendMove(Socket socket) {
+        Map<String, String> content = Stream.of(new String[][] {
+                { "IDENT", "1" },
+                { "NAME", "1" },
+                { "COUNT", "1" },
+                { "FLAGS", "0" },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+        SocketWriter.write(socket, new SocketData("move", null, content));
+    }
+
+    /**
+     * Unused yet
+     * @param socket
+     * @param <T>
+     */
+    public static <T> void sendRom(Socket socket) {
+        Map<String, String> content = Stream.of(new String[][] {
+                { "I", "1" },
+                { "N", "player" },
+                { "H", "player" },
+                { "F", "CK" },
+                { "T", "1" },
+                { "L", "50" },
+                { "P", "0" },
+                { "IDENT", "1" }, // new
+                { "NAME", "player" }, //
+                { "COUNT", "1" }, //
+                { "LIDENT", "0" }, //
+                { "LCOUNT", "0" }, //
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+        SocketWriter.write(socket, new SocketData("+rom", null, content));
+    }
+
+    /**
+     * Unused yet
+     * @param socket
+     * @param <T>
+     */
+    public static <T> void sendPop(Socket socket) {
+        Map<String, String> content = Stream.of(new String[][] {
+                { "Z", "1/1" },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+        SocketWriter.write(socket, new SocketData("+pop", null, content));
     }
 
 }
