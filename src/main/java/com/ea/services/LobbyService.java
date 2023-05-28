@@ -71,47 +71,6 @@ public class LobbyService {
      * @param socketData
      */
     public static void sendGjoi(Socket socket, SocketData socketData) {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "IDENT", "1" },
-                { "NAME", "abcd" },
-                { "HOST", "player" },
-                { "GPSHOST", "player" },
-                { "PARAMS", "2,191,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" },
-                // { "PLATPARAMS", "0" },  // ???
-                { "ROOM", "0" },
-                { "CUSTFLAGS", "0" },
-                { "SYSFLAGS", "262656" },
-                { "COUNT", "1" },
-                { "PRIV", "0" },
-                { "MINSIZE", "0" },
-                { "MAXSIZE", "33" },
-                { "NUMPART", "1" },
-                { "SEED", "012345" }, // random seed
-                { "WHEN", "2009.2.8-9:44:15" },
-                { "GAMEPORT", "21173" },
-                { "VOIPPORT", "21173" },
-                // { "GAMEMODE", "0" }, // ???
-                // { "AUTH", "0" }, // ???
-
-                // loop 0x80022058 only if COUNT>=0
-                { "OPID0", "1" }, // OPID%d
-                { "OPPO0", "player" }, // OPPO%d
-                { "ADDR0", "127.0.0.1" }, // ADDR%d
-                { "LADDR0", "127.0.0.1" }, // LADDR%d
-                { "MADDR0", "$0017ab8f4451" }, // MADDR%d
-                // { "OPPART0", "0" }, // OPPART%d
-                // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
-                // { "OPFLAGS0", "0" }, // OPFLAGS%d
-                // { "PRES0", "0" }, // PRES%d ???
-
-                // another loop 0x8002225C only if NUMPART>=0
-                { "PARTSIZE0", "17" }, // PARTSIZE%d
-                { "PARTPARAMS0", "0" }, // PARTPARAMS%d
-
-                // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-
-        socketData.setOutputData(content);
         SocketWriter.write(socket, socketData);
 
         sendSes(socket);
@@ -237,7 +196,7 @@ public class LobbyService {
                 { "NAME", "abcd" },
                 { "HOST", "player" },
                 { "GPSHOST", "player" },
-                { "PARAMS", "8,12d,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" },
+                { "PARAMS", "2,191,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" },
                 // { "PLATPARAMS", "0" },  // ???
                 { "ROOM", "0" },
                 { "CUSTFLAGS", "0" },

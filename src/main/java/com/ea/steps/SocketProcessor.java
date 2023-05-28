@@ -12,9 +12,8 @@ import java.net.Socket;
 public class SocketProcessor {
 
     /**
-     * Prepares the output message based on request type,
-     * then calls the writer
-     * @param socket the socket to give to the writer
+     * Dispatch to appropriate service based on request type
+     * @param socket the socket to handle
      * @param socketData the object to process
      */
     public static void process(Socket socket, SocketData socketData) {
