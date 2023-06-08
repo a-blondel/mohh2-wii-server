@@ -28,6 +28,12 @@ public class DatagramSocketProcessor {
 
         switch (requestId) {
             case (5):
+                responseId = intToByteArray(1);
+                break;
+            case (2):
+                responseId = intToByteArray(6);
+                break;
+            case (1):
                 responseId = intToByteArray(2);
                 break;
             default:

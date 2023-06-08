@@ -15,7 +15,7 @@ public class AuthService {
         Map<String, String> content = Stream.of(new String[][] {
                 // { "DIRECT", "0" }, // 0x8001FC04
                 // if DIRECT == 0 then read ADDR and PORT
-                { "ADDR", "127.0.0.1" }, // 0x8001FC18
+                { "ADDR", socket.getLocalAddress().getHostName() }, // 0x8001FC18
                 { "PORT", Props.getString("tcp.port") }, // 0x8001fc30
                 // { "SESS", "0" }, // 0x8001fc48 %s-%s-%08x 0--498ea96f
                 // { "MASK", "0" }, // 0x8001fc60
@@ -42,7 +42,7 @@ public class AuthService {
 
     public static void sendNews(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
-                { "BUDDY_SERVER", "127.0.0.1" },
+                { "BUDDY_SERVER", socket.getLocalAddress().getHostName() },
                 { "BUDDY_PORT", Props.getString("tcp.port") },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 

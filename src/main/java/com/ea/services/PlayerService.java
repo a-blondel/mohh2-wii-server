@@ -24,7 +24,7 @@ public class PlayerService {
     public static void sendAuth(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "NAME", "player" },
-                { "ADDR", "127.0.0.1" },
+                { "ADDR", socket.getInetAddress().getHostName() },
                 { "PERSONAS", "player" },
                 { "LOC", "frFR" },
                 { "MAIL", "player@gmail.com" },
@@ -41,8 +41,8 @@ public class PlayerService {
                 { "LKEY", "" },
                 { "EX-ticker", "" },
                 { "LOC", "frFR" },
-                { "A", "127.0.0.1" },
-                { "LA", "127.0.0.1" },
+                { "A", socket.getInetAddress().getHostName() },
+                { "LA", socket.getInetAddress().getHostName() },
                 { "IDLE", "600000" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
@@ -86,8 +86,8 @@ public class PlayerService {
                 { "CI", "0" },
                 { "CT", "0" },
                 // 0x800225E0
-                { "A", "127.0.0.1" },
-                { "LA", "127.0.0.1" },
+                { "A", socket.getInetAddress().getHostName() },
+                { "LA", socket.getInetAddress().getHostName() },
                 // 0x80021384
                 { "C", "4000,,7,1,1,,1,1,5553" },
                 { "RI", "0" },

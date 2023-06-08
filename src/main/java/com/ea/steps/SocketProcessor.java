@@ -54,7 +54,7 @@ public class SocketProcessor {
                 LobbyService.sendGjoi(socket, socketData);
                 break;
             case ("gpsc"):
-                LobbyService.sendGspc(socket, socketData);
+                LobbyService.sendGpsc(socket, socketData);
                 break;
             default:
                 log.info("Unsupported operation: {}", socketData.getIdMessage());

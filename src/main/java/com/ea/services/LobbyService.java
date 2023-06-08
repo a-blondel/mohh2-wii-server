@@ -107,8 +107,8 @@ public class LobbyService {
                 // loop 0x80022058 only if COUNT>=0
                 { "OPID0", "1" }, // OPID%d
                 { "OPPO0", "player" }, // OPPO%d
-                { "ADDR0", "127.0.0.1" }, // ADDR%d
-                { "LADDR0", "127.0.0.1" }, // LADDR%d
+                { "ADDR0", socket.getInetAddress().getHostName() }, // ADDR%d
+                { "LADDR0", socket.getInetAddress().getHostName() }, // LADDR%d
                 { "MADDR0", "$0017ab8f4451" }, // MADDR%d
                 // { "OPPART0", "0" }, // OPPART%d
                 // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
@@ -131,7 +131,7 @@ public class LobbyService {
      * @param socket
      * @param socketData
      */
-    public static void sendGspc(Socket socket, SocketData socketData) {
+    public static void sendGpsc(Socket socket, SocketData socketData) {
         SocketWriter.write(socket, socketData);
 
         sendSes(socket);
@@ -167,8 +167,8 @@ public class LobbyService {
                 // loop 0x80022058 only if COUNT>=0
                 { "OPID0", "1" }, // OPID%d
                 { "OPPO0", "player" }, // OPPO%d
-                { "ADDR0", "127.0.0.1" }, // ADDR%d
-                { "LADDR0", "127.0.0.1" }, // LADDR%d
+                { "ADDR0", socket.getInetAddress().getHostName() }, // ADDR%d
+                { "LADDR0", socket.getInetAddress().getHostName() }, // LADDR%d
                 { "MADDR0", "$0017ab8f4451" }, // MADDR%d
                 // { "OPPART0", "0" }, // OPPART%d
                 // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
@@ -216,8 +216,8 @@ public class LobbyService {
                 // loop 0x80022058 only if COUNT>=0
                 { "OPID0", "1" }, // OPID%d
                 { "OPPO0", "player" }, // OPPO%d
-                { "ADDR0", "127.0.0.1" }, // ADDR%d
-                { "LADDR0", "127.0.0.1" }, // LADDR%d
+                { "ADDR0", socket.getInetAddress().getHostName() }, // ADDR%d
+                { "LADDR0", socket.getInetAddress().getHostName() }, // LADDR%d
                 { "MADDR0", "$0017ab8f4451" }, // MADDR%d
                 // { "OPPART0", "0" }, // OPPART%d
                 // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
@@ -255,8 +255,8 @@ public class LobbyService {
 
                 { "OPID0", "1" }, // OPID%d // must be > 0
                 { "OPPO0", "player1" }, // OPPO%d
-                { "ADDR0", "127.0.0.1" }, // ADDR%d
-                { "LADDR0", "127.0.0.1" }, // LADDR%d
+                { "ADDR0", socket.getInetAddress().getHostName() }, // ADDR%d
+                { "LADDR0", socket.getInetAddress().getHostName() }, // LADDR%d
                 { "MADDR0", "$0017ab8f4451" }, // MADDR%d
                 { "OPPART0", "0" }, // OPPART%d
                 { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
@@ -265,8 +265,8 @@ public class LobbyService {
 
                 { "OPID1", "2" }, // OPID%d // must be > 0
                 { "OPPO1", "player2" }, // OPPO%d
-                { "ADDR1", "127.0.0.1" }, // ADDR%d
-                { "LADDR1", "127.0.0.1" }, // LADDR%d
+                { "ADDR1", socket.getInetAddress().getHostName() }, // ADDR%d
+                { "LADDR1", socket.getInetAddress().getHostName() }, // LADDR%d
                 { "MADDR1", "$0017ab8f4451" }, // MADDR%d
                 { "OPPART1", "0" }, // OPPART%d
                 { "OPPARAM1", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
@@ -287,7 +287,7 @@ public class LobbyService {
                 { "N", "player" },
                 { "M", "player" },
                 { "F", "H" },
-                { "A", "127.0.0.1" },
+                { "A", socket.getInetAddress().getHostName() },
                 { "P", "211" },
                 { "S", "0" },
                 { "X", "" },
@@ -316,7 +316,6 @@ public class LobbyService {
     /**
      * Unused yet
      * @param socket
-     * @param <T>
      */
     public static <T> void sendRom(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
@@ -340,7 +339,6 @@ public class LobbyService {
     /**
      * Unused yet
      * @param socket
-     * @param <T>
      */
     public static <T> void sendPop(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
