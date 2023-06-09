@@ -1,6 +1,6 @@
 package com.ea.steps;
 
-import com.ea.models.SocketData;
+import com.ea.dto.SocketData;
 import com.ea.services.AuthService;
 import com.ea.services.LobbyService;
 import com.ea.services.PlayerService;

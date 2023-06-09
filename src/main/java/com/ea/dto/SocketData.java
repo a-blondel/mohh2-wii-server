@@ -1,4 +1,4 @@
-package com.ea.models;
+package com.ea.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

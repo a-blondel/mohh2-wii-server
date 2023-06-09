@@ -1,6 +1,6 @@
 package com.ea.services;
 
-import com.ea.models.SocketData;
+import com.ea.dto.SocketData;
 import com.ea.steps.SocketWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

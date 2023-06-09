@@ -1,6 +1,6 @@
 package com.ea.config;
 
-import com.ea.models.SocketData;
+import com.ea.dto.SocketData;
 import com.ea.steps.SocketReader;
 import com.ea.steps.SocketWriter;
 import lombok.extern.slf4j.Slf4j;

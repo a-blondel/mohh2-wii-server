@@ -1,6 +1,6 @@
 package com.ea.steps;
 
-import com.ea.models.DatagramSocketData;
+import com.ea.dto.DatagramSocketData;
 import com.ea.utils.HexDumpUtil;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
