@@ -2,14 +2,19 @@ package com.ea.steps;
 
 import com.ea.models.DatagramSocketData;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.Arrays;
 
-
 @Slf4j
+@Component
 public class DatagramSocketProcessor {
+
+    @Autowired
+    DatagramSocketWriter datagramSocketWriter;
 
     /**
      * Prepares the output message based on request type,
@@ -17,7 +22,7 @@ public class DatagramSocketProcessor {
      * @param socket the socket to give to the writer
      * @param socketData the object to process
      */
-    public static void process(DatagramSocket socket, DatagramSocketData socketData) {
+    public void process(DatagramSocket socket, DatagramSocketData socketData) {
 
         DatagramPacket inputPacket = socketData.getInputPacket();
         byte[] buf = Arrays.copyOf(inputPacket.getData(), inputPacket.getLength());
@@ -51,7 +56,7 @@ public class DatagramSocketProcessor {
 
         socketData.setOutputMessage(buf);
 
-        DatagramSocketWriter.write(socket, socketData);
+        datagramSocketWriter.write(socket, socketData);
 
     }
 
@@ -60,7 +65,7 @@ public class DatagramSocketProcessor {
      * @param data the message data
      * @return int - the id of the message
      */
-    private static int calcRequestId(byte[] data) {
+    private int calcRequestId(byte[] data) {
         String size = "";
         for (int i = 0; i < 4; i++) {
             size += String.format("%02x", data[i]);
@@ -68,7 +73,7 @@ public class DatagramSocketProcessor {
         return Integer.parseInt(size, 16);
     }
 
-    public static final byte[] intToByteArray(int value) {
+    public final byte[] intToByteArray(int value) {
         return new byte[] {
                 (byte)(value >>> 24),
                 (byte)(value >>> 16),

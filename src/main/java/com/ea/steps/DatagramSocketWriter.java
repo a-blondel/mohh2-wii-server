@@ -4,6 +4,8 @@ import com.ea.models.DatagramSocketData;
 import com.ea.utils.HexDumpUtil;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -11,7 +13,10 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 @Slf4j
+@Component
 public class DatagramSocketWriter {
+    @Autowired
+    Props props;
 
     /**
      * Sends response
@@ -19,7 +24,7 @@ public class DatagramSocketWriter {
      * @param socketData the object to use to write the message
      * @throws IOException
      */
-    public static void write(DatagramSocket socket, DatagramSocketData socketData) {
+    public void write(DatagramSocket socket, DatagramSocketData socketData) {
 
         try {
 
@@ -35,7 +40,7 @@ public class DatagramSocketWriter {
                     address,
                     port);
 
-            if (Props.isActive("udp.debug")) {
+            if (props.isUdpDebugEnabled()) {
                 log.info("Send to {}:{}:\n{}", address, port, HexDumpUtil.formatHexDump(buf, 0, buf.length));
             }
 

@@ -1,38 +1,40 @@
 package com.ea.utils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-/**
- * Properties loader
- */
+import java.util.List;
+
+@Getter
+@Component
 public class Props {
 
-    private static Properties loadProperties() {
-        Properties configuration = new Properties();
-        InputStream inputStream = Props.class
-                .getClassLoader()
-                .getResourceAsStream("application.properties");
-        try {
-            configuration.load(inputStream);
-            inputStream.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return configuration;
-    }
+    @Value("${ssl.port}")
+    private int sslPort;
 
-    public static String getString(String key) {
-        return loadProperties().getProperty(key);
-    }
+    @Value("${ssl.protocols}")
+    private String sslProtocols;
 
-    public static Integer getInt(String key) {
-        return Integer.parseInt(loadProperties().getProperty(key));
-    }
+    @Value("${ssl.cipher-suites}")
+    private String sslCipherSuites;
 
-    public static boolean isActive(String key) {
-        return Boolean.parseBoolean(loadProperties().getProperty(key));
-    }
+    @Value("${ssl.debug.enabled}")
+    private boolean sslDebugEnabled;
+
+    @Value("${tcp.port}")
+    private int tcpPort;
+
+    @Value("${tcp.debug.enabled}")
+    private boolean tcpDebugEnabled;
+
+    @Value("${tcp.debug.exclusions}")
+    private List<String> tcpDebugExclusions;
+
+    @Value("${udp.port}")
+    private int udpPort;
+
+    @Value("${udp.debug.enabled}")
+    private boolean udpDebugEnabled;
 
 }

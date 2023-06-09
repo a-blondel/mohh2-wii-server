@@ -2,6 +2,8 @@ package com.ea.services;
 
 import com.ea.models.SocketData;
 import com.ea.steps.SocketWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.net.Socket;
 import java.util.Arrays;
@@ -9,20 +11,24 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Component
 public class LobbyService {
+
+    @Autowired
+    SocketWriter socketWriter;
 
     /**
      * Lobby count
      * @param socket
      * @param socketData
      */
-    public static void sendGsea(Socket socket, SocketData socketData) {
+    public void sendGsea(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "COUNT", "3" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
-        SocketWriter.write(socket, socketData);
+        socketWriter.write(socket, socketData);
 
         sendLobbyList(socket);
     }
@@ -31,7 +37,7 @@ public class LobbyService {
      * List lobbies
      * @param socket
      */
-    public static void sendLobbyList(Socket socket) {
+    public void sendLobbyList(Socket socket) {
         Map<String, String> lobby1 = Stream.of(new String[][] {
                 { "IDENT", "1" },
                 { "NAME", "\"Modded lobby\"" },
@@ -61,7 +67,7 @@ public class LobbyService {
 
         for (Map<String, String> lobby : Arrays.asList(lobby1, lobby2, lobby3)) {
             SocketData socketData = new SocketData("+gam", null, lobby);
-            SocketWriter.write(socket, socketData);
+            socketWriter.write(socket, socketData);
         }
     }
 
@@ -70,8 +76,8 @@ public class LobbyService {
      * @param socket
      * @param socketData
      */
-    public static void sendGjoi(Socket socket, SocketData socketData) {
-        SocketWriter.write(socket, socketData);
+    public void sendGjoi(Socket socket, SocketData socketData) {
+        socketWriter.write(socket, socketData);
 
         sendSes(socket);
 
@@ -81,7 +87,7 @@ public class LobbyService {
      * Unused yet
      * @param socket
      */
-    public static void sendAgm(Socket socket) {
+    public void sendAgm(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
                 { "NAME", "abcd" },
@@ -123,7 +129,7 @@ public class LobbyService {
                 // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        SocketWriter.write(socket, new SocketData("+agm", null, content));
+        socketWriter.write(socket, new SocketData("+agm", null, content));
     }
 
     /**
@@ -131,8 +137,8 @@ public class LobbyService {
      * @param socket
      * @param socketData
      */
-    public static void sendGpsc(Socket socket, SocketData socketData) {
-        SocketWriter.write(socket, socketData);
+    public void sendGpsc(Socket socket, SocketData socketData) {
+        socketWriter.write(socket, socketData);
 
         sendSes(socket);
     }
@@ -141,7 +147,7 @@ public class LobbyService {
      * Unused yet
      * @param socket
      */
-    public static void sendMgm(Socket socket) {
+    public void sendMgm(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
                 { "NAME", "abcd" },
@@ -183,14 +189,14 @@ public class LobbyService {
                 // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        SocketWriter.write(socket, new SocketData("+mgm", null, content));
+        socketWriter.write(socket, new SocketData("+mgm", null, content));
     }
 
     /**
      * Lobby info based on IDENT
      * @param socket
      */
-    public static void sendSes(Socket socket) {
+    public void sendSes(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
                 { "NAME", "abcd" },
@@ -232,14 +238,14 @@ public class LobbyService {
                 // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        SocketWriter.write(socket, new SocketData("+ses", null, content));
+        socketWriter.write(socket, new SocketData("+ses", null, content));
     }
 
     /**
      * Unused yet
      * @param socket
      */
-    public static void sendGget(Socket socket) {
+    public void sendGget(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
                 { "WHEN", "2003.12.8 15:52:54" },
@@ -274,14 +280,14 @@ public class LobbyService {
                 { "PRES1", "0" }, // PRES%d
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        SocketWriter.write(socket, new SocketData("gget", null, content));
+        socketWriter.write(socket, new SocketData("gget", null, content));
     }
 
     /**
      * Unused yet
      * @param socket
      */
-    public static void sendUsr(Socket socket) {
+    public void sendUsr(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "I", "1" },
                 { "N", "player" },
@@ -295,14 +301,14 @@ public class LobbyService {
                 { "T", "2" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        SocketWriter.write(socket, new SocketData("+usr", null, content));
+        socketWriter.write(socket, new SocketData("+usr", null, content));
     }
 
     /**
      * Unused yet
      * @param socket
      */
-    public static void sendMove(Socket socket) {
+    public void sendMove(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
                 { "NAME", "1" },
@@ -310,14 +316,14 @@ public class LobbyService {
                 { "FLAGS", "0" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        SocketWriter.write(socket, new SocketData("move", null, content));
+        socketWriter.write(socket, new SocketData("move", null, content));
     }
 
     /**
      * Unused yet
      * @param socket
      */
-    public static <T> void sendRom(Socket socket) {
+    public <T> void sendRom(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "I", "1" },
                 { "N", "player" },
@@ -333,19 +339,19 @@ public class LobbyService {
                 { "LCOUNT", "0" }, //
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        SocketWriter.write(socket, new SocketData("+rom", null, content));
+        socketWriter.write(socket, new SocketData("+rom", null, content));
     }
 
     /**
      * Unused yet
      * @param socket
      */
-    public static <T> void sendPop(Socket socket) {
+    public <T> void sendPop(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "Z", "1/1" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        SocketWriter.write(socket, new SocketData("+pop", null, content));
+        socketWriter.write(socket, new SocketData("+pop", null, content));
     }
 
 }

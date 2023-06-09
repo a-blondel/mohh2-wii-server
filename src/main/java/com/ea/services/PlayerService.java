@@ -2,15 +2,21 @@ package com.ea.services;
 
 import com.ea.models.SocketData;
 import com.ea.steps.SocketWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.net.Socket;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Component
 public class PlayerService {
 
-    public static void sendSele(Socket socket, SocketData socketData) {
+    @Autowired
+    SocketWriter socketWriter;
+
+    public void sendSele(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "MORE", "0" },
                 { "SLOTS", "4" },
@@ -18,10 +24,10 @@ public class PlayerService {
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
-        SocketWriter.write(socket, socketData);
+        socketWriter.write(socket, socketData);
     }
 
-    public static void sendAuth(Socket socket, SocketData socketData) {
+    public void sendAuth(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "NAME", "player" },
                 { "ADDR", socket.getInetAddress().getHostName() },
@@ -32,10 +38,10 @@ public class PlayerService {
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
-        SocketWriter.write(socket, socketData);
+        socketWriter.write(socket, socketData);
     }
 
-    public static void sendPers(Socket socket, SocketData socketData) {
+    public void sendPers(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "PERS", "player" },
                 { "LKEY", "" },
@@ -47,12 +53,12 @@ public class PlayerService {
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
-        SocketWriter.write(socket, socketData);
+        socketWriter.write(socket, socketData);
 
         sendWho(socket);
     }
 
-    public static void sendLlvl(Socket socket, SocketData socketData) {
+    public void sendLlvl(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "SKILL_PTS", "211" },
                 { "SKILL_LVL", "1049601" },
@@ -60,12 +66,12 @@ public class PlayerService {
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
-        SocketWriter.write(socket, socketData);
+        socketWriter.write(socket, socketData);
 
         sendWho(socket);
     }
 
-    public static void sendWho(Socket socket) {
+    public void sendWho(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "I", "71615" },
                 { "N", "player" },
@@ -99,7 +105,7 @@ public class PlayerService {
                 { "RF", "0" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        SocketWriter.write(socket, new SocketData("+who", null, content));
+        socketWriter.write(socket, new SocketData("+who", null, content));
     }
 
 }

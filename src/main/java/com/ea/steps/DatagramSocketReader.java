@@ -4,6 +4,8 @@ import com.ea.models.DatagramSocketData;
 import com.ea.utils.HexDumpUtil;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -11,7 +13,14 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 @Slf4j
+@Component
 public class DatagramSocketReader {
+
+    @Autowired
+    Props props;
+
+    @Autowired
+    DatagramSocketProcessor datagramSocketProcessor;
 
     /**
      * Waits for data to come from the client
@@ -19,7 +28,7 @@ public class DatagramSocketReader {
      * @param socket the socket to read
      * @throws IOException
      */
-    public static void read(DatagramSocket socket) throws IOException {
+    public void read(DatagramSocket socket) throws IOException {
         // TODO find the best way to exit
         while (true) {
 
@@ -31,11 +40,11 @@ public class DatagramSocketReader {
             InetAddress address = packet.getAddress();
             int port = packet.getPort();
 
-            if (Props.isActive("udp.debug")) {
+            if (props.isUdpDebugEnabled()) {
                 log.info("Received from {}:{}:\n{}", address, port, HexDumpUtil.formatHexDump(packet.getData(), 0, packet.getLength()));
             }
 
-            DatagramSocketProcessor.process(socket, new DatagramSocketData(packet, null));
+            datagramSocketProcessor.process(socket, new DatagramSocketData(packet, null));
 
         }
     }

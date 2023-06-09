@@ -33,14 +33,14 @@ Run the following command :
 
 Create a new Application config in Intellij and set the following entry-point (main class) :
 ```
-com.ea.StartServer
+com.ea.ServerApp
 ```
 
 ### 2.b Start as a standalone jar
 
 After a successful build, get into the target folder and execute the following command:
 ```
-java -jar wii-moh-tcp-server-1.0.0-SNAPSHOT-jar-with-dependencies.jar
+java -jar wii-moh-tcp-server-1.0.0-SNAPSHOT.jar
 ```
 
 ## Lobby PARAMS description

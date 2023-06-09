@@ -4,6 +4,8 @@ import com.ea.models.SocketData;
 import com.ea.utils.HexDumpUtil;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -14,7 +16,11 @@ import java.nio.charset.StandardCharsets;
 import static java.util.stream.Collectors.joining;
 
 @Slf4j
+@Component
 public class SocketWriter {
+
+    @Autowired
+    Props props;
 
     /**
      * Builds the full output message based on the data id and content
@@ -23,7 +29,7 @@ public class SocketWriter {
      * @param socketData the object to use to write the message
      * @throws IOException
      */
-    public static void write(Socket socket, SocketData socketData) {
+    public void write(Socket socket, SocketData socketData) {
 
         try (ByteArrayOutputStream buffer = new ByteArrayOutputStream();
              DataOutputStream writer = new DataOutputStream(buffer)) {
@@ -47,7 +53,7 @@ public class SocketWriter {
 
             byte[] bufferBytes = buffer.toByteArray();
 
-            if (Props.isActive("tcp.debug") && !HexDumpUtil.NO_DUMP_MSG.contains(socketData.getIdMessage())) {
+            if (props.isTcpDebugEnabled() && !props.getTcpDebugExclusions().contains(socketData.getIdMessage())) {
                 log.info("Send:\n{}", HexDumpUtil.formatHexDump(bufferBytes, 0, outputLength));
             }
 
