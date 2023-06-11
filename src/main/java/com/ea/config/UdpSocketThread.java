@@ -25,7 +25,7 @@ public class UdpSocketThread implements Runnable {
     }
 
     public void run() {
-        log.info("UDP client session started: {} | {}", clientSocket.hashCode(), clientSocket.getRemoteSocketAddress());
+        log.info("UDP client session started: {}", clientSocket.hashCode());
         try {
             datagramSocketReader.read(clientSocket);
         } catch (IOException e) {

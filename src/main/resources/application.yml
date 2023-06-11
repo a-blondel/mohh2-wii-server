@@ -10,6 +10,16 @@ tcp:
     enabled: true
     exclusions: '~png'
 udp:
-  port: 1
+  port: 9999
   debug:
     enabled: true
+
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/heroesDB
+    username: sa
+    password: password
+    driverClassName: org.h2.Driver
+  jpa:
+    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true

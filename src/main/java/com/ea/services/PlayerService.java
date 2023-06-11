@@ -2,6 +2,7 @@ package com.ea.services;
 
 import com.ea.dto.SocketData;
 import com.ea.steps.SocketWriter;
+import com.ea.utils.SocketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,9 @@ public class PlayerService {
     @Autowired
     SocketWriter socketWriter;
 
+    @Autowired
+    SocketUtils socketUtils;
+
     public void sendSele(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "MORE", "0" },
@@ -28,6 +32,14 @@ public class PlayerService {
     }
 
     public void sendAuth(Socket socket, SocketData socketData) {
+
+        String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
+        String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
+
+        // Exists in DB ?
+
+        // IF TRUE
+
         Map<String, String> content = Stream.of(new String[][] {
                 { "NAME", "player" },
                 { "ADDR", socket.getInetAddress().getHostName() },
@@ -36,6 +48,10 @@ public class PlayerService {
                 { "MAIL", "player@gmail.com" },
                 { "SPAM", "NN" }
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+        // ELSE
+
+        // END IF
 
         socketData.setOutputData(content);
         socketWriter.write(socket, socketData);
