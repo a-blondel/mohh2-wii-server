@@ -1,8 +1,10 @@
-package com.ea.models;
+package com.ea.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Map;
 
 @Getter
 @Setter
@@ -11,6 +13,6 @@ public class SocketData {
 
     private String idMessage;
     private String inputMessage;
-    private String outputMessage;
+    private Map<String, String> outputData;
 
 }
