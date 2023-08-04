@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.Arrays;
@@ -26,26 +27,50 @@ public class DatagramSocketProcessor {
 
         DatagramPacket inputPacket = socketData.getInputPacket();
         byte[] buf = Arrays.copyOf(inputPacket.getData(), inputPacket.getLength());
-        int requestId = calcRequestId(inputPacket.getData());
 
-        boolean updateOutput = true;
-        byte[] responseId = new byte[4];
+        int packetSeq = new BigInteger(1, buf, 0, 4).intValue();
 
-        switch (requestId) {
-            case (5):
-                responseId = intToByteArray(2);
-                break;
-            default:
-                log.info("Unsupported operation: {}", requestId);
-                updateOutput = false;
-                break;
-        }
+        if (5 == packetSeq) { // RAW_PACKET_POKE
+            int returnSeq = 2; // RAW_PACKET_CONN (not sure, but it works)
+            System.arraycopy(intToByteArray(returnSeq), 0, buf, 0, 4);
+        } else if (128 <= packetSeq && 256 > packetSeq) { // RAW_PACKET_UNREL
+            int packetOperation = new BigInteger(1, buf, inputPacket.getLength() - 1, 1).intValue();
+            if (7 == packetOperation) { // GAME_PACKET_USER_UNRELIABLE
+                // 0000009c 00000109 00000000 21421344 1d000000 1c000000 fcff1f00 e0ff1f00 e0ff1f00 e0ff1f04 00 07
 
-        if(updateOutput) {
-            buf[0] = responseId[0];
-            buf[1] = responseId[1];
-            buf[2] = responseId[2];
-            buf[3] = responseId[3];
+                // 0000009c = packetSeq
+                // 00000109 = ack of RAW_PACKET_DATA
+                // 00000000
+                // 21421344 = checksum of 1d000000 1c000000 fcff1f00 e0ff1f00 e0ff1f00 e0ff1f04 00
+                // 1d000000 = increment from 1 in little endian ?
+                // 1c000000 = ack of increment -1 in little endian ?
+                // fcff1f 00 = ?
+                // e0ff1f 00 = almost identical to the previous one ?
+                // e0ff1f 00 = identical to the previous one ?
+                // e0ff1f 0400 = identical to the previous one + ?
+                // 07 = packet type (GAME_PACKET_USER_UNRELIABLE)
+            } else if (71 == packetOperation)  { // GAME_PACKET_USER_UNRELIABLE (7) + GAME_PACKET_SYNC (64)
+                // 0000009d 00000109 00000000 8b5fc3e7 1e000000 1d000000 fcff3f00 c0ff3f00 c0ff3f00 c0ff3f04 00
+                // 41c4b77f 41c4b7bc 0054 47
+
+                // 0000009d = packetSeq
+                // 00000109 = ack of previous RAW_PACKET_DATA
+                // 00000000
+                // 8b5fc3e7 = checksum of 1e000000 1d000000 fcff3f 00 c0ff3f00 c0ff3f00 c0ff3f04 00
+                // 1e000000 = increment from 1 in little endian ?
+                // 1d000000 = ack of increment -1 in little endian ?
+                // fcff3f 00 = ?
+                // c0ff3f 00 = almost identical to the previous one ?
+                // c0ff3f 00 = identical to the previous one
+                // c0ff3f 0400 = identical to the previous one  + ?
+
+                // 41c4b77f = last tick
+                // 41c4b7bc = current tick
+                // 0054 = game latency
+                // 47 = packet type (GAME_PACKET_USER_UNRELIABLE (7) + GAME_PACKET_SYNC (40))
+            }
+        } else if (256 <= packetSeq) { // RAW_PACKET_DATA
+            // Nothing to do yet...
         }
 
         socketData.setOutputMessage(buf);
@@ -54,20 +79,7 @@ public class DatagramSocketProcessor {
 
     }
 
-    /**
-     * Calculate the message's id
-     * @param data the message data
-     * @return int - the id of the message
-     */
-    private int calcRequestId(byte[] data) {
-        String size = "";
-        for (int i = 0; i < 4; i++) {
-            size += String.format("%02x", data[i]);
-        }
-        return Integer.parseInt(size, 16);
-    }
-
-    public final byte[] intToByteArray(int value) {
+    public static final byte[] intToByteArray(int value) {
         return new byte[] {
                 (byte)(value >>> 24),
                 (byte)(value >>> 16),

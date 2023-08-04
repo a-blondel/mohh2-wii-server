@@ -65,7 +65,7 @@ public class PlayerService {
                 { "LOC", "frFR" },
                 { "A", socket.getInetAddress().getHostName() },
                 { "LA", socket.getInetAddress().getHostName() },
-                { "IDLE", "600000" },
+                { "IDLE", "35000" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
