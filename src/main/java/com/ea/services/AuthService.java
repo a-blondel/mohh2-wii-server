@@ -53,6 +53,9 @@ public class AuthService {
         Map<String, String> content = Stream.of(new String[][] {
                 { "BUDDY_SERVER", socket.getLocalAddress().getHostName() },
                 { "BUDDY_PORT", String.valueOf(props.getTcpPort()) },
+                { "TOSAC_URL", "https://tos.ea.com/legalapp/webterms/us/fr/pc/" },
+                { "TOSA_URL", "https://tos.ea.com/legalapp/webterms/us/fr/pc/" },
+                { "TOS_URL", "https://tos.ea.com/legalapp/webterms/us/fr/pc/" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
