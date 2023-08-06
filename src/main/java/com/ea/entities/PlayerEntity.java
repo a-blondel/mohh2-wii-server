@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 public class PlayerEntity {
 
     @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private long id;
 
     @ManyToOne

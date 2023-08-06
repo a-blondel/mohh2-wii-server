@@ -1,6 +1,7 @@
 package com.ea.steps;
 
 import com.ea.dto.SocketData;
+import com.ea.services.AccountService;
 import com.ea.services.AuthService;
 import com.ea.services.LobbyService;
 import com.ea.services.PlayerService;
@@ -16,6 +17,9 @@ public class SocketProcessor {
 
     @Autowired
     AuthService authService;
+
+    @Autowired
+    AccountService accountService;
 
     @Autowired
     PlayerService playerService;
@@ -48,10 +52,13 @@ public class SocketProcessor {
                 authService.sendNews(socket, socketData);
                 break;
             case ("sele"):
-                playerService.sendSele(socket, socketData);
+                authService.sendSele(socket, socketData);
+                break;
+            case ("acct"):
+                accountService.sendAcct(socket, socketData);
                 break;
             case ("auth"):
-                playerService.sendAuth(socket, socketData);
+                accountService.sendAuth(socket, socketData);
                 break;
             case ("pers"):
                 playerService.sendPers(socket, socketData);

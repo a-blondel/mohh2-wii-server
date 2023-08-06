@@ -62,4 +62,15 @@ public class AuthService {
         socketWriter.write(socket, socketData);
     }
 
+    public void sendSele(Socket socket, SocketData socketData) {
+        Map<String, String> content = Stream.of(new String[][] {
+                { "MORE", "0" },
+                { "SLOTS", "4" },
+                { "STATS", "0" },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+        socketData.setOutputData(content);
+        socketWriter.write(socket, socketData);
+    }
+
 }

@@ -20,18 +20,12 @@ public class PlayerService {
     @Autowired
     SocketUtils socketUtils;
 
-    public void sendSele(Socket socket, SocketData socketData) {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "MORE", "0" },
-                { "SLOTS", "4" },
-                { "STATS", "0" },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-
-        socketData.setOutputData(content);
-        socketWriter.write(socket, socketData);
-    }
-
-    public void sendAuth(Socket socket, SocketData socketData) {
+    /**
+     * Personas creation
+     * @param socket
+     * @param socketData
+     */
+    public void sendCper(Socket socket, SocketData socketData) {
 
         String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
         String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
@@ -40,20 +34,10 @@ public class PlayerService {
 
         // IF TRUE
 
-        Map<String, String> content = Stream.of(new String[][] {
-                { "NAME", "player" },
-                { "ADDR", socket.getInetAddress().getHostName() },
-                { "PERSONAS", "player" },
-                { "LOC", "frFR" },
-                { "MAIL", "player@gmail.com" },
-                { "SPAM", "NN" }
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-
         // ELSE
 
         // END IF
 
-        socketData.setOutputData(content);
         socketWriter.write(socket, socketData);
     }
 
