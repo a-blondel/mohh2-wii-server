@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.net.Socket;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Optional;
 
 @Component
 public class AccountService {
@@ -35,7 +36,7 @@ public class AccountService {
 
         // IF TRUE
 
-        // DUPE ERROR
+        // DUPE ERROR (mail and name)
 
         // ELSE
 
@@ -95,18 +96,32 @@ public class AccountService {
     public void edit(Socket socket, SocketData socketData) {
 
         String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
-        String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
-        String mail = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MAIL");
-        String spam = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SPAM");
-        String chng = socketUtils.getValueFromSocket(socketData.getInputMessage(), "CHNG");
 
-        AccountEntity accountEntity = new AccountEntity(); // replace by find by name
-        accountEntity.setPass(chng);
-        accountEntity.setMail(mail);
-        accountEntity.setSpam(spam);
-        accountEntity.setUpdatedOn(Timestamp.from(Instant.now()));
+        Optional<AccountEntity> accountEntityOpt = accountRepository.findByName(name);
 
-        accountRepository.save(accountEntity);
+        if (accountEntityOpt.isPresent()) {
+            AccountEntity accountEntity = accountEntityOpt.get();
+
+            // Should we check the old password ? If the game allows, then it's already checked
+            String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
+
+            String mail = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MAIL");
+            String spam = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SPAM");
+            String chng = socketUtils.getValueFromSocket(socketData.getInputMessage(), "CHNG");
+
+
+            /* TODO : The pw is in clear on that packet !
+                The game must be patched to handle the pw identically everywhere ! */
+            accountEntity.setPass(chng);
+
+            if (mail != null) { // Can we send an 'empty mail' error instead ?
+                accountEntity.setMail(mail);
+            }
+            accountEntity.setSpam(spam);
+            accountEntity.setUpdatedOn(Timestamp.from(Instant.now()));
+
+            accountRepository.save(accountEntity);
+        }
 
         socketWriter.write(socket, socketData);
     }

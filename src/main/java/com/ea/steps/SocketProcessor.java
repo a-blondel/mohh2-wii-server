@@ -57,6 +57,9 @@ public class SocketProcessor {
             case ("acct"):
                 accountService.acct(socket, socketData);
                 break;
+            case ("edit"):
+                accountService.edit(socket, socketData);
+                break;
             case ("auth"):
                 accountService.auth(socket, socketData);
                 break;
