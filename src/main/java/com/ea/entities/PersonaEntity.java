@@ -11,8 +11,8 @@ import java.sql.Timestamp;
 @Setter
 @AllArgsConstructor
 @Entity
-@Table(name = "PLAYER")
-public class PlayerEntity {
+@Table(name = "PERSONA")
+public class PersonaEntity {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

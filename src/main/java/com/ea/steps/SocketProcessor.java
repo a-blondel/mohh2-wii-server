@@ -4,7 +4,7 @@ import com.ea.dto.SocketData;
 import com.ea.services.AccountService;
 import com.ea.services.AuthService;
 import com.ea.services.LobbyService;
-import com.ea.services.PlayerService;
+import com.ea.services.PersonaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class SocketProcessor {
     AccountService accountService;
 
     @Autowired
-    PlayerService playerService;
+    PersonaService personaService;
 
     @Autowired
     LobbyService lobbyService;
@@ -40,43 +40,43 @@ public class SocketProcessor {
             case ("@tic"), ("~png"):
                 break;
             case ("@dir"):
-                authService.sendDir(socket, socketData);
+                authService.dir(socket, socketData);
                 break;
             case ("addr"):
-                authService.sendAddr(socket, socketData);
+                authService.addr(socket, socketData);
                 break;
             case ("skey"):
-                authService.sendSkey(socket, socketData);
+                authService.skey(socket, socketData);
                 break;
             case ("news"):
-                authService.sendNews(socket, socketData);
+                authService.news(socket, socketData);
                 break;
             case ("sele"):
-                authService.sendSele(socket, socketData);
+                authService.sele(socket, socketData);
                 break;
             case ("acct"):
-                accountService.sendAcct(socket, socketData);
+                accountService.acct(socket, socketData);
                 break;
             case ("auth"):
-                accountService.sendAuth(socket, socketData);
+                accountService.auth(socket, socketData);
                 break;
             case ("pers"):
-                playerService.sendPers(socket, socketData);
+                personaService.pers(socket, socketData);
                 break;
             case ("llvl"):
-                playerService.sendLlvl(socket, socketData);
+                personaService.llvl(socket, socketData);
                 break;
             case ("gsea"):
-                lobbyService.sendGsea(socket, socketData);
+                lobbyService.gsea(socket, socketData);
                 break;
             case ("gget"):
-                lobbyService.sendGget(socket);
+                lobbyService.gget(socket);
                 break;
             case ("gjoi"):
-                lobbyService.sendGjoi(socket, socketData);
+                lobbyService.gjoi(socket, socketData);
                 break;
             case ("gpsc"):
-                lobbyService.sendGpsc(socket, socketData);
+                lobbyService.gpsc(socket, socketData);
                 break;
             default:
                 log.info("Unsupported operation: {}", socketData.getIdMessage());

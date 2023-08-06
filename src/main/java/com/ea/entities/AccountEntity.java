@@ -58,6 +58,6 @@ public class AccountEntity {
     private Timestamp updatedOn;
 
     @OneToMany(mappedBy="account")
-    private Set<PlayerEntity> players;
+    private Set<PersonaEntity> personas;
 
 }

@@ -19,7 +19,7 @@ public class DatagramSocketWriter {
     Props props;
 
     /**
-     * Sends response
+     * Sends packet
      * @param socket the socket to write into
      * @param socketData the object to use to write the message
      * @throws IOException

@@ -11,9 +11,6 @@ import org.springframework.stereotype.Component;
 import java.net.Socket;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 public class AccountService {
@@ -32,7 +29,7 @@ public class AccountService {
      * @param socket
      * @param socketData
      */
-    public void sendAcct(Socket socket, SocketData socketData) {
+    public void acct(Socket socket, SocketData socketData) {
 
         // Exists in DB ?
 
@@ -95,7 +92,7 @@ public class AccountService {
      * @param socket
      * @param socketData
      */
-    public void sendEdit(Socket socket, SocketData socketData) {
+    public void edit(Socket socket, SocketData socketData) {
 
         String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
         String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
@@ -119,7 +116,7 @@ public class AccountService {
      * @param socket
      * @param socketData
      */
-    public void sendAuth(Socket socket, SocketData socketData) {
+    public void auth(Socket socket, SocketData socketData) {
 
         String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
         String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");

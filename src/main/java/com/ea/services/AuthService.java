@@ -20,7 +20,7 @@ public class AuthService {
     @Autowired
     Props props;
 
-    public void sendDir(Socket socket, SocketData socketData) {
+    public void dir(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 // { "DIRECT", "0" }, // 0x8001FC04
                 // if DIRECT == 0 then read ADDR and PORT
@@ -36,11 +36,11 @@ public class AuthService {
         socketWriter.write(socket, socketData);
     }
 
-    public void sendAddr(Socket socket, SocketData socketData) {
+    public void addr(Socket socket, SocketData socketData) {
         socketWriter.write(socket, socketData);
     }
 
-    public void sendSkey(Socket socket, SocketData socketData) {
+    public void skey(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "SKEY", "$51ba8aee64ddfacae5baefa6bf61e009" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
@@ -49,7 +49,7 @@ public class AuthService {
         socketWriter.write(socket, socketData);
     }
 
-    public void sendNews(Socket socket, SocketData socketData) {
+    public void news(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "BUDDY_SERVER", socket.getLocalAddress().getHostName() },
                 { "BUDDY_PORT", String.valueOf(props.getTcpPort()) },
@@ -62,7 +62,7 @@ public class AuthService {
         socketWriter.write(socket, socketData);
     }
 
-    public void sendSele(Socket socket, SocketData socketData) {
+    public void sele(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "MORE", "0" },
                 { "SLOTS", "4" },

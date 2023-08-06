@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
-public class PlayerService {
+public class PersonaService {
 
     @Autowired
     SocketWriter socketWriter;
@@ -25,7 +25,7 @@ public class PlayerService {
      * @param socket
      * @param socketData
      */
-    public void sendCper(Socket socket, SocketData socketData) {
+    public void cper(Socket socket, SocketData socketData) {
 
         String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
         String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
@@ -41,7 +41,7 @@ public class PlayerService {
         socketWriter.write(socket, socketData);
     }
 
-    public void sendPers(Socket socket, SocketData socketData) {
+    public void pers(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "PERS", "player" },
                 { "LKEY", "" },
@@ -55,10 +55,10 @@ public class PlayerService {
         socketData.setOutputData(content);
         socketWriter.write(socket, socketData);
 
-        sendWho(socket);
+        who(socket);
     }
 
-    public void sendLlvl(Socket socket, SocketData socketData) {
+    public void llvl(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "SKILL_PTS", "211" },
                 { "SKILL_LVL", "1049601" },
@@ -68,10 +68,10 @@ public class PlayerService {
         socketData.setOutputData(content);
         socketWriter.write(socket, socketData);
 
-        sendWho(socket);
+        who(socket);
     }
 
-    public void sendWho(Socket socket) {
+    public void who(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "I", "71615" },
                 { "N", "player" },
