@@ -1,7 +1,7 @@
 package com.ea.steps;
 
 import com.ea.dto.DatagramSocketData;
-import com.ea.utils.HexDumpUtil;
+import com.ea.utils.HexDumpUtils;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class DatagramSocketWriter {
                     port);
 
             if (props.isUdpDebugEnabled()) {
-                log.info("Send to {}:{}:\n{}", address, port, HexDumpUtil.formatHexDump(buf, 0, buf.length));
+                log.info("Send to {}:{}:\n{}", address, port, HexDumpUtils.formatHexDump(buf, 0, buf.length));
             }
 
             socket.send(outputPacket);

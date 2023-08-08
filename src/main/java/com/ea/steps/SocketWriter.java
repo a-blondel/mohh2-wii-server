@@ -1,7 +1,7 @@
 package com.ea.steps;
 
 import com.ea.dto.SocketData;
-import com.ea.utils.HexDumpUtil;
+import com.ea.utils.HexDumpUtils;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class SocketWriter {
             byte[] bufferBytes = buffer.toByteArray();
 
             if (props.isTcpDebugEnabled() && !props.getTcpDebugExclusions().contains(socketData.getIdMessage())) {
-                log.info("Send:\n{}", HexDumpUtil.formatHexDump(bufferBytes, 0, outputLength));
+                log.info("Send:\n{}", HexDumpUtils.formatHexDump(bufferBytes, 0, outputLength));
             }
 
             socket.getOutputStream().write(bufferBytes);
