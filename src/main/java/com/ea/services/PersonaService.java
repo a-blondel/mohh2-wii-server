@@ -1,13 +1,19 @@
 package com.ea.services;
 
+import com.ea.dto.SessionData;
 import com.ea.dto.SocketData;
+import com.ea.entities.PersonaEntity;
+import com.ea.repositories.PersonaRepository;
 import com.ea.steps.SocketWriter;
 import com.ea.utils.SocketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.Socket;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,32 +21,50 @@ import java.util.stream.Stream;
 public class PersonaService {
 
     @Autowired
-    SocketWriter socketWriter;
+    private PersonaRepository personaRepository;
 
     @Autowired
-    SocketUtils socketUtils;
+    private SessionData sessionData;
+
+    @Autowired
+    private SocketWriter socketWriter;
+
+    @Autowired
+    private SocketUtils socketUtils;
 
     /**
-     * Personas creation
+     * Persona creation
      * @param socket
      * @param socketData
      */
     public void cper(Socket socket, SocketData socketData) {
 
-        String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
-        String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
+        String pers = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PERS");
 
-        // Exists in DB ?
+        // Number of alternate names to provide if persona duplicate is found.
+        String alts = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ALTS");
 
-        // IF TRUE
+        Optional<PersonaEntity> personaEntityOpt = personaRepository.findByPers(pers);
 
-        // ELSE
+        if (personaEntityOpt.isPresent()) {
+            // TODO : DUPLICATE ERROR
+        } else {
+            PersonaEntity personaEntity = new PersonaEntity();
+            personaEntity.setAccount(sessionData.getCurrentAccount());
+            personaEntity.setPers(pers);
+            personaEntity.setCreatedOn(Timestamp.from(Instant.now()));
 
-        // END IF
+            personaRepository.save(personaEntity);
+        }
 
         socketWriter.write(socket, socketData);
     }
 
+    /**
+     * Get persona
+     * @param socket
+     * @param socketData
+     */
     public void pers(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "PERS", "player" },
@@ -56,6 +80,15 @@ public class PersonaService {
         socketWriter.write(socket, socketData);
 
         who(socket);
+    }
+
+    /**
+     * Delete persona
+     * @param socket
+     * @param socketData
+     */
+    public void dper(Socket socket, SocketData socketData) {
+        socketWriter.write(socket, socketData);
     }
 
     public void llvl(Socket socket, SocketData socketData) {

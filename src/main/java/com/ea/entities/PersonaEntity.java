@@ -1,15 +1,15 @@
 package com.ea.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "PERSONA")
 public class PersonaEntity {
@@ -22,12 +22,14 @@ public class PersonaEntity {
     @JoinColumn(name="ACCOUNT_ID", nullable=false)
     private AccountEntity account;
 
-    private String name;
+    private String pers;
 
     private long kills;
 
     private long deaths;
 
     private Timestamp createdOn;
+
+    private Timestamp deletedOn;
 
 }

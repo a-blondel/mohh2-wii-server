@@ -35,8 +35,6 @@ public class AccountEntity {
 
     private String spam;
 
-    private int alts;
-
     private int tos;
 
     private String tick;

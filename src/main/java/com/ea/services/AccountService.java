@@ -1,9 +1,11 @@
 package com.ea.services;
 
+import com.ea.dto.SessionData;
 import com.ea.dto.SocketData;
 import com.ea.entities.AccountEntity;
 import com.ea.repositories.AccountRepository;
 import com.ea.steps.SocketWriter;
+import com.ea.utils.PasswordUtils;
 import com.ea.utils.SocketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,7 +13,10 @@ import org.springframework.stereotype.Component;
 import java.net.Socket;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class AccountService {
@@ -23,7 +28,13 @@ public class AccountService {
     private SocketUtils socketUtils;
 
     @Autowired
+    private PasswordUtils passwordUtils;
+
+    @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private SessionData sessionData;
 
     /**
      * Account creation
@@ -36,7 +47,8 @@ public class AccountService {
 
         // IF TRUE
 
-        // DUPE ERROR (mail and name)
+        // DUPE NAME ERROR
+        // DUPE MAIL ERROR ?
 
         // ELSE
 
@@ -51,7 +63,6 @@ public class AccountService {
         String zip = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ZIP");
         String gend = socketUtils.getValueFromSocket(socketData.getInputMessage(), "GEND");
         String spam = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SPAM");
-        String alts = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ALTS");
         String tos = socketUtils.getValueFromSocket(socketData.getInputMessage(), "TOS");
         String tick = socketUtils.getValueFromSocket(socketData.getInputMessage(), "TICK");
         String gamecode = socketUtils.getValueFromSocket(socketData.getInputMessage(), "GAMECODE");
@@ -61,16 +72,23 @@ public class AccountService {
         String sdkvers = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SDKVERS");
         String builddate = socketUtils.getValueFromSocket(socketData.getInputMessage(), "BUILDDATE");
 
+        // Number of alternate names to provide if persona duplicate is found.
+        String alts = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ALTS");
+
+        // The game sends a tilde before the password
+        if (pass.charAt(0) == '~') {
+            pass = pass.substring(1);
+        }
+
         AccountEntity accountEntity = new AccountEntity();
         accountEntity.setName(name);
-        accountEntity.setPass(pass);
+        accountEntity.setPass(passwordUtils.encode(pass));
         accountEntity.setLoc(loc);
         accountEntity.setMail(mail);
         accountEntity.setBorn(born);
         accountEntity.setZip(zip);
         accountEntity.setGend(gend);
         accountEntity.setSpam(spam);
-        accountEntity.setAlts(Integer.parseInt(alts));
         accountEntity.setTos(Integer.parseInt(tos));
         accountEntity.setTick(tick);
         accountEntity.setGamecode(gamecode);
@@ -102,26 +120,25 @@ public class AccountService {
         if (accountEntityOpt.isPresent()) {
             AccountEntity accountEntity = accountEntityOpt.get();
 
-            // Should we check the old password ? If the game allows, then it's already checked
             String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
-
             String mail = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MAIL");
             String spam = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SPAM");
             String chng = socketUtils.getValueFromSocket(socketData.getInputMessage(), "CHNG");
 
-
-            /* TODO : The pw is in clear on that packet !
-                The game must be patched to handle the pw identically everywhere ! */
-            accountEntity.setPass(chng);
-
-            if (mail != null) { // Can we send an 'empty mail' error instead ?
-                accountEntity.setMail(mail);
+            if (!pass.equals(chng)) {
+                if (passwordUtils.matches(pass, accountEntity.getPass())) {
+                    accountEntity.setPass(passwordUtils.encode(chng));
+                    if (mail != null) { // Can we send an 'empty mail' error instead ?
+                        accountEntity.setMail(mail);
+                    }
+                    accountEntity.setSpam(spam);
+                    accountEntity.setUpdatedOn(Timestamp.from(Instant.now()));
+                    accountRepository.save(accountEntity);
+                }
+                // TODO : ELSE error WRONG PW
             }
-            accountEntity.setSpam(spam);
-            accountEntity.setUpdatedOn(Timestamp.from(Instant.now()));
-
-            accountRepository.save(accountEntity);
         }
+        // TODO : else NOT FOUND
 
         socketWriter.write(socket, socketData);
     }
@@ -132,28 +149,44 @@ public class AccountService {
      * @param socketData
      */
     public void auth(Socket socket, SocketData socketData) {
+        Map<String, String> content = null;
 
         String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
         String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
 
-        // Exists in DB ?
+        Optional<AccountEntity> accountEntityOpt = accountRepository.findByName(name);
 
-        // IF login and pw matches
+        if (accountEntityOpt.isPresent()) {
+            AccountEntity accountEntity = accountEntityOpt.get();
 
-        /*Map<String, String> content = Stream.of(new String[][] {
-                { "NAME", "player" },
-                { "ADDR", socket.getInetAddress().getHostName() },
-                { "PERSONAS", "player" }, // If personas is not null
-                { "LOC", "frFR" },
-                { "MAIL", "player@gmail.com" },
-                { "SPAM", "NN" }
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));*/
+            // The game sends a tilde before the password
+            if (pass.charAt(0) == '~') {
+                pass = pass.substring(1);
+            }
 
-        // ELSE
+            if (passwordUtils.matches(pass, accountEntity.getPass())) {
 
-        // END IF
+                sessionData.setCurrentAccount(accountEntity);
 
-        //socketData.setOutputData(content);
+                // TODO : Find personas in DB, ...
+                // String personas = ...
+                content = Stream.of(new String[][]{
+                        { "NAME", accountEntity.getName() },
+                        { "ADDR", socket.getInetAddress().getHostName() },
+                        { "PERSONAS", "player" }, // If personas is not null, comma separated list ??
+                        { "LOC", accountEntity.getLoc() },
+                        { "MAIL", accountEntity.getMail() },
+                        { "SPAM", accountEntity.getSpam() }
+                }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+            } else {
+                // TODO: ERROR - INVALID LOGIN/PW
+            }
+        } else {
+            // TODO: ERROR - INEXISTING
+        }
+
+        socketData.setOutputData(content);
         socketWriter.write(socket, socketData);
     }
 
