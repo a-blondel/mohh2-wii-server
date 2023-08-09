@@ -42,67 +42,77 @@ public class AccountService {
      * @param socketData
      */
     public void acct(Socket socket, SocketData socketData) {
-
-        // Exists in DB ?
-
-        // IF TRUE
-
-        // DUPE NAME ERROR
-        // DUPE MAIL ERROR ?
-
-        // ELSE
-
-        /**
-         * TODO : Use mapstruct interface
-         */
         String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
-        String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
-        String loc = socketUtils.getValueFromSocket(socketData.getInputMessage(), "LOC");
-        String mail = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MAIL");
-        String born = socketUtils.getValueFromSocket(socketData.getInputMessage(), "BORN");
-        String zip = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ZIP");
-        String gend = socketUtils.getValueFromSocket(socketData.getInputMessage(), "GEND");
-        String spam = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SPAM");
-        String tos = socketUtils.getValueFromSocket(socketData.getInputMessage(), "TOS");
-        String tick = socketUtils.getValueFromSocket(socketData.getInputMessage(), "TICK");
-        String gamecode = socketUtils.getValueFromSocket(socketData.getInputMessage(), "GAMECODE");
-        String vers = socketUtils.getValueFromSocket(socketData.getInputMessage(), "VERS");
-        String sku = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SKU");
-        String slus = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SLUS");
-        String sdkvers = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SDKVERS");
-        String builddate = socketUtils.getValueFromSocket(socketData.getInputMessage(), "BUILDDATE");
 
-        // Number of alternate names to provide if persona duplicate is found.
-        String alts = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ALTS");
+        Optional<AccountEntity> accountEntityOpt = accountRepository.findByName(name);
+        if (accountEntityOpt.isPresent()) {
+            socketData.setIdMessage("acctdupl"); // Duplicate account error (EC_DUPLICATE)
+            /**
+             * Number of alternate names to provide if persona duplicate is found.
+             * We can then return "OPTS" attribute with comma(,) separated list of alternate account names (if param ALTS > 0).
+             */
+            String alts = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ALTS");
+            if (Integer.parseInt(alts) > 0) {
+                // We must provide 4 alt options to avoid an empty list
+                // Create a better also ?
+                String opt1 = name + "1";
+                String opt2 = name + "Kid";
+                String opt3 = name + "Rule";
+                String opt4 = name + "9";
+                Map<String, String> content = Stream.of(new String[][]{
+                        { "OPTS", opt1.substring(0, opt1.length() > 32 ? 31 : opt1.length()) + ","
+                                + opt2.substring(0, opt2.length() > 32 ? 31 : opt2.length()) + ","
+                                + opt3.substring(0, opt3.length() > 32 ? 31 : opt3.length()) + ","
+                                + opt4.substring(0, opt4.length() > 32 ? 31 : opt4.length())
+                        }
+                }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+                socketData.setOutputData(content);
+            }
+        } else {
+            /**
+             * TODO : Use mapstruct interface
+             */
+            String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
+            String loc = socketUtils.getValueFromSocket(socketData.getInputMessage(), "LOC");
+            String mail = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MAIL");
+            String born = socketUtils.getValueFromSocket(socketData.getInputMessage(), "BORN");
+            String zip = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ZIP");
+            String gend = socketUtils.getValueFromSocket(socketData.getInputMessage(), "GEND");
+            String spam = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SPAM");
+            String tos = socketUtils.getValueFromSocket(socketData.getInputMessage(), "TOS");
+            String tick = socketUtils.getValueFromSocket(socketData.getInputMessage(), "TICK");
+            String gamecode = socketUtils.getValueFromSocket(socketData.getInputMessage(), "GAMECODE");
+            String vers = socketUtils.getValueFromSocket(socketData.getInputMessage(), "VERS");
+            String sku = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SKU");
+            String slus = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SLUS");
+            String sdkvers = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SDKVERS");
+            String builddate = socketUtils.getValueFromSocket(socketData.getInputMessage(), "BUILDDATE");
 
-        // The game sends a tilde before the password
-        if (pass.charAt(0) == '~') {
-            pass = pass.substring(1);
+            // The game sends a tilde before the password
+            if (pass.charAt(0) == '~') {
+                pass = pass.substring(1);
+            }
+
+            AccountEntity accountEntity = new AccountEntity();
+            accountEntity.setName(name);
+            accountEntity.setPass(passwordUtils.encode(pass));
+            accountEntity.setLoc(loc);
+            accountEntity.setMail(mail);
+            accountEntity.setBorn(born);
+            accountEntity.setZip(zip);
+            accountEntity.setGend(gend);
+            accountEntity.setSpam(spam);
+            accountEntity.setTos(Integer.parseInt(tos));
+            accountEntity.setTick(tick);
+            accountEntity.setGamecode(gamecode);
+            accountEntity.setVers(vers);
+            accountEntity.setSku(sku);
+            accountEntity.setSlus(slus);
+            accountEntity.setSdkvers(sdkvers);
+            accountEntity.setBuilddate(builddate);
+            accountEntity.setCreatedOn(Timestamp.from(Instant.now()));
+            accountRepository.save(accountEntity);
         }
-
-        AccountEntity accountEntity = new AccountEntity();
-        accountEntity.setName(name);
-        accountEntity.setPass(passwordUtils.encode(pass));
-        accountEntity.setLoc(loc);
-        accountEntity.setMail(mail);
-        accountEntity.setBorn(born);
-        accountEntity.setZip(zip);
-        accountEntity.setGend(gend);
-        accountEntity.setSpam(spam);
-        accountEntity.setTos(Integer.parseInt(tos));
-        accountEntity.setTick(tick);
-        accountEntity.setGamecode(gamecode);
-        accountEntity.setVers(vers);
-        accountEntity.setSku(sku);
-        accountEntity.setSlus(slus);
-        accountEntity.setSdkvers(sdkvers);
-        accountEntity.setBuilddate(builddate);
-        accountEntity.setCreatedOn(Timestamp.from(Instant.now()));
-
-        accountRepository.save(accountEntity);
-
-        // END IF
-
         socketWriter.write(socket, socketData);
     }
 
@@ -149,8 +159,6 @@ public class AccountService {
      * @param socketData
      */
     public void auth(Socket socket, SocketData socketData) {
-        Map<String, String> content = null;
-
         String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
         String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
 
@@ -170,23 +178,22 @@ public class AccountService {
 
                 // TODO : Find personas in DB, ...
                 // String personas = ...
-                content = Stream.of(new String[][]{
+                Map<String, String> content = Stream.of(new String[][]{
                         { "NAME", accountEntity.getName() },
                         { "ADDR", socket.getInetAddress().getHostName() },
-                        { "PERSONAS", "player" }, // If personas is not null, comma separated list ??
+                        { "PERSONAS", "player,player2" }, // If personas is not null, comma separated list ??
                         { "LOC", accountEntity.getLoc() },
                         { "MAIL", accountEntity.getMail() },
                         { "SPAM", accountEntity.getSpam() }
                 }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-
+                socketData.setOutputData(content);
             } else {
-                // TODO: ERROR - INVALID LOGIN/PW
+                socketData.setIdMessage("authpass"); // Invalid password error (EC_INV_PASS)
             }
         } else {
-            // TODO: ERROR - INEXISTING
+            socketData.setIdMessage("authimst"); // Inexisting error (EC_INV_MASTER)
         }
 
-        socketData.setOutputData(content);
         socketWriter.write(socket, socketData);
     }
 

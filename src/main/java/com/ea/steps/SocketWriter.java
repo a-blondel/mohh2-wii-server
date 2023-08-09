@@ -35,7 +35,9 @@ public class SocketWriter {
              DataOutputStream writer = new DataOutputStream(buffer)) {
 
             writer.write(socketData.getIdMessage().getBytes(StandardCharsets.UTF_8));
-            writer.writeInt(0);
+            if(socketData.getIdMessage().length() == 4) {
+                writer.writeInt(0);
+            }
             int outputLength = 12;
 
             if (null != socketData.getOutputData()) {
