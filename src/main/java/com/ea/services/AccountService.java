@@ -5,6 +5,7 @@ import com.ea.dto.SocketData;
 import com.ea.entities.AccountEntity;
 import com.ea.repositories.AccountRepository;
 import com.ea.steps.SocketWriter;
+import com.ea.utils.AccountUtils;
 import com.ea.utils.PasswordUtils;
 import com.ea.utils.SocketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,24 +48,11 @@ public class AccountService {
         Optional<AccountEntity> accountEntityOpt = accountRepository.findByName(name);
         if (accountEntityOpt.isPresent()) {
             socketData.setIdMessage("acctdupl"); // Duplicate account error (EC_DUPLICATE)
-            /**
-             * Number of alternate names to provide if persona duplicate is found.
-             * We can then return "OPTS" attribute with comma(,) separated list of alternate account names (if param ALTS > 0).
-             */
-            String alts = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ALTS");
-            if (Integer.parseInt(alts) > 0) {
-                // We must provide 4 alt options to avoid an empty list
-                // Create a better also ?
-                String opt1 = name + "1";
-                String opt2 = name + "Kid";
-                String opt3 = name + "Rule";
-                String opt4 = name + "9";
+            int alts = Integer.parseInt(socketUtils.getValueFromSocket(socketData.getInputMessage(), "ALTS"));
+            if (alts > 0) {
+                String opts = AccountUtils.suggestNames(alts, name);
                 Map<String, String> content = Stream.of(new String[][]{
-                        { "OPTS", opt1.substring(0, opt1.length() > 32 ? 31 : opt1.length()) + ","
-                                + opt2.substring(0, opt2.length() > 32 ? 31 : opt2.length()) + ","
-                                + opt3.substring(0, opt3.length() > 32 ? 31 : opt3.length()) + ","
-                                + opt4.substring(0, opt4.length() > 32 ? 31 : opt4.length())
-                        }
+                        { "OPTS", opts }
                 }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
                 socketData.setOutputData(content);
             }
@@ -122,11 +110,9 @@ public class AccountService {
      * @param socketData
      */
     public void edit(Socket socket, SocketData socketData) {
-
         String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
 
         Optional<AccountEntity> accountEntityOpt = accountRepository.findByName(name);
-
         if (accountEntityOpt.isPresent()) {
             AccountEntity accountEntity = accountEntityOpt.get();
 
@@ -138,17 +124,19 @@ public class AccountService {
             if (!pass.equals(chng)) {
                 if (passwordUtils.matches(pass, accountEntity.getPass())) {
                     accountEntity.setPass(passwordUtils.encode(chng));
-                    if (mail != null) { // Can we send an 'empty mail' error instead ?
+                    if (mail != null) {
                         accountEntity.setMail(mail);
                     }
                     accountEntity.setSpam(spam);
                     accountEntity.setUpdatedOn(Timestamp.from(Instant.now()));
                     accountRepository.save(accountEntity);
+                } else {
+                    socketData.setIdMessage("editpass"); // Invalid password error (EC_INV_PASS)
                 }
-                // TODO : ELSE error WRONG PW
             }
+        } else {
+            socketData.setIdMessage("editimst"); // Inexisting error (EC_INV_MASTER)
         }
-        // TODO : else NOT FOUND
 
         socketWriter.write(socket, socketData);
     }
@@ -163,7 +151,6 @@ public class AccountService {
         String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
 
         Optional<AccountEntity> accountEntityOpt = accountRepository.findByName(name);
-
         if (accountEntityOpt.isPresent()) {
             AccountEntity accountEntity = accountEntityOpt.get();
 
@@ -173,15 +160,16 @@ public class AccountService {
             }
 
             if (passwordUtils.matches(pass, accountEntity.getPass())) {
-
                 sessionData.setCurrentAccount(accountEntity);
 
-                // TODO : Find personas in DB, ...
-                // String personas = ...
+                String personas = accountEntity.getPersonas().stream()
+                        .filter(p -> p.getDeletedOn() == null)
+                        .map(p -> p.getPers())
+                        .collect(Collectors.joining(","));
                 Map<String, String> content = Stream.of(new String[][]{
                         { "NAME", accountEntity.getName() },
                         { "ADDR", socket.getInetAddress().getHostName() },
-                        { "PERSONAS", "player,player2" }, // If personas is not null, comma separated list ??
+                        { "PERSONAS", personas },
                         { "LOC", accountEntity.getLoc() },
                         { "MAIL", accountEntity.getMail() },
                         { "SPAM", accountEntity.getSpam() }

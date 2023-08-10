@@ -5,6 +5,7 @@ import com.ea.dto.SocketData;
 import com.ea.entities.PersonaEntity;
 import com.ea.repositories.PersonaRepository;
 import com.ea.steps.SocketWriter;
+import com.ea.utils.AccountUtils;
 import com.ea.utils.SocketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,25 +44,11 @@ public class PersonaService {
         Optional<PersonaEntity> personaEntityOpt = personaRepository.findByPers(pers);
         if (personaEntityOpt.isPresent()) {
             socketData.setIdMessage("cperdupl"); // Duplicate persona error (EC_DUPLICATE)
-            /**
-             * Number of alternate names to provide if persona duplicate is found.
-             * We can then return "OPTS" attribute with comma(,) separated list of alternate account names (if param ALTS > 0).
-             */
-            String alts = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ALTS");
-            if (Integer.parseInt(alts) > 0) {
-                // We must provide 4 alt options to avoid an empty list
-                // Create a better also ?
-                // TODO : mutualize method between account and persona
-                String opt1 = pers + "1";
-                String opt2 = pers + "Kid";
-                String opt3 = pers + "Rule";
-                String opt4 = pers + "9";
+            int alts = Integer.parseInt(socketUtils.getValueFromSocket(socketData.getInputMessage(), "ALTS"));
+            if (alts > 0) {
+                String opts = AccountUtils.suggestNames(alts, pers);
                 Map<String, String> content = Stream.of(new String[][]{
-                        { "OPTS", opt1.substring(0, opt1.length() > 32 ? 31 : opt1.length()) + ","
-                                + opt2.substring(0, opt2.length() > 32 ? 31 : opt2.length()) + ","
-                                + opt3.substring(0, opt3.length() > 32 ? 31 : opt3.length()) + ","
-                                + opt4.substring(0, opt4.length() > 32 ? 31 : opt4.length())
-                        }
+                        { "OPTS", opts }
                 }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
                 socketData.setOutputData(content);
             }
@@ -105,6 +92,13 @@ public class PersonaService {
      * @param socketData
      */
     public void dper(Socket socket, SocketData socketData) {
+        String pers = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PERS");
+        Optional<PersonaEntity> personaEntityOpt = personaRepository.findByPers(pers);
+        if (personaEntityOpt.isPresent()) {
+            PersonaEntity personaEntity = personaEntityOpt.get();
+            personaEntity.setDeletedOn(Timestamp.from(Instant.now()));
+            personaRepository.save(personaEntity);
+        }
         socketWriter.write(socket, socketData);
     }
 

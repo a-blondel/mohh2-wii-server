@@ -55,7 +55,7 @@ public class AccountEntity {
 
     private Timestamp updatedOn;
 
-    @OneToMany(mappedBy="account")
+    @OneToMany(mappedBy="account", fetch = FetchType.EAGER)
     private Set<PersonaEntity> personas;
 
 }
