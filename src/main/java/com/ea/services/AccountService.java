@@ -3,6 +3,7 @@ package com.ea.services;
 import com.ea.dto.SessionData;
 import com.ea.dto.SocketData;
 import com.ea.entities.AccountEntity;
+import com.ea.mappers.SocketMapper;
 import com.ea.repositories.AccountRepository;
 import com.ea.steps.SocketWriter;
 import com.ea.utils.AccountUtils;
@@ -32,6 +33,9 @@ public class AccountService {
     private PasswordUtils passwordUtils;
 
     @Autowired
+    private SocketMapper socketMapper;
+
+    @Autowired
     private AccountRepository accountRepository;
 
     @Autowired
@@ -57,48 +61,7 @@ public class AccountService {
                 socketData.setOutputData(content);
             }
         } else {
-            /**
-             * TODO : Use mapstruct interface
-             */
-            String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
-            String loc = socketUtils.getValueFromSocket(socketData.getInputMessage(), "LOC");
-            String mail = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MAIL");
-            String born = socketUtils.getValueFromSocket(socketData.getInputMessage(), "BORN");
-            String zip = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ZIP");
-            String gend = socketUtils.getValueFromSocket(socketData.getInputMessage(), "GEND");
-            String spam = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SPAM");
-            String tos = socketUtils.getValueFromSocket(socketData.getInputMessage(), "TOS");
-            String tick = socketUtils.getValueFromSocket(socketData.getInputMessage(), "TICK");
-            String gamecode = socketUtils.getValueFromSocket(socketData.getInputMessage(), "GAMECODE");
-            String vers = socketUtils.getValueFromSocket(socketData.getInputMessage(), "VERS");
-            String sku = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SKU");
-            String slus = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SLUS");
-            String sdkvers = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SDKVERS");
-            String builddate = socketUtils.getValueFromSocket(socketData.getInputMessage(), "BUILDDATE");
-
-            // The game sends a tilde before the password
-            if (pass.charAt(0) == '~') {
-                pass = pass.substring(1);
-            }
-
-            AccountEntity accountEntity = new AccountEntity();
-            accountEntity.setName(name);
-            accountEntity.setPass(passwordUtils.encode(pass));
-            accountEntity.setLoc(loc);
-            accountEntity.setMail(mail);
-            accountEntity.setBorn(born);
-            accountEntity.setZip(zip);
-            accountEntity.setGend(gend);
-            accountEntity.setSpam(spam);
-            accountEntity.setTos(Integer.parseInt(tos));
-            accountEntity.setTick(tick);
-            accountEntity.setGamecode(gamecode);
-            accountEntity.setVers(vers);
-            accountEntity.setSku(sku);
-            accountEntity.setSlus(slus);
-            accountEntity.setSdkvers(sdkvers);
-            accountEntity.setBuilddate(builddate);
-            accountEntity.setCreatedOn(Timestamp.from(Instant.now()));
+            AccountEntity accountEntity = socketMapper.toAccountEntityForCreation(socketData.getInputMessage());
             accountRepository.save(accountEntity);
         }
         socketWriter.write(socket, socketData);
@@ -121,19 +84,30 @@ public class AccountService {
             String spam = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SPAM");
             String chng = socketUtils.getValueFromSocket(socketData.getInputMessage(), "CHNG");
 
+            boolean update = false;
+            boolean error = false;
+
+            if (mail != null && !mail.equals(accountEntity.getMail())) {
+                accountEntity.setMail(mail);
+                update = true;
+            }
+
             if (!pass.equals(chng)) {
                 if (passwordUtils.matches(pass, accountEntity.getPass())) {
                     accountEntity.setPass(passwordUtils.encode(chng));
-                    if (mail != null) {
-                        accountEntity.setMail(mail);
-                    }
-                    accountEntity.setSpam(spam);
-                    accountEntity.setUpdatedOn(Timestamp.from(Instant.now()));
-                    accountRepository.save(accountEntity);
+                    update = true;
                 } else {
                     socketData.setIdMessage("editpass"); // Invalid password error (EC_INV_PASS)
+                    error = true;
                 }
             }
+
+            if (!error && (update || !spam.equals(accountEntity.getSpam()))) {
+                accountEntity.setSpam(spam);
+                accountEntity.setUpdatedOn(Timestamp.from(Instant.now()));
+                accountRepository.save(accountEntity);
+            }
+
         } else {
             socketData.setIdMessage("editimst"); // Inexisting error (EC_INV_MASTER)
         }
