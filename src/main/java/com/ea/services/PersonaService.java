@@ -70,20 +70,27 @@ public class PersonaService {
      * @param socketData
      */
     public void pers(Socket socket, SocketData socketData) {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "PERS", "player" },
-                { "LKEY", "" },
-                { "EX-ticker", "" },
-                { "LOC", "frFR" },
-                { "A", socket.getInetAddress().getHostName() },
-                { "LA", socket.getInetAddress().getHostName() },
-                { "IDLE", "35000" },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+        String pers = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PERS");
 
-        socketData.setOutputData(content);
-        socketWriter.write(socket, socketData);
+        Optional<PersonaEntity> personaEntityOpt = personaRepository.findByPers(pers);
+        if (personaEntityOpt.isPresent()) {
+            PersonaEntity personaEntity = personaEntityOpt.get();
+            sessionData.setCurrentPersonna(personaEntity);
+            Map<String, String> content = Stream.of(new String[][] {
+                    { "PERS", personaEntity.getPers() },
+                    { "LKEY", "" },
+                    { "EX-ticker", "" },
+                    { "LOC", personaEntity.getAccount().getLoc() },
+                    { "A", socket.getInetAddress().getHostName() },
+                    { "LA", socket.getInetAddress().getHostName() },
+                    { "IDLE", "35000" },
+            }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        who(socket);
+            socketData.setOutputData(content);
+            socketWriter.write(socket, socketData);
+
+            who(socket);
+        }
     }
 
     /**
@@ -116,23 +123,26 @@ public class PersonaService {
     }
 
     public void who(Socket socket) {
+        PersonaEntity personaEntity = sessionData.getCurrentPersonna();
+
         Map<String, String> content = Stream.of(new String[][] {
                 { "I", "71615" },
-                { "N", "player" },
+                { "N", personaEntity.getPers() }, //Unused ?
                 { "F", "U" },
                 { "P", "211" },
-                { "S", "1,2,3,4,5,6,7,493E0,C350" }, // Stats
+                // Stats : kills (in hex) at 8th position, deaths (in hex) at 9th
+                { "S", ",,,,,,," + Long.toHexString(personaEntity.getKills()) + "," + Long.toHexString(personaEntity.getDeaths()) },
                 { "X", "0" },
                 { "G", "0" },
                 { "AT", "" },
                 { "CL", "511" },
                 { "LV", "1049601" },
                 { "MD", "0" },
-                { "R", "1" }, // Rank
+                { "R", String.valueOf(personaRepository.getPersonaRank(personaEntity.getId())) }, // Rank (in decimal)
                 { "US", "0" },
                 { "HW", "0" },
                 { "RP", "0" },
-                { "LO", "frFR" }, // Country
+                { "LO", sessionData.getCurrentAccount().getLoc() }, // Locale (used to display country flag)
                 { "CI", "0" },
                 { "CT", "0" },
                 // 0x800225E0
