@@ -1,11 +1,8 @@
 package com.ea.utils;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-public final class HexDumpUtil {
+public final class HexDumpUtils {
 
     public static String formatHexDump(byte[] array, int offset, int length) {
         final int width = 16;

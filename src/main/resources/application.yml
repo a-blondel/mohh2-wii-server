@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 ssl:
   port: 21171
   protocols: 'SSLv3'
@@ -16,10 +19,21 @@ udp:
 
 spring:
   datasource:
-    url: jdbc:h2:file:./data/heroesDB
+    url: jdbc:h2:mem:mohh2db
     username: sa
-    password: password
+    password: sa
     driverClassName: org.h2.Driver
   jpa:
     spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true
+    hibernate:
+       ddl-auto: none
+  h2:
+    console:
+      enabled: true
+      path: /h2
+  sql:
+    init:
+      mode: always
+      platform: h2
+

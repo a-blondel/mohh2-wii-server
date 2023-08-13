@@ -39,7 +39,7 @@ public class TcpSocketThread implements Runnable {
         log.info("TCP client session started: {} | {}", clientSocket.hashCode(), clientSocket.getInetAddress().getHostName());
         try {
             pingExecutor = Executors.newSingleThreadScheduledExecutor();
-            pingExecutor.scheduleAtFixedRate(() -> sendPing(clientSocket), 30, 30, TimeUnit.SECONDS);
+            pingExecutor.scheduleAtFixedRate(() -> png(clientSocket), 30, 30, TimeUnit.SECONDS);
 
             socketReader.read(clientSocket);
         } catch (IOException e) {
@@ -50,7 +50,7 @@ public class TcpSocketThread implements Runnable {
         }
     }
 
-    public void sendPing(Socket socket) {
+    public void png(Socket socket) {
         SocketData socketData = new SocketData("~png", null, null);
         socketWriter.write(socket, socketData);
     }

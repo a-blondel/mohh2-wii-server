@@ -22,7 +22,7 @@ public class LobbyService {
      * @param socket
      * @param socketData
      */
-    public void sendGsea(Socket socket, SocketData socketData) {
+    public void gsea(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "COUNT", "3" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
@@ -30,14 +30,14 @@ public class LobbyService {
         socketData.setOutputData(content);
         socketWriter.write(socket, socketData);
 
-        sendLobbyList(socket);
+        gam(socket);
     }
 
     /**
      * List lobbies
      * @param socket
      */
-    public void sendLobbyList(Socket socket) {
+    public void gam(Socket socket) {
         Map<String, String> lobby1 = Stream.of(new String[][] {
                 { "IDENT", "1" },
                 { "NAME", "\"Modded lobby\"" },
@@ -76,10 +76,10 @@ public class LobbyService {
      * @param socket
      * @param socketData
      */
-    public void sendGjoi(Socket socket, SocketData socketData) {
+    public void gjoi(Socket socket, SocketData socketData) {
         socketWriter.write(socket, socketData);
 
-        sendSes(socket);
+        ses(socket);
 
     }
 
@@ -87,7 +87,7 @@ public class LobbyService {
      * Unused yet
      * @param socket
      */
-    public void sendAgm(Socket socket) {
+    public void agm(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
                 { "NAME", "abcd" },
@@ -137,17 +137,17 @@ public class LobbyService {
      * @param socket
      * @param socketData
      */
-    public void sendGpsc(Socket socket, SocketData socketData) {
+    public void gpsc(Socket socket, SocketData socketData) {
         socketWriter.write(socket, socketData);
 
-        sendSes(socket);
+        ses(socket);
     }
 
     /**
      * Unused yet
      * @param socket
      */
-    public void sendMgm(Socket socket) {
+    public void mgm(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
                 { "NAME", "abcd" },
@@ -196,7 +196,7 @@ public class LobbyService {
      * Lobby info based on IDENT
      * @param socket
      */
-    public void sendSes(Socket socket) {
+    public void ses(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
                 { "NAME", "abcd" },
@@ -245,7 +245,7 @@ public class LobbyService {
      * Unused yet
      * @param socket
      */
-    public void sendGget(Socket socket) {
+    public void gget(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
                 { "WHEN", "2003.12.8 15:52:54" },
@@ -287,7 +287,7 @@ public class LobbyService {
      * Unused yet
      * @param socket
      */
-    public void sendUsr(Socket socket) {
+    public void usr(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "I", "1" },
                 { "N", "player" },
@@ -308,7 +308,7 @@ public class LobbyService {
      * Unused yet
      * @param socket
      */
-    public void sendMove(Socket socket) {
+    public void move(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
                 { "NAME", "1" },
@@ -323,7 +323,7 @@ public class LobbyService {
      * Unused yet
      * @param socket
      */
-    public <T> void sendRom(Socket socket) {
+    public <T> void rom(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "I", "1" },
                 { "N", "player" },
@@ -346,7 +346,7 @@ public class LobbyService {
      * Unused yet
      * @param socket
      */
-    public <T> void sendPop(Socket socket) {
+    public <T> void pop(Socket socket) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "Z", "1/1" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
