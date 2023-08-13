@@ -7,11 +7,13 @@ public class SocketUtils {
 
     public String getValueFromSocket(String data, String key) {
         String result = null;
-        String[] entries = data.split("\0");
+        String[] entries = data.split("\\R");
         for (String entry : entries) {
             String[] parts = entry.trim().split("=");
             if(key.equals(parts[0])) {
-                result = parts[1];
+                if (parts.length > 1) {
+                    result = parts[1];
+                }
                 break;
             }
         }

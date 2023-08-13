@@ -11,7 +11,10 @@ In order to intercept messages from the server, you must add this line to your h
 127.0.0.1 wiimoh08.ea.com
 ```
 
-The server port is defined to `21171` in **ServerConfig**. That way it'll receive the game's messages, don't change it.
+The SSL port is defined in **application.yml** (property `ssl.port`).  
+**It is region-dependant therefore it must be changed accordingly to your version of the game** :  
+- `21171` : RM2X69
+- `21121` : RM2E69
 
 
 ### 2/ JDK
@@ -42,6 +45,17 @@ After a successful build, get into the target folder and execute the following c
 ```
 java -jar wii-moh-tcp-server-1.0.0-SNAPSHOT.jar
 ```
+
+## Database
+
+For development, an embedded database is used.
+See `data.sql` for available data on start.
+It can be accessed in a browser when the server is running :  
+```
+http://localhost:8080/h2/
+```
+
+Configuration like database url, user and password can be found in `application.yml`.
 
 ## Lobby PARAMS description
 

@@ -1,7 +1,7 @@
 package com.ea.steps;
 
 import com.ea.dto.SocketData;
-import com.ea.utils.HexDumpUtil;
+import com.ea.utils.HexDumpUtils;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class SocketParser {
                 SocketData socketData = new SocketData(id, content, null);
 
                 if (props.isTcpDebugEnabled() && !props.getTcpDebugExclusions().contains(socketData.getIdMessage())) {
-                    log.info("Receive:\n{}", HexDumpUtil.formatHexDump(buffer, currentMessageBegin, currentMessageLength));
+                    log.info("Receive:\n{}", HexDumpUtils.formatHexDump(buffer, currentMessageBegin, currentMessageLength));
                 }
 
                 socketProcessor.process(socket, socketData);

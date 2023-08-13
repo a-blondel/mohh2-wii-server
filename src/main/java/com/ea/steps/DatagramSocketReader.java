@@ -1,7 +1,7 @@
 package com.ea.steps;
 
 import com.ea.dto.DatagramSocketData;
-import com.ea.utils.HexDumpUtil;
+import com.ea.utils.HexDumpUtils;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class DatagramSocketReader {
             int port = packet.getPort();
 
             if (props.isUdpDebugEnabled()) {
-                log.info("Received from {}:{}:\n{}", address, port, HexDumpUtil.formatHexDump(packet.getData(), 0, packet.getLength()));
+                log.info("Received from {}:{}:\n{}", address, port, HexDumpUtils.formatHexDump(packet.getData(), 0, packet.getLength()));
             }
 
             datagramSocketProcessor.process(socket, new DatagramSocketData(packet, null));
