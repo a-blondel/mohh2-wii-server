@@ -14,5 +14,5 @@ public interface PersonaRepository extends JpaRepository<PersonaEntity, Long> {
     @Query(value = "SELECT RANK FROM " +
             "(SELECT ID, ROW_NUMBER() OVER(ORDER BY (KILLS - DEATHS) DESC, ID ASC) AS RANK FROM PERSONA)" +
             "AS PERS WHERE PERS.ID = ?1", nativeQuery = true)
-    Long getPersonaRank(long id);
+    Long getRankById(long id);
 }

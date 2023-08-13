@@ -28,6 +28,8 @@ public class PersonaEntity {
 
     private long deaths;
 
+    private int rp;
+
     private Timestamp createdOn;
 
     private Timestamp deletedOn;

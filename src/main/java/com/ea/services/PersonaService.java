@@ -138,10 +138,10 @@ public class PersonaService {
                 { "CL", "511" },
                 { "LV", "1049601" },
                 { "MD", "0" },
-                { "R", String.valueOf(personaRepository.getPersonaRank(personaEntity.getId())) }, // Rank (in decimal)
+                { "R", String.valueOf(personaRepository.getRankById(personaEntity.getId())) }, // Rank (in decimal)
                 { "US", "0" },
                 { "HW", "0" },
-                { "RP", "0" },
+                { "RP", String.valueOf(personaEntity.getRp()) }, // Reputation (0 to 5 stars)
                 { "LO", sessionData.getCurrentAccount().getLoc() }, // Locale (used to display country flag)
                 { "CI", "0" },
                 { "CT", "0" },
