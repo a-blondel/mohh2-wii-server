@@ -19,9 +19,9 @@ udp:
 
 spring:
   datasource:
-    url: jdbc:h2:file:./data/heroesDB;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE
+    url: jdbc:h2:mem:mohh2db
     username: sa
-    password: password
+    password: sa
     driverClassName: org.h2.Driver
   jpa:
     spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
@@ -31,7 +31,7 @@ spring:
   h2:
     console:
       enabled: true
-      path: /h2-console
+      path: /h2
   sql:
     init:
       mode: always

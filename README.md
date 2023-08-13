@@ -48,10 +48,11 @@ java -jar wii-moh-tcp-server-1.0.0-SNAPSHOT.jar
 
 ## Database
 
-For development, a local h2 database file is created in the `data` folder.  
+For development, an embedded database is used.
+See `data.sql` for available data on start.
 It can be accessed in a browser when the server is running :  
 ```
-http://localhost:8080/h2-console/
+http://localhost:8080/h2/
 ```
 
 Configuration like database url, user and password can be found in `application.yml`.
