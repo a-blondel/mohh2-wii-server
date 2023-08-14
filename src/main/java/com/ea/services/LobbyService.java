@@ -1,5 +1,6 @@
 package com.ea.services;
 
+import com.ea.dto.SessionData;
 import com.ea.dto.SocketData;
 import com.ea.steps.SocketWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class LobbyService {
 
     @Autowired
     SocketWriter socketWriter;
+
+    @Autowired
+    private SessionData sessionData;
 
     /**
      * Lobby count
@@ -200,8 +204,8 @@ public class LobbyService {
         Map<String, String> content = Stream.of(new String[][] {
                 { "IDENT", "1" },
                 { "NAME", "abcd" },
-                { "HOST", "player" },
-                { "GPSHOST", "player" },
+                { "HOST", sessionData.getCurrentPersonna().getPers() },
+                { "GPSHOST", sessionData.getCurrentPersonna().getPers() },
                 { "PARAMS", "2,191,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" },
                 // { "PLATPARAMS", "0" },  // ???
                 { "ROOM", "0" },
@@ -221,7 +225,7 @@ public class LobbyService {
 
                 // loop 0x80022058 only if COUNT>=0
                 { "OPID0", "1" }, // OPID%d
-                { "OPPO0", "player" }, // OPPO%d
+                { "OPPO0", sessionData.getCurrentPersonna().getPers() }, // OPPO%d
                 { "ADDR0", socket.getInetAddress().getHostName() }, // ADDR%d
                 { "LADDR0", socket.getInetAddress().getHostName() }, // LADDR%d
                 { "MADDR0", "$0017ab8f4451" }, // MADDR%d
@@ -233,7 +237,7 @@ public class LobbyService {
                 // another loop 0x8002225C only if NUMPART>=0
                 { "PARTSIZE0", "17" }, // PARTSIZE%d
                 { "PARTPARAMS0", "0" }, // PARTPARAMS%d
-                { "SELF", "player" }, // PARTPARAMS%d
+                { "SELF", sessionData.getCurrentPersonna().getPers() }, // PARTPARAMS%d
 
                 // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
