@@ -43,7 +43,7 @@ com.ea.ServerApp
 
 After a successful build, get into the target folder and execute the following command:
 ```
-java -jar wii-moh-tcp-server-1.0.0-SNAPSHOT.jar
+java -jar mohh2-wii-server-1.0.0-SNAPSHOT.jar
 ```
 
 ## Database
