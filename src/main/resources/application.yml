@@ -2,7 +2,6 @@ server:
   port: 8080
 
 ssl:
-  port: 21171
   protocols: 'SSLv3'
   cipher-suites: 'SSL_RSA_WITH_RC4_128_MD5,SSL_RSA_WITH_RC4_128_SHA'
   debug:
@@ -18,6 +17,9 @@ udp:
     enabled: true
 
 spring:
+  profiles:
+    active:
+      - pal
   datasource:
     url: jdbc:h2:mem:mohh2db
     username: sa
@@ -37,3 +39,21 @@ spring:
       mode: always
       platform: h2
 
+
+---
+spring:
+  config:
+    activate:
+      on-profile: pal
+
+ssl:
+  port: 21171
+
+---
+spring:
+  config:
+    activate:
+      on-profile: ntsc
+
+ssl:
+  port: 21121
