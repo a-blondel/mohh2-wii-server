@@ -72,6 +72,15 @@ public class DatagramSocketProcessor {
                 // 41c4b7bc = current tick
                 // 0054 = game latency
                 // 47 = packet type (GAME_PACKET_USER_UNRELIABLE (7) + GAME_PACKET_SYNC (40))
+            } else if (64 == packetOperation)  { // GAME_PACKET_SYNC (64)
+                // 0000136b 0000136b 113a34cb 113a3563 0098 40
+
+                // 0000136b = packetSeq
+                // 0000136b = ack of previous RAW_PACKET_DATA
+                // 113a34cb = last tick
+                // 113a3563 = current tick
+                // 0098 = game latency
+                // 40 = packet type (GAME_PACKET_SYNC (40))
             }
         } else if (256 <= packetSeq) { // RAW_PACKET_DATA
             // Nothing to do yet...
