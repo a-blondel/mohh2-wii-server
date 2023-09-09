@@ -56,6 +56,7 @@ public class AccountEntity {
     private Timestamp updatedOn;
 
     @OneToMany(mappedBy="account", fetch = FetchType.EAGER)
+    @OrderBy("id DESC")
     private Set<PersonaEntity> personas;
 
 }
