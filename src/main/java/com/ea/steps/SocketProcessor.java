@@ -1,10 +1,7 @@
 package com.ea.steps;
 
 import com.ea.dto.SocketData;
-import com.ea.services.AccountService;
-import com.ea.services.AuthService;
-import com.ea.services.LobbyService;
-import com.ea.services.PersonaService;
+import com.ea.services.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,19 +13,22 @@ import java.net.Socket;
 public class SocketProcessor {
 
     @Autowired
-    AuthService authService;
+    private AuthService authService;
 
     @Autowired
-    AccountService accountService;
+    private AccountService accountService;
 
     @Autowired
-    PersonaService personaService;
+    private PersonaService personaService;
 
     @Autowired
-    LobbyService lobbyService;
+    private StatsService statsService;
 
     @Autowired
-    SocketWriter socketWriter;
+    private LobbyService lobbyService;
+
+    @Autowired
+    private SocketWriter socketWriter;
 
     /**
      * Dispatch to appropriate service based on request type
@@ -74,6 +74,9 @@ public class SocketProcessor {
                 break;
             case ("llvl"):
                 personaService.llvl(socket, socketData);
+                break;
+            case ("cate"):
+                statsService.cate(socket, socketData);
                 break;
             case ("gsea"):
                 lobbyService.gsea(socket, socketData);
