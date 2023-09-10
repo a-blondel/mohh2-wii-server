@@ -20,7 +20,7 @@ import java.net.ServerSocket;
 public class ServerConfig {
 
     @Autowired
-    Props props;
+    private Props props;
 
     /**
      * Initiate the SSL server socket

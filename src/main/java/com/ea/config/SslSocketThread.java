@@ -16,10 +16,10 @@ import java.net.SocketException;
 @Component
 public class SslSocketThread implements Runnable {
 
-    SSLSocket clientSocket;
+    private SSLSocket clientSocket;
 
     @Autowired
-    SocketReader socketReader;
+    private SocketReader socketReader;
 
     public void setClientSocket(SSLSocket clientSocket) throws SocketException {
         this.clientSocket = clientSocket;

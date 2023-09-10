@@ -1,6 +1,7 @@
 package com.ea.config;
 
 import com.ea.dto.SocketData;
+import com.ea.services.LobbyService;
 import com.ea.steps.SocketReader;
 import com.ea.steps.SocketWriter;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +23,15 @@ import java.util.concurrent.TimeUnit;
 public class TcpSocketThread implements Runnable {
 
     @Autowired
-    SocketReader socketReader;
+    private SocketReader socketReader;
 
     @Autowired
-    SocketWriter socketWriter;
+    private SocketWriter socketWriter;
 
-    Socket clientSocket;
+    @Autowired
+    private LobbyService lobbyService;
+
+    private Socket clientSocket;
 
     private ScheduledExecutorService pingExecutor;
 
@@ -46,6 +50,7 @@ public class TcpSocketThread implements Runnable {
             e.printStackTrace();
         } finally {
             pingExecutor.shutdown();
+            lobbyService.leaveLobby(); // If the player doesn't leave from the game
             log.info("TCP client session ended: " + clientSocket.hashCode());
         }
     }

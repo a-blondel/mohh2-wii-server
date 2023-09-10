@@ -14,10 +14,10 @@ import java.net.Socket;
 public class SocketParser {
 
     @Autowired
-    Props props;
+    private Props props;
 
     @Autowired
-    SocketProcessor socketProcessor;
+    private SocketProcessor socketProcessor;
 
     /**
      * Parses input messages based on current content of the stream
