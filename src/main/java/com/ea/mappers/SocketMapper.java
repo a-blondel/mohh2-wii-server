@@ -1,6 +1,7 @@
 package com.ea.mappers;
 
 import com.ea.entities.AccountEntity;
+import com.ea.entities.LobbyEntity;
 import com.ea.utils.PasswordUtils;
 import com.ea.utils.SocketUtils;
 import org.mapstruct.*;
@@ -17,6 +18,19 @@ public abstract class SocketMapper {
 
     @Autowired
     protected PasswordUtils passwordUtils;
+
+    @BeanMapping(qualifiedByName = "LobbyEntityForCreation")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "name", expression = "java(socketUtils.getValueFromSocket(socket, \"NAME\"))")
+    @Mapping(target = "params", expression = "java(socketUtils.getValueFromSocket(socket, \"PARAMS\"))")
+    @Mapping(target = "sysflags", expression = "java(socketUtils.getValueFromSocket(socket, \"SYSFLAGS\"))")
+    @Mapping(target = "pass", expression = "java(socketUtils.getValueFromSocket(socket, \"PASS\"))")
+    @Mapping(target = "minsize", expression = "java(Integer.parseInt(socketUtils.getValueFromSocket(socket, \"MINSIZE\")))")
+    @Mapping(target = "maxsize", expression = "java(Integer.parseInt(socketUtils.getValueFromSocket(socket, \"MAXSIZE\")))")
+    @Mapping(target = "startTime", ignore = true)
+    @Mapping(target = "endTime", ignore = true)
+    @Mapping(target = "lobbyPersonas", ignore = true)
+    public abstract LobbyEntity toLobbyEntityForCreation(String socket);
 
     @BeanMapping(qualifiedByName = "AccountEntityForCreation")
     @Mapping(target = "id", ignore = true)

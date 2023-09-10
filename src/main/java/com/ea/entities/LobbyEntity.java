@@ -25,6 +25,12 @@ public class LobbyEntity {
 
     private String sysflags;
 
+    private String pass;
+
+    private int minsize;
+
+    private int maxsize;
+
     private Timestamp startTime;
 
     private Timestamp endTime;

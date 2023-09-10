@@ -47,6 +47,9 @@ CREATE TABLE IF NOT EXISTS LOBBY (
     NAME varchar(32) NOT NULL,
     PARAMS varchar(255) NOT NULL,
     SYSFLAGS varchar(10) NOT NULL,
+    PASS varchar(128) NULL,
+    MINSIZE numeric NOT NULL,
+    MAXSIZE numeric NOT NULL,
     START_TIME timestamp NOT NULL,
     END_TIME timestamp NULL
 );

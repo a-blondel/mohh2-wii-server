@@ -3,17 +3,18 @@ package com.ea.services;
 import com.ea.dto.SessionData;
 import com.ea.dto.SocketData;
 import com.ea.entities.LobbyEntity;
+import com.ea.mappers.SocketMapper;
 import com.ea.repositories.LobbyRepository;
 import com.ea.steps.SocketWriter;
+import com.ea.utils.SocketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,13 +22,19 @@ import java.util.stream.Stream;
 public class LobbyService {
 
     @Autowired
-    private SocketWriter socketWriter;
+    private LobbyRepository lobbyRepository;
 
     @Autowired
     private SessionData sessionData;
 
     @Autowired
-    private LobbyRepository lobbyRepository;
+    private SocketUtils socketUtils;
+
+    @Autowired
+    private SocketMapper socketMapper;
+
+    @Autowired
+    private SocketWriter socketWriter;
 
     /**
      * Lobby count
@@ -62,7 +69,7 @@ public class LobbyService {
                     { "PARAMS", lobbyEntity.getParams() },
                     { "SYSFLAGS", lobbyEntity.getSysflags() },
                     { "COUNT", String.valueOf(lobbyEntity.getLobbyPersonas().stream().filter(lp -> lp.isInLobby()).count() + 1) },
-                    { "MAXSIZE", String.valueOf(new BigInteger(lobbyEntity.getParams().substring(lobbyEntity.getParams().lastIndexOf(',') + 1), 16).add(BigInteger.ONE)) },
+                    { "MAXSIZE", String.valueOf(lobbyEntity.getMaxsize()) },
             }).collect(Collectors.toMap(data -> data[0], data -> data[1])));
         }
 
@@ -80,57 +87,9 @@ public class LobbyService {
     public void gjoi(Socket socket, SocketData socketData) {
         socketWriter.write(socket, socketData);
 
-        ses(socket);
+        String ident = socketUtils.getValueFromSocket(socketData.getInputMessage(), "IDENT");
 
-    }
-
-    /**
-     * Unused yet
-     * @param socket
-     */
-    public void agm(Socket socket) {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "IDENT", "1" },
-                { "NAME", "abcd" },
-                { "HOST", "player" },
-                { "GPSHOST", "player" },
-                { "PARAMS", "8,12d,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" },
-                // { "PLATPARAMS", "0" },  // ???
-                { "ROOM", "0" },
-                { "CUSTFLAGS", "0" },
-                { "SYSFLAGS", "262656" },
-                { "COUNT", "1" },
-                { "PRIV", "0" },
-                { "MINSIZE", "0" },
-                { "MAXSIZE", "33" },
-                { "NUMPART", "1" },
-                { "SEED", "012345" }, // random seed
-                { "WHEN", "2009.2.8-9:44:15" },
-                { "GAMEPORT", "21173" },
-                { "VOIPPORT", "21173" },
-                // { "GAMEMODE", "0" }, // ???
-                // { "AUTH", "0" }, // ???
-
-                // loop 0x80022058 only if COUNT>=0
-                { "OPID0", "1" }, // OPID%d
-                { "OPPO0", "player" }, // OPPO%d
-                { "ADDR0", socket.getInetAddress().getHostName() }, // ADDR%d
-                { "LADDR0", socket.getInetAddress().getHostName() }, // LADDR%d
-                { "MADDR0", "$0017ab8f4451" }, // MADDR%d
-                // { "OPPART0", "0" }, // OPPART%d
-                // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
-                // { "OPFLAGS0", "0" }, // OPFLAGS%d
-                // { "PRES0", "0" }, // PRES%d ???
-
-                // another loop 0x8002225C only if NUMPART>=0
-                { "PARTSIZE0", "17" }, // PARTSIZE%d
-                { "PARTPARAMS0", "0" }, // PARTPARAMS%d
-                { "SELF", "player" }, // PARTPARAMS%d
-
-                // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-
-        socketWriter.write(socket, new SocketData("+agm", null, content));
+        ses(socket, Long.valueOf(ident));
     }
 
     /**
@@ -141,109 +100,71 @@ public class LobbyService {
     public void gpsc(Socket socket, SocketData socketData) {
         socketWriter.write(socket, socketData);
 
-        ses(socket);
-    }
+        LobbyEntity lobbyEntity = socketMapper.toLobbyEntityForCreation(socketData.getInputMessage());
+        lobbyEntity.setStartTime(Timestamp.from(Instant.now()));
+        lobbyRepository.save(lobbyEntity);
 
-    /**
-     * Unused yet
-     * @param socket
-     */
-    public void mgm(Socket socket) {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "IDENT", "1" },
-                { "NAME", "abcd" },
-                { "HOST", "player" },
-                { "GPSHOST", "player" },
-                { "PARAMS", "8,12d,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" },
-                // { "PLATPARAMS", "0" },  // ???
-                { "ROOM", "0" },
-                { "CUSTFLAGS", "0" },
-                { "SYSFLAGS", "262656" },
-                { "COUNT", "1" },
-                { "PRIV", "0" },
-                { "MINSIZE", "0" },
-                { "MAXSIZE", "33" },
-                { "NUMPART", "1" },
-                { "SEED", "012345" }, // random seed
-                { "WHEN", "2009.2.8-9:44:15" },
-                { "GAMEPORT", "21173" },
-                { "VOIPPORT", "21173" },
-                // { "GAMEMODE", "0" }, // ???
-                // { "AUTH", "0" }, // ???
-
-                // loop 0x80022058 only if COUNT>=0
-                { "OPID0", "1" }, // OPID%d
-                { "OPPO0", "player" }, // OPPO%d
-                { "ADDR0", socket.getInetAddress().getHostName() }, // ADDR%d
-                { "LADDR0", socket.getInetAddress().getHostName() }, // LADDR%d
-                { "MADDR0", "$0017ab8f4451" }, // MADDR%d
-                // { "OPPART0", "0" }, // OPPART%d
-                // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
-                // { "OPFLAGS0", "0" }, // OPFLAGS%d
-                // { "PRES0", "0" }, // PRES%d ???
-
-                // another loop 0x8002225C only if NUMPART>=0
-                { "PARTSIZE0", "17" }, // PARTSIZE%d
-                { "PARTPARAMS0", "0" }, // PARTPARAMS%d
-                { "SELF", "player" }, // PARTPARAMS%d
-
-                // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-
-        socketWriter.write(socket, new SocketData("+mgm", null, content));
+        ses(socket, lobbyEntity.getId());
     }
 
     /**
      * Lobby info based on IDENT
      * @param socket
      */
-    public void ses(Socket socket) {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "IDENT", "1" },
-                { "NAME", "abcd" },
-                { "HOST", sessionData.getCurrentPersonna().getPers() },
-                { "GPSHOST", sessionData.getCurrentPersonna().getPers() },
-                { "PARAMS", "2,191,,,-1,,,1e,,-1,1,1,1,1,1,1,1,1,20,,,15f90,122d0022" },
-                // { "PLATPARAMS", "0" },  // ???
-                { "ROOM", "0" },
-                { "CUSTFLAGS", "0" },
-                { "SYSFLAGS", "262656" },
-                { "COUNT", "1" },
-                { "PRIV", "0" },
-                { "MINSIZE", "0" },
-                { "MAXSIZE", "33" },
-                { "NUMPART", "1" },
-                { "SEED", "012345" }, // random seed
-                { "WHEN", "2009.2.8-9:44:15" },
-                { "GAMEPORT", "21173" },
-                { "VOIPPORT", "21173" },
-                // { "GAMEMODE", "0" }, // ???
-                // { "AUTH", "0" }, // ???
+    public void ses(Socket socket, Long lobbyId) {
+        Optional<LobbyEntity> lobbyEntityOpt = lobbyRepository.findById(lobbyId);
 
-                // loop 0x80022058 only if COUNT>=0
-                { "OPID0", "1" }, // OPID%d
-                { "OPPO0", sessionData.getCurrentPersonna().getPers() }, // OPPO%d
-                { "ADDR0", socket.getInetAddress().getHostName() }, // ADDR%d
-                { "LADDR0", socket.getInetAddress().getHostName() }, // LADDR%d
-                { "MADDR0", "$0017ab8f4451" }, // MADDR%d
-                // { "OPPART0", "0" }, // OPPART%d
-                // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
-                // { "OPFLAGS0", "0" }, // OPFLAGS%d
-                // { "PRES0", "0" }, // PRES%d ???
+        if(lobbyEntityOpt.isPresent()) {
+            LobbyEntity lobbyEntity = lobbyEntityOpt.get();
 
-                // another loop 0x8002225C only if NUMPART>=0
-                { "PARTSIZE0", "17" }, // PARTSIZE%d
-                { "PARTPARAMS0", "0" }, // PARTPARAMS%d
-                { "SELF", sessionData.getCurrentPersonna().getPers() }, // PARTPARAMS%d
+            Map<String, String> content = Stream.of(new String[][] {
+                    { "IDENT", String.valueOf(lobbyEntity.getId()) },
+                    { "NAME", lobbyEntity.getName() },
+                    { "HOST", sessionData.getCurrentPersonna().getPers() },
+                    { "GPSHOST", sessionData.getCurrentPersonna().getPers() },
+                    { "PARAMS", lobbyEntity.getParams() },
+                    // { "PLATPARAMS", "0" },  // ???
+                    { "ROOM", "0" },
+                    { "CUSTFLAGS", "0" },
+                    { "SYSFLAGS", lobbyEntity.getSysflags() },
+                    { "COUNT", String.valueOf(lobbyEntity.getLobbyPersonas().stream().filter(lp -> lp.isInLobby()).count() + 1) },
+                    { "PRIV", "0" },
+                    { "MINSIZE", String.valueOf(lobbyEntity.getMinsize()) },
+                    { "MAXSIZE", String.valueOf(lobbyEntity.getMaxsize()) },
+                    { "NUMPART", "1" },
+                    { "SEED", "012345" }, // random seed
+                    { "WHEN", "2009.2.8-9:44:15" },
+                    { "GAMEPORT", "21173" },
+                    { "VOIPPORT", "21173" },
+                    // { "GAMEMODE", "0" }, // ???
+                    // { "AUTH", "0" }, // ???
 
-                // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+                    // loop 0x80022058 only if COUNT>=0
+                    { "OPID0", "1" }, // OPID%d
+                    { "OPPO0", sessionData.getCurrentPersonna().getPers() }, // OPPO%d
+                    { "ADDR0", socket.getInetAddress().getHostName() }, // ADDR%d
+                    { "LADDR0", socket.getInetAddress().getHostName() }, // LADDR%d
+                    { "MADDR0", "$0017ab8f4451" }, // MADDR%d
+                    // { "OPPART0", "0" }, // OPPART%d
+                    // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
+                    // { "OPFLAGS0", "0" }, // OPFLAGS%d
+                    // { "PRES0", "0" }, // PRES%d ???
 
-        socketWriter.write(socket, new SocketData("+ses", null, content));
+                    // another loop 0x8002225C only if NUMPART>=0
+                    { "PARTSIZE0", "17" }, // PARTSIZE%d
+                    { "PARTPARAMS0", "0" }, // PARTPARAMS%d
+                    { "SELF", sessionData.getCurrentPersonna().getPers() }, // PARTPARAMS%d
+
+                    // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
+            }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+            socketWriter.write(socket, new SocketData("+ses", null, content));
+
+        }
     }
 
     /**
-     * Unused yet
+     * Lobby details (current opponents, ...)
      * @param socket
      */
     public void gget(Socket socket) {
@@ -282,77 +203,6 @@ public class LobbyService {
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketWriter.write(socket, new SocketData("gget", null, content));
-    }
-
-    /**
-     * Unused yet
-     * @param socket
-     */
-    public void usr(Socket socket) {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "I", "1" },
-                { "N", "player" },
-                { "M", "player" },
-                { "F", "H" },
-                { "A", socket.getInetAddress().getHostName() },
-                { "P", "211" },
-                { "S", "0" },
-                { "X", "" },
-                { "G", "0" },
-                { "T", "2" },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-
-        socketWriter.write(socket, new SocketData("+usr", null, content));
-    }
-
-    /**
-     * Unused yet
-     * @param socket
-     */
-    public void move(Socket socket) {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "IDENT", "1" },
-                { "NAME", "1" },
-                { "COUNT", "1" },
-                { "FLAGS", "0" },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-
-        socketWriter.write(socket, new SocketData("move", null, content));
-    }
-
-    /**
-     * Unused yet
-     * @param socket
-     */
-    public <T> void rom(Socket socket) {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "I", "1" },
-                { "N", "player" },
-                { "H", "player" },
-                { "F", "CK" },
-                { "T", "1" },
-                { "L", "50" },
-                { "P", "0" },
-                { "IDENT", "1" }, // new
-                { "NAME", "player" }, //
-                { "COUNT", "1" }, //
-                { "LIDENT", "0" }, //
-                { "LCOUNT", "0" }, //
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-
-        socketWriter.write(socket, new SocketData("+rom", null, content));
-    }
-
-    /**
-     * Unused yet
-     * @param socket
-     */
-    public <T> void pop(Socket socket) {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "Z", "1/1" },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-
-        socketWriter.write(socket, new SocketData("+pop", null, content));
     }
 
 }
