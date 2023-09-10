@@ -82,7 +82,7 @@ public class SocketProcessor {
                 lobbyService.gsea(socket, socketData);
                 break;
             case ("gget"):
-                lobbyService.gget(socket);
+                lobbyService.gget(socket, socketData);
                 break;
             case ("gjoi"):
                 lobbyService.gjoi(socket, socketData);
