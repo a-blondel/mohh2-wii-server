@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -33,5 +34,8 @@ public class PersonaEntity {
     private Timestamp createdOn;
 
     private Timestamp deletedOn;
+
+    @OneToMany(mappedBy="persona", fetch = FetchType.LAZY)
+    private Set<LobbyPersonaEntity> lobbyPersonas;
 
 }

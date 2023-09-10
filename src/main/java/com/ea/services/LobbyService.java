@@ -2,12 +2,17 @@ package com.ea.services;
 
 import com.ea.dto.SessionData;
 import com.ea.dto.SocketData;
+import com.ea.entities.LobbyEntity;
+import com.ea.repositories.LobbyRepository;
 import com.ea.steps.SocketWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigInteger;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -16,10 +21,13 @@ import java.util.stream.Stream;
 public class LobbyService {
 
     @Autowired
-    SocketWriter socketWriter;
+    private SocketWriter socketWriter;
 
     @Autowired
     private SessionData sessionData;
+
+    @Autowired
+    private LobbyRepository lobbyRepository;
 
     /**
      * Lobby count
@@ -27,49 +35,38 @@ public class LobbyService {
      * @param socketData
      */
     public void gsea(Socket socket, SocketData socketData) {
+
+        List<LobbyEntity> lobbyEntities = lobbyRepository.findByEndTime(null);
+
         Map<String, String> content = Stream.of(new String[][] {
-                { "COUNT", "3" },
+                { "COUNT", String.valueOf(lobbyEntities.size()) },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
         socketWriter.write(socket, socketData);
 
-        gam(socket);
+        gam(socket, lobbyEntities);
     }
 
     /**
      * List lobbies
      * @param socket
      */
-    public void gam(Socket socket) {
-        Map<String, String> lobby1 = Stream.of(new String[][] {
-                { "IDENT", "1" },
-                { "NAME", "\"Modded lobby\"" },
-                { "PARAMS", "2,191,,,,,,,,-1,1,1,1,1,1,1,1,1,20" },
-                { "SYSFLAGS", "262656" },
-                { "COUNT", "31" },
-                { "MAXSIZE", "33" },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+    public void gam(Socket socket, List<LobbyEntity> lobbyEntities) {
+        List<Map<String, String>> lobbies = new ArrayList<>();
 
-        Map<String, String> lobby2 = Stream.of(new String[][] {
-                { "IDENT", "2" },
-                { "NAME", "\"Glitch\"" },
-                { "PARAMS", "7,65,,,a,,32,,,-1,1,1,1,1,1,1,1,,5" },
-                { "SYSFLAGS", "512" },
-                { "COUNT", "2" },
-                { "MAXSIZE", "6" },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+        for(LobbyEntity lobbyEntity : lobbyEntities) {
+            lobbies.add(Stream.of(new String[][] {
+                    { "IDENT", String.valueOf(lobbyEntity.getId()) },
+                    { "NAME", lobbyEntity.getName() },
+                    { "PARAMS", lobbyEntity.getParams() },
+                    { "SYSFLAGS", lobbyEntity.getSysflags() },
+                    { "COUNT", String.valueOf(lobbyEntity.getLobbyPersonas().stream().filter(lp -> lp.isInLobby()).count() + 1) },
+                    { "MAXSIZE", String.valueOf(new BigInteger(lobbyEntity.getParams().substring(lobbyEntity.getParams().lastIndexOf(',') + 1), 16).add(BigInteger.ONE)) },
+            }).collect(Collectors.toMap(data -> data[0], data -> data[1])));
+        }
 
-        Map<String, String> lobby3 = Stream.of(new String[][] {
-                { "IDENT", "3" },
-                { "NAME", "\"Bazooka only\"" },
-                { "PARAMS", "8,1f5,,,5,,14,,,-1,1,1,1,1,1,1,1,1,10" },
-                { "SYSFLAGS", "262656" },
-                { "COUNT", "9" },
-                { "MAXSIZE", "17" },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-
-        for (Map<String, String> lobby : Arrays.asList(lobby1, lobby2, lobby3)) {
+        for (Map<String, String> lobby : lobbies) {
             SocketData socketData = new SocketData("+gam", null, lobby);
             socketWriter.write(socket, socketData);
         }
