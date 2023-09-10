@@ -13,7 +13,7 @@ import java.net.Socket;
 public class SocketReader {
 
     @Autowired
-    SocketParser socketParser;
+    private SocketParser socketParser;
 
     /**
      * Waits for data to come from the client

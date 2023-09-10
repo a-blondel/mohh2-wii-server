@@ -16,7 +16,7 @@ import java.net.InetAddress;
 @Component
 public class DatagramSocketWriter {
     @Autowired
-    Props props;
+    private Props props;
 
     /**
      * Sends packet

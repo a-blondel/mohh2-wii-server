@@ -42,17 +42,18 @@ CREATE TABLE IF NOT EXISTS CONNECTIONS (
     CONSTRAINT FK_CONNECTIONS_ACCOUNT_ID FOREIGN KEY (ACCOUNT_ID) REFERENCES ACCOUNT(ID)
 );
 
--- Not quite sure yet --
 CREATE TABLE IF NOT EXISTS LOBBY (
     ID numeric AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    MODE varchar(10) NOT NULL,
-    MAP varchar(10) NOT NULL,
-    -- other params --
+    NAME varchar(32) NOT NULL,
+    PARAMS varchar(255) NOT NULL,
+    SYSFLAGS varchar(10) NOT NULL,
+    PASS varchar(128) NULL,
+    MINSIZE numeric NOT NULL,
+    MAXSIZE numeric NOT NULL,
     START_TIME timestamp NOT NULL,
     END_TIME timestamp NULL
 );
 
--- Not quite sure yet --
 CREATE TABLE IF NOT EXISTS LOBBY_REPORT (
     ID numeric AUTO_INCREMENT PRIMARY KEY NOT NULL,
     LOBBY_ID numeric NOT NULL,

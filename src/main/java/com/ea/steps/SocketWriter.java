@@ -20,7 +20,7 @@ import static java.util.stream.Collectors.joining;
 public class SocketWriter {
 
     @Autowired
-    Props props;
+    private Props props;
 
     /**
      * Builds the full output message based on the data id and content

@@ -1,6 +1,8 @@
 package com.ea.steps;
 
 import com.ea.dto.DatagramSocketData;
+import com.ea.services.LobbyService;
+import com.ea.utils.SocketUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,7 +17,13 @@ import java.util.Arrays;
 public class DatagramSocketProcessor {
 
     @Autowired
-    DatagramSocketWriter datagramSocketWriter;
+    private LobbyService lobbyService;
+
+    @Autowired
+    private DatagramSocketWriter datagramSocketWriter;
+
+    @Autowired
+    private SocketUtils socketUtils;
 
     /**
      * Prepares the output message based on request type,
@@ -32,7 +40,9 @@ public class DatagramSocketProcessor {
 
         if (5 == packetSeq) { // RAW_PACKET_POKE
             int returnSeq = 2; // RAW_PACKET_CONN (not sure, but it works)
-            System.arraycopy(intToByteArray(returnSeq), 0, buf, 0, 4);
+            System.arraycopy(socketUtils.intToByteArray(returnSeq), 0, buf, 0, 4);
+        } else if (3 == packetSeq) { // RAW_PACKET_DISC
+            lobbyService.leaveLobby();
         } else if (128 <= packetSeq && 256 > packetSeq) { // RAW_PACKET_UNREL
             int packetOperation = new BigInteger(1, buf, inputPacket.getLength() - 1, 1).intValue();
             if (7 == packetOperation) { // GAME_PACKET_USER_UNRELIABLE
@@ -68,6 +78,15 @@ public class DatagramSocketProcessor {
                 // 41c4b7bc = current tick
                 // 0054 = game latency
                 // 47 = packet type (GAME_PACKET_USER_UNRELIABLE (7) + GAME_PACKET_SYNC (40))
+            } else if (64 == packetOperation)  { // GAME_PACKET_SYNC (64)
+                // 0000136b 0000136b 113a34cb 113a3563 0098 40
+
+                // 0000136b = packetSeq
+                // 0000136b = ack of previous RAW_PACKET_DATA
+                // 113a34cb = last tick
+                // 113a3563 = current tick
+                // 0098 = game latency
+                // 40 = packet type (GAME_PACKET_SYNC (40))
             }
         } else if (256 <= packetSeq) { // RAW_PACKET_DATA
             // Nothing to do yet...
@@ -77,14 +96,6 @@ public class DatagramSocketProcessor {
 
         datagramSocketWriter.write(socket, socketData);
 
-    }
-
-    public static final byte[] intToByteArray(int value) {
-        return new byte[] {
-                (byte)(value >>> 24),
-                (byte)(value >>> 16),
-                (byte)(value >>> 8),
-                (byte)value};
     }
 
 }
