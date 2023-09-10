@@ -36,6 +36,6 @@ public class LobbyEntity {
     private Timestamp endTime;
 
     @OneToMany(mappedBy="lobby", fetch = FetchType.EAGER)
-    private Set<LobbyPersonaEntity> lobbyPersonas;
+    private Set<LobbyReportEntity> lobbyReports;
 
 }

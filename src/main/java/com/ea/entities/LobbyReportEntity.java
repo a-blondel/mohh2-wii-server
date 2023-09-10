@@ -5,12 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "LOBBY_PERSONA")
-public class LobbyPersonaEntity {
+@Table(name = "LOBBY_REPORT")
+public class LobbyReportEntity {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -28,6 +30,8 @@ public class LobbyPersonaEntity {
 
     private int deaths;
 
-    private boolean inLobby;
+    private Timestamp startTime;
+
+    private Timestamp endTime;
 
 }
