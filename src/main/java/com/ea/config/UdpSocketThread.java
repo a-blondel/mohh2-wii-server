@@ -15,10 +15,10 @@ import java.net.DatagramSocket;
 @Component
 public class UdpSocketThread implements Runnable {
 
-    DatagramSocket clientSocket;
+    private DatagramSocket clientSocket;
 
     @Autowired
-    DatagramSocketReader datagramSocketReader;
+    private DatagramSocketReader datagramSocketReader;
 
     public void setClientSocket(DatagramSocket clientSocket) {
         this.clientSocket = clientSocket;

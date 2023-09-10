@@ -17,10 +17,10 @@ import java.net.InetAddress;
 public class DatagramSocketReader {
 
     @Autowired
-    Props props;
+    private Props props;
 
     @Autowired
-    DatagramSocketProcessor datagramSocketProcessor;
+    private DatagramSocketProcessor datagramSocketProcessor;
 
     /**
      * Waits for data to come from the client
