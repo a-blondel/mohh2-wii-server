@@ -3,8 +3,10 @@ package com.ea.services;
 import com.ea.dto.SessionData;
 import com.ea.dto.SocketData;
 import com.ea.entities.LobbyEntity;
+import com.ea.entities.LobbyPersonaEntity;
 import com.ea.entities.PersonaEntity;
 import com.ea.mappers.SocketMapper;
+import com.ea.repositories.LobbyPersonaRepository;
 import com.ea.repositories.LobbyRepository;
 import com.ea.steps.SocketWriter;
 import com.ea.utils.SocketUtils;
@@ -23,6 +25,9 @@ public class LobbyService {
 
     @Autowired
     private LobbyRepository lobbyRepository;
+
+    @Autowired
+    private LobbyPersonaRepository lobbyPersonaRepository;
 
     @Autowired
     private SessionData sessionData;
@@ -151,8 +156,22 @@ public class LobbyService {
                     // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
             }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-            socketWriter.write(socket, new SocketData("+ses", null, content));
+            Optional<LobbyPersonaEntity> lpeOpt = lobbyEntity.getLobbyPersonas().stream().filter(lp -> lp.getPersona().getId() == sessionData.getCurrentPersonna().getId()).findFirst();
+            LobbyPersonaEntity lobbyPersonaEntity;
+            if(lpeOpt.isPresent()) {
+                lobbyPersonaEntity = lpeOpt.get();
+            } else {
+                lobbyPersonaEntity = new LobbyPersonaEntity();
+                lobbyPersonaEntity.setLobby(lobbyEntity);
+                lobbyPersonaEntity.setPersona(sessionData.getCurrentPersonna());
+                lobbyEntity.getLobbyPersonas().add(lobbyPersonaEntity);
+            }
+            lobbyPersonaEntity.setInLobby(true);
+            lobbyPersonaRepository.save(lobbyPersonaEntity);
 
+            sessionData.setCurrentLobby(lobbyEntity);
+
+            socketWriter.write(socket, new SocketData("+ses", null, content));
         }
     }
 
@@ -196,6 +215,21 @@ public class LobbyService {
             );
 
             socketWriter.write(socket, new SocketData("gget", null, content));
+        }
+    }
+
+    /**
+     * Indicates that the player has left the lobby
+     */
+    public void leaveLobby() {
+        if (null != sessionData.getCurrentLobby()) {
+            Optional<LobbyPersonaEntity> lpeOpt = sessionData.getCurrentLobby().getLobbyPersonas().stream().filter(lp -> lp.getPersona().getId() == sessionData.getCurrentPersonna().getId()).findFirst();
+            if(lpeOpt.isPresent()) {
+                LobbyPersonaEntity lobbyPersonaEntity = lpeOpt.get();
+                lobbyPersonaEntity.setInLobby(false);
+                lobbyPersonaRepository.save(lobbyPersonaEntity);
+            }
+            sessionData.setCurrentLobby(null);
         }
     }
 

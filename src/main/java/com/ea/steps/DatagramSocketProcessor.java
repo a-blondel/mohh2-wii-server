@@ -1,6 +1,7 @@
 package com.ea.steps;
 
 import com.ea.dto.DatagramSocketData;
+import com.ea.services.LobbyService;
 import com.ea.utils.SocketUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ import java.util.Arrays;
 @Slf4j
 @Component
 public class DatagramSocketProcessor {
+
+    @Autowired
+    private LobbyService lobbyService;
 
     @Autowired
     private DatagramSocketWriter datagramSocketWriter;
@@ -37,6 +41,8 @@ public class DatagramSocketProcessor {
         if (5 == packetSeq) { // RAW_PACKET_POKE
             int returnSeq = 2; // RAW_PACKET_CONN (not sure, but it works)
             System.arraycopy(socketUtils.intToByteArray(returnSeq), 0, buf, 0, 4);
+        } else if (3 == packetSeq) { // RAW_PACKET_DISC
+            lobbyService.leaveLobby();
         } else if (128 <= packetSeq && 256 > packetSeq) { // RAW_PACKET_UNREL
             int packetOperation = new BigInteger(1, buf, inputPacket.getLength() - 1, 1).intValue();
             if (7 == packetOperation) { // GAME_PACKET_USER_UNRELIABLE
