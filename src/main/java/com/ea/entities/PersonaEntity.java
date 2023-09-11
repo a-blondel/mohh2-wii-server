@@ -36,6 +36,6 @@ public class PersonaEntity {
     private Timestamp deletedOn;
 
     @OneToMany(mappedBy="persona", fetch = FetchType.LAZY)
-    private Set<LobbyReportEntity> lobbyPersonas;
+    private Set<LobbyReportEntity> lobbyReports;
 
 }

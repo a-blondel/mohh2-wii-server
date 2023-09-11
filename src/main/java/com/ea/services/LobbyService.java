@@ -6,7 +6,7 @@ import com.ea.entities.LobbyEntity;
 import com.ea.entities.LobbyReportEntity;
 import com.ea.entities.PersonaEntity;
 import com.ea.mappers.SocketMapper;
-import com.ea.repositories.LobbyPersonaRepository;
+import com.ea.repositories.LobbyReportRepository;
 import com.ea.repositories.LobbyRepository;
 import com.ea.steps.SocketWriter;
 import com.ea.utils.SocketUtils;
@@ -27,7 +27,7 @@ public class LobbyService {
     private LobbyRepository lobbyRepository;
 
     @Autowired
-    private LobbyPersonaRepository lobbyPersonaRepository;
+    private LobbyReportRepository lobbyReportRepository;
 
     @Autowired
     private SessionData sessionData;
@@ -160,7 +160,7 @@ public class LobbyService {
             lobbyReportEntity.setLobby(lobbyEntity);
             lobbyReportEntity.setPersona(sessionData.getCurrentPersonna());
             lobbyReportEntity.setStartTime(Timestamp.from(Instant.now()));
-            lobbyPersonaRepository.save(lobbyReportEntity);
+            lobbyReportRepository.save(lobbyReportEntity);
 
             lobbyEntity.getLobbyReports().add(lobbyReportEntity);
             sessionData.setCurrentLobby(lobbyEntity);
@@ -223,7 +223,7 @@ public class LobbyService {
             if(reportOpt.isPresent()) {
                 LobbyReportEntity lobbyReportEntity = reportOpt.get();
                 lobbyReportEntity.setEndTime(Timestamp.from(Instant.now()));
-                lobbyPersonaRepository.save(lobbyReportEntity);
+                lobbyReportRepository.save(lobbyReportEntity);
             }
             sessionData.setCurrentLobby(null);
         }
