@@ -29,7 +29,7 @@ public abstract class SocketMapper {
     @Mapping(target = "maxsize", expression = "java(Integer.parseInt(socketUtils.getValueFromSocket(socket, \"MAXSIZE\")))")
     @Mapping(target = "startTime", ignore = true)
     @Mapping(target = "endTime", ignore = true)
-    @Mapping(target = "lobbyPersonas", ignore = true)
+    @Mapping(target = "lobbyReports", ignore = true)
     public abstract LobbyEntity toLobbyEntityForCreation(String socket);
 
     @BeanMapping(qualifiedByName = "AccountEntityForCreation")
