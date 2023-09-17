@@ -156,16 +156,9 @@ public class LobbyService {
                     // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
             }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-            LobbyReportEntity lobbyReportEntity = new LobbyReportEntity();
-            lobbyReportEntity.setLobby(lobbyEntity);
-            lobbyReportEntity.setPersona(sessionData.getCurrentPersonna());
-            lobbyReportEntity.setStartTime(Timestamp.from(Instant.now()));
-            lobbyReportRepository.save(lobbyReportEntity);
-
-            lobbyEntity.getLobbyReports().add(lobbyReportEntity);
-            sessionData.setCurrentLobby(lobbyEntity);
-
             socketWriter.write(socket, new SocketData("+ses", null, content));
+
+            startLobbyReport(lobbyEntity);
         }
     }
 
@@ -213,19 +206,31 @@ public class LobbyService {
     }
 
     /**
-     * Indicates that the player has left the lobby
+     * Registers a lobby entry
+     * @param lobbyEntity
      */
-    public void leaveLobby() {
-        if (null != sessionData.getCurrentLobby()) {
-            Optional<LobbyReportEntity> reportOpt = sessionData.getCurrentLobby().getLobbyReports().stream().filter(
-                    report -> report.getPersona().getId() == sessionData.getCurrentPersonna().getId() && null == report.getEndTime()
-                    ).findFirst();
-            if(reportOpt.isPresent()) {
-                LobbyReportEntity lobbyReportEntity = reportOpt.get();
-                lobbyReportEntity.setEndTime(Timestamp.from(Instant.now()));
-                lobbyReportRepository.save(lobbyReportEntity);
-            }
+    private void startLobbyReport(LobbyEntity lobbyEntity) {
+        LobbyReportEntity lobbyReportEntity = new LobbyReportEntity();
+        lobbyReportEntity.setLobby(lobbyEntity);
+        lobbyReportEntity.setPersona(sessionData.getCurrentPersonna());
+        lobbyReportEntity.setStartTime(Timestamp.from(Instant.now()));
+        lobbyReportRepository.save(lobbyReportEntity);
+
+        lobbyEntity.getLobbyReports().add(lobbyReportEntity);
+        sessionData.setCurrentLobby(lobbyEntity);
+        sessionData.setCurrentLobbyReport(lobbyReportEntity);
+    }
+
+    /**
+     * Ends the lobby report because the player has left the lobby
+     */
+    public void endLobbyReport() {
+        LobbyReportEntity lobbyReportEntity = sessionData.getCurrentLobbyReport();
+        if (lobbyReportEntity != null) {
+            lobbyReportEntity.setEndTime(Timestamp.from(Instant.now()));
+            lobbyReportRepository.save(lobbyReportEntity);
             sessionData.setCurrentLobby(null);
+            sessionData.setCurrentLobbyReport(null);
         }
     }
 

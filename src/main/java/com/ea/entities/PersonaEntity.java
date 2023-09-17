@@ -38,4 +38,7 @@ public class PersonaEntity {
     @OneToMany(mappedBy="persona", fetch = FetchType.LAZY)
     private Set<LobbyReportEntity> lobbyReports;
 
+    @OneToMany(mappedBy="persona", fetch = FetchType.LAZY)
+    private Set<PersonaConnectionEntity> personaConnections;
+
 }
