@@ -1,8 +1,6 @@
 package com.ea.dto;
 
-import com.ea.entities.AccountEntity;
-import com.ea.entities.LobbyEntity;
-import com.ea.entities.PersonaEntity;
+import com.ea.entities.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
@@ -18,6 +16,8 @@ public class SessionData {
 
     private AccountEntity currentAccount;
     private PersonaEntity currentPersonna;
+    private PersonaConnectionEntity currentPersonaConnection;
     private LobbyEntity currentLobby;
+    private LobbyReportEntity currentLobbyReport;
 
 }

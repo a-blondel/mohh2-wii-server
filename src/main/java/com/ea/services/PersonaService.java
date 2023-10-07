@@ -2,7 +2,9 @@ package com.ea.services;
 
 import com.ea.dto.SessionData;
 import com.ea.dto.SocketData;
+import com.ea.entities.PersonaConnectionEntity;
 import com.ea.entities.PersonaEntity;
+import com.ea.repositories.PersonaConnectionRepository;
 import com.ea.repositories.PersonaRepository;
 import com.ea.steps.SocketWriter;
 import com.ea.utils.AccountUtils;
@@ -23,6 +25,9 @@ public class PersonaService {
 
     @Autowired
     private PersonaRepository personaRepository;
+
+    @Autowired
+    private PersonaConnectionRepository personaConnectionRepository;
 
     @Autowired
     private SessionData sessionData;
@@ -90,7 +95,32 @@ public class PersonaService {
             socketWriter.write(socket, socketData);
 
             who(socket);
+
+            startPersonaConnection(socket, personaEntity);
         }
+    }
+
+    /**
+     * Registers a connection of the persona
+     * @param socket
+     * @param personaEntity
+     */
+    private void startPersonaConnection(Socket socket, PersonaEntity personaEntity) {
+        PersonaConnectionEntity personaConnectionEntity = new PersonaConnectionEntity();
+        personaConnectionEntity.setIp(socket.getInetAddress().getHostAddress());
+        personaConnectionEntity.setPersona(personaEntity);
+        personaConnectionEntity.setStartTime(Timestamp.from(Instant.now()));
+        personaConnectionRepository.save(personaConnectionEntity);
+        sessionData.setCurrentPersonaConnection(personaConnectionEntity);
+    }
+
+    /**
+     * Ends the current connection of the persona
+     */
+    public void endPersonaConnection() {
+        PersonaConnectionEntity personaConnectionEntity = sessionData.getCurrentPersonaConnection();
+        personaConnectionEntity.setEndTime(Timestamp.from(Instant.now()));
+        personaConnectionRepository.save(personaConnectionEntity);
     }
 
     /**

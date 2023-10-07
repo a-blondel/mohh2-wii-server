@@ -2,6 +2,7 @@ package com.ea.config;
 
 import com.ea.dto.SocketData;
 import com.ea.services.LobbyService;
+import com.ea.services.PersonaService;
 import com.ea.steps.SocketReader;
 import com.ea.steps.SocketWriter;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,9 @@ public class TcpSocketThread implements Runnable {
     private SocketWriter socketWriter;
 
     @Autowired
+    private PersonaService personaService;
+
+    @Autowired
     private LobbyService lobbyService;
 
     private Socket clientSocket;
@@ -50,7 +54,8 @@ public class TcpSocketThread implements Runnable {
             e.printStackTrace();
         } finally {
             pingExecutor.shutdown();
-            lobbyService.leaveLobby(); // If the player doesn't leave from the game
+            lobbyService.endLobbyReport(); // If the player doesn't leave from the game
+            personaService.endPersonaConnection();
             log.info("TCP client session ended: " + clientSocket.hashCode());
         }
     }

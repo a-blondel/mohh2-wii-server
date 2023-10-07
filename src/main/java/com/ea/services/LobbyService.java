@@ -9,7 +9,9 @@ import com.ea.mappers.SocketMapper;
 import com.ea.repositories.LobbyReportRepository;
 import com.ea.repositories.LobbyRepository;
 import com.ea.steps.SocketWriter;
+import com.ea.utils.Props;
 import com.ea.utils.SocketUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +24,9 @@ import java.util.stream.Stream;
 
 @Component
 public class LobbyService {
+
+    @Autowired
+    private Props props;
 
     @Autowired
     private LobbyRepository lobbyRepository;
@@ -115,12 +120,19 @@ public class LobbyService {
         Optional<LobbyEntity> lobbyEntityOpt = lobbyRepository.findById(lobbyId);
         if(lobbyEntityOpt.isPresent()) {
             LobbyEntity lobbyEntity = lobbyEntityOpt.get();
+
+            String params = lobbyEntity.getParams();
+            int serverPortPos = StringUtils.ordinalIndexOf(params, ",", 20);
+            StringBuilder sb = new StringBuilder(params);
+            sb.insert(serverPortPos, Integer.toHexString(props.getUdpPort())); // Set game server port
+            params = sb.toString();
+
             Map<String, String> content = Stream.of(new String[][] {
                     { "IDENT", String.valueOf(lobbyEntity.getId()) },
                     { "NAME", lobbyEntity.getName() },
-                    { "HOST", sessionData.getCurrentPersonna().getPers() },
-                    { "GPSHOST", sessionData.getCurrentPersonna().getPers() },
-                    { "PARAMS", lobbyEntity.getParams() },
+                    { "HOST", "BOT" },
+                    // { "GPSHOST", "BOT" },
+                    { "PARAMS", params },
                     // { "PLATPARAMS", "0" },  // ???
                     { "ROOM", "0" },
                     { "CUSTFLAGS", "0" },
@@ -132,17 +144,17 @@ public class LobbyService {
                     { "NUMPART", "1" },
                     { "SEED", "012345" }, // random seed
                     { "WHEN", "2009.2.8-9:44:15" },
-                    { "GAMEPORT", "21173" },
-                    { "VOIPPORT", "21173" },
+                    // { "GAMEPORT", "1" },
+                    // { "VOIPPORT", "1" },
                     // { "GAMEMODE", "0" }, // ???
                     // { "AUTH", "0" }, // ???
 
                     // loop 0x80022058 only if COUNT>=0
-                    { "OPID0", "1" }, // OPID%d
-                    { "OPPO0", sessionData.getCurrentPersonna().getPers() }, // OPPO%d
+                    { "OPID0", "0" }, // OPID%d
+                    { "OPPO0", "BOT" }, // OPPO%d
                     { "ADDR0", socket.getInetAddress().getHostName() }, // ADDR%d
-                    { "LADDR0", socket.getInetAddress().getHostName() }, // LADDR%d
-                    { "MADDR0", "$0017ab8f4451" }, // MADDR%d
+                    // { "LADDR0", socket.getInetAddress().getHostName() }, // LADDR%d
+                    // { "MADDR0", "$0017ab8f4451" }, // MADDR%d
                     // { "OPPART0", "0" }, // OPPART%d
                     // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
                     // { "OPFLAGS0", "0" }, // OPFLAGS%d
@@ -151,21 +163,14 @@ public class LobbyService {
                     // another loop 0x8002225C only if NUMPART>=0
                     { "PARTSIZE0", "17" }, // PARTSIZE%d
                     { "PARTPARAMS0", "0" }, // PARTPARAMS%d
-                    { "SELF", sessionData.getCurrentPersonna().getPers() }, // PARTPARAMS%d
+                    // { "SELF", sessionData.getCurrentPersonna().getPers() },
 
                     // { "SESS", "0" }, %s-%s-%08x 0--498ea96f
             }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-            LobbyReportEntity lobbyReportEntity = new LobbyReportEntity();
-            lobbyReportEntity.setLobby(lobbyEntity);
-            lobbyReportEntity.setPersona(sessionData.getCurrentPersonna());
-            lobbyReportEntity.setStartTime(Timestamp.from(Instant.now()));
-            lobbyReportRepository.save(lobbyReportEntity);
-
-            lobbyEntity.getLobbyReports().add(lobbyReportEntity);
-            sessionData.setCurrentLobby(lobbyEntity);
-
             socketWriter.write(socket, new SocketData("+ses", null, content));
+
+            startLobbyReport(lobbyEntity);
         }
     }
 
@@ -213,19 +218,31 @@ public class LobbyService {
     }
 
     /**
-     * Indicates that the player has left the lobby
+     * Registers a lobby entry
+     * @param lobbyEntity
      */
-    public void leaveLobby() {
-        if (null != sessionData.getCurrentLobby()) {
-            Optional<LobbyReportEntity> reportOpt = sessionData.getCurrentLobby().getLobbyReports().stream().filter(
-                    report -> report.getPersona().getId() == sessionData.getCurrentPersonna().getId() && null == report.getEndTime()
-                    ).findFirst();
-            if(reportOpt.isPresent()) {
-                LobbyReportEntity lobbyReportEntity = reportOpt.get();
-                lobbyReportEntity.setEndTime(Timestamp.from(Instant.now()));
-                lobbyReportRepository.save(lobbyReportEntity);
-            }
+    private void startLobbyReport(LobbyEntity lobbyEntity) {
+        LobbyReportEntity lobbyReportEntity = new LobbyReportEntity();
+        lobbyReportEntity.setLobby(lobbyEntity);
+        lobbyReportEntity.setPersona(sessionData.getCurrentPersonna());
+        lobbyReportEntity.setStartTime(Timestamp.from(Instant.now()));
+        lobbyReportRepository.save(lobbyReportEntity);
+
+        lobbyEntity.getLobbyReports().add(lobbyReportEntity);
+        sessionData.setCurrentLobby(lobbyEntity);
+        sessionData.setCurrentLobbyReport(lobbyReportEntity);
+    }
+
+    /**
+     * Ends the lobby report because the player has left the lobby
+     */
+    public void endLobbyReport() {
+        LobbyReportEntity lobbyReportEntity = sessionData.getCurrentLobbyReport();
+        if (lobbyReportEntity != null) {
+            lobbyReportEntity.setEndTime(Timestamp.from(Instant.now()));
+            lobbyReportRepository.save(lobbyReportEntity);
             sessionData.setCurrentLobby(null);
+            sessionData.setCurrentLobbyReport(null);
         }
     }
 

@@ -42,7 +42,7 @@ public class DatagramSocketProcessor {
             int returnSeq = 2; // RAW_PACKET_CONN (not sure, but it works)
             System.arraycopy(socketUtils.intToByteArray(returnSeq), 0, buf, 0, 4);
         } else if (3 == packetSeq) { // RAW_PACKET_DISC
-            lobbyService.leaveLobby();
+            lobbyService.endLobbyReport();
         } else if (128 <= packetSeq && 256 > packetSeq) { // RAW_PACKET_UNREL
             int packetOperation = new BigInteger(1, buf, inputPacket.getLength() - 1, 1).intValue();
             if (7 == packetOperation) { // GAME_PACKET_USER_UNRELIABLE
