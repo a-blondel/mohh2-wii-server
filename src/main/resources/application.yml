@@ -12,7 +12,7 @@ tcp:
     enabled: true
     exclusions: '~png'
 udp:
-  port: 1
+  port: 21173
   debug:
     enabled: true
 
