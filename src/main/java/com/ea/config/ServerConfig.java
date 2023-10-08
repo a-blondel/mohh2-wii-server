@@ -3,7 +3,7 @@ package com.ea.config;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 import nl.altindag.ssl.SSLFactory;
-import nl.altindag.ssl.util.PemUtils;
+import nl.altindag.ssl.pem.util.PemUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
