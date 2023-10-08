@@ -2,6 +2,9 @@ package com.ea.utils;
 
 import org.springframework.stereotype.Component;
 
+import java.util.HexFormat;
+import java.util.zip.CRC32;
+
 @Component
 public class SocketUtils {
 
@@ -20,59 +23,57 @@ public class SocketUtils {
         return result;
     }
 
-    public static final byte[] intToByteArray(int value) {
-        return new byte[] {
-                (byte)(value >>> 24),
-                (byte)(value >>> 16),
-                (byte)(value >>> 8),
-                (byte)value};
+    /**
+     * Calculate the CRC32 checksum
+     * E.g. : value = 1d0000001c000000fcff1f00e0ff1f00e0ff1f00e0ff1f0400, return = 21421344
+     * @param value
+     * @return
+     */
+    public String calcCRC32Checksum(String value) {
+        byte[] bytes = parseHexString(value);
+        CRC32 crc = new CRC32();
+        crc.update(bytes);
+        // The int cast is required to only have one Word instead of two with the long type
+        // Still unsure if int cast is safe here... Could also use long and split the result at first Word
+        return Integer.toHexString(swapEndian((int) crc.getValue()));
     }
 
-    public String encodeHexString(byte[] byteArray) {
-        StringBuffer hexStringBuffer = new StringBuffer();
-        for (int i = 0; i < byteArray.length; i++) {
-            hexStringBuffer.append(byteToHex(byteArray[i]));
-        }
-        return hexStringBuffer.toString();
+    /**
+     * Swap endianness (little endian to big endian, and the opposite)
+     * E.g. : 21421344 <-> 44134221
+     * @param value
+     * @return
+     */
+    public static int swapEndian(int value) {
+        return Integer.reverseBytes(value);
     }
 
-    public String byteToHex(byte num) {
-        char[] hexDigits = new char[2];
-        hexDigits[0] = Character.forDigit((num >> 4) & 0xF, 16);
-        hexDigits[1] = Character.forDigit((num & 0xF), 16);
-        return new String(hexDigits);
+    /**
+     * Format byte array to hex string
+     * @param bytes
+     * @return
+     */
+    public static String formatHexString(byte[] bytes) {
+        return HexFormat.of().formatHex(bytes);
     }
 
-
-    public byte[] decodeHexString(String hexString) {
-        if (hexString.length() % 2 == 1) {
-            throw new IllegalArgumentException(
-                    "Invalid hexadecimal String supplied.");
-        }
-
-        byte[] bytes = new byte[hexString.length() / 2];
-        for (int i = 0; i < hexString.length(); i += 2) {
-            bytes[i / 2] = hexToByte(hexString.substring(i, i + 2));
-        }
-        return bytes;
+    /**
+     * Parse hex string to byte array
+     * @param hexString
+     * @return
+     */
+    public static byte[] parseHexString(String hexString) {
+        return HexFormat.of().parseHex(hexString);
     }
 
-
-    public byte hexToByte(String hexString) {
-        int firstDigit = toDigit(hexString.charAt(0));
-        int secondDigit = toDigit(hexString.charAt(1));
-        return (byte) ((firstDigit << 4) + secondDigit);
+    /**
+     * Format an int into a Word (32 bits - 4 bytes - 8 hex digits)
+     * E.g. : value = 2, return = 00000002
+     * @param value
+     * @return
+     */
+    public static String formatIntToWord(int value) {
+        return String.format("%08X", value);
     }
-
-    private int toDigit(char hexChar) {
-        int digit = Character.digit(hexChar, 16);
-        if(digit == -1) {
-            throw new IllegalArgumentException(
-                    "Invalid Hexadecimal Character: "+ hexChar);
-        }
-        return digit;
-    }
-
-
 
 }
