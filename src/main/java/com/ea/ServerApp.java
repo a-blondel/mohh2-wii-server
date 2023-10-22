@@ -4,6 +4,7 @@ import com.ea.config.ServerConfig;
 import com.ea.config.SslSocketThread;
 import com.ea.config.TcpSocketThread;
 import com.ea.config.UdpSocketThread;
+import com.ea.nfsmw.client.config.NfsMwClientConfig;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class ServerApp implements CommandLineRunner {
 
     @Autowired
     ServerConfig serverConfig;
+
+    @Autowired
+    NfsMwClientConfig nfsMwClientConfig;
 
     @Autowired
     SslSocketThread sslSocketThread;
@@ -62,6 +66,8 @@ public class ServerApp implements CommandLineRunner {
             SSLServerSocket sslServerSocket = serverConfig.createSslServerSocket();
             ServerSocket tcpServerSocket = serverConfig.createTcpServerSocket();
             DatagramSocket udpServerSocket = serverConfig.createUdpServerSocket();
+            nfsMwClientConfig.startTcpConnection();
+            nfsMwClientConfig.startUdpConnection();
             log.info("Servers started. Waiting for client connections...");
 
             while(true){

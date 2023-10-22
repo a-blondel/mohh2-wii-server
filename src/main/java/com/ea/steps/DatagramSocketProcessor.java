@@ -1,8 +1,10 @@
 package com.ea.steps;
 
 import com.ea.dto.DatagramSocketData;
+import com.ea.nfsmw.client.services.NfsMwClientService;
 import com.ea.services.LobbyService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,27 +13,30 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.Arrays;
 
-import static com.ea.utils.SocketUtils.parseHexString;
-import static com.ea.utils.SocketUtils.formatIntToWord;
+import static com.ea.utils.SocketUtils.*;
 
 @Slf4j
 @Component
 public class DatagramSocketProcessor {
 
-    public static final int RAW_PACKET_CONN = 2;
-    public static final int RAW_PACKET_DISC = 3;
-    public static final int RAW_PACKET_POKE = 5;
-    public static final int GAME_PACKET_USER_UNRELIABLE = 7;
-    public static final int GAME_PACKET_USER_UNRELIABLE_AND_GAME_PACKET_SYNC = 71; // 7 + 64
-    public static final int GAME_PACKET_SYNC = 64;
-    public static final int RAW_PACKET_DATA = 256;
-    public static final int RAW_PACKET_UNREL = 128;
+    public static final int RAW_PACKET_INIT = 1; // 0x02
+    public static final int RAW_PACKET_CONN = 2; // 0x02
+    public static final int RAW_PACKET_DISC = 3; // 0x03
+    public static final int RAW_PACKET_POKE = 5; // 0x05
+    public static final int GAME_PACKET_USER_UNRELIABLE = 7; // 0x07
+    public static final int GAME_PACKET_USER_UNRELIABLE_AND_GAME_PACKET_SYNC = 71; // 0x07 + 0x40
+    public static final int GAME_PACKET_SYNC = 64; // 0x40
+    public static final int RAW_PACKET_DATA = 256; // 0x100
+    public static final int RAW_PACKET_UNREL = 128; // 0x80
 
     @Autowired
     private LobbyService lobbyService;
 
     @Autowired
     private DatagramSocketWriter datagramSocketWriter;
+
+    @Autowired
+    private NfsMwClientService nfsMwClientService;
 
     /**
      * Prepares the output message based on request type,
@@ -46,9 +51,7 @@ public class DatagramSocketProcessor {
 
         int packetSeq = new BigInteger(1, buf, 0, 4).intValue();
 
-        if (RAW_PACKET_POKE == packetSeq) {
-            System.arraycopy(parseHexString(formatIntToWord(RAW_PACKET_CONN)), 0, buf, 0, 4);
-        } else if (RAW_PACKET_DISC == packetSeq) {
+        if (RAW_PACKET_DISC == packetSeq) {
             lobbyService.endLobbyReport();
         } else if (RAW_PACKET_UNREL <= packetSeq && RAW_PACKET_DATA > packetSeq) {
             int packetOperation = new BigInteger(1, buf, inputPacket.getLength() - 1, 1).intValue();
@@ -99,7 +102,10 @@ public class DatagramSocketProcessor {
             // Nothing to do yet...
         }
 
-        socketData.setOutputMessage(buf);
+        byte[] nfsPacket = nfsMwClientService.sendUdp(buf);
+
+        // Send to the game
+        socketData.setOutputMessage(nfsPacket);
 
         datagramSocketWriter.write(socket, socketData);
 

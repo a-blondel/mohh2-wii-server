@@ -1,7 +1,9 @@
 package com.ea.utils;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.zip.CRC32;
 
@@ -36,6 +38,23 @@ public class SocketUtils {
         // The int cast is required to only have one Word instead of two with the long type
         // Still unsure if int cast is safe here... Could also use long and split the result at first Word
         return Integer.toHexString(swapEndian((int) crc.getValue()));
+    }
+
+    public static byte[] reverseByteArray(byte[] source) {
+        int sourceLength = source.length;
+        byte[] reversed = new byte[sourceLength];
+        int wordCount = (int) Math.ceil(sourceLength / (double) 4);
+        for (int i = 0; i < wordCount; i++) {
+            int minLength = Math.min(sourceLength - i * 4, 4);
+            byte[] currentByte = Arrays.copyOfRange(source, i * 4, i * 4 + minLength);
+            if(i < 2) { // Little endian on first two words ?
+                ArrayUtils.reverse(currentByte);
+                System.arraycopy(currentByte, 0, reversed, i * 4, minLength);
+            } else {
+                System.arraycopy(currentByte, 0, reversed, i * 4, minLength);
+            }
+        }
+        return reversed;
     }
 
     /**

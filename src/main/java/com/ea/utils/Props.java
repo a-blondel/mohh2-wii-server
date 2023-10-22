@@ -37,4 +37,13 @@ public class Props {
     @Value("${udp.debug.enabled}")
     private boolean udpDebugEnabled;
 
+    @Value("${nfs.ip}")
+    private String nfsIp;
+
+    @Value("${nfs.tcp.port}")
+    private int nfsTcpPort;
+
+    @Value("${nfs.udp.port}")
+    private int nfsUdpPort;
+
 }
