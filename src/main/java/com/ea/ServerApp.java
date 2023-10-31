@@ -5,6 +5,7 @@ import com.ea.config.SslSocketThread;
 import com.ea.config.TcpSocketThread;
 import com.ea.config.UdpSocketThread;
 import com.ea.nfsmw.client.config.NfsMwClientConfig;
+import com.ea.nfsmw.client.config.NfsMwSocketThread;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,9 @@ public class ServerApp implements CommandLineRunner {
     @Autowired
     UdpSocketThread udpSocketThread;
 
+    @Autowired
+    NfsMwSocketThread nfsMwSocketThread;
+
     public static void main(String[] args) {
         SpringApplication.run(ServerApp.class, args);
     }
@@ -61,7 +65,6 @@ public class ServerApp implements CommandLineRunner {
         }
 
         try {
-
             log.info("Starting servers...");
             SSLServerSocket sslServerSocket = serverConfig.createSslServerSocket();
             ServerSocket tcpServerSocket = serverConfig.createTcpServerSocket();
@@ -70,8 +73,7 @@ public class ServerApp implements CommandLineRunner {
             nfsMwClientConfig.startUdpConnection();
             log.info("Servers started. Waiting for client connections...");
 
-            while(true){
-
+            while(true) {
                 sslSocketThread.setClientSocket((SSLSocket) sslServerSocket.accept());
                 Thread threadSSL = new Thread(sslSocketThread);
                 threadSSL.start();
@@ -84,6 +86,9 @@ public class ServerApp implements CommandLineRunner {
                 Thread threadUDP = new Thread(udpSocketThread);
                 threadUDP.start();
 
+                nfsMwSocketThread.setClientSocket(nfsMwClientConfig.getTcpSocket());
+                Thread nfsThreadTCP = new Thread(nfsMwSocketThread);
+                nfsThreadTCP.start();
             }
 
         } catch (IOException e) {
