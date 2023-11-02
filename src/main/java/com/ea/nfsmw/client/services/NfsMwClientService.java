@@ -36,6 +36,51 @@ public class NfsMwClientService {
     private byte[] nfsSessionId = HexFormat.of().parseHex("26c48d86");
 
 
+    public void mockClient() {
+
+        if(!nfsInitialized) {
+            try {
+                init();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            nfsInitialized = true;
+        }
+
+        final byte[][] response = {nfsMwClientConfig.sendUdp(HexFormat.of().parseHex("0100000026c48d86"))};
+
+        try {
+            Thread.sleep(250);
+
+            response[0] = nfsMwClientConfig.sendUdp(HexFormat.of().parseHex("00010000ff000000003a4be3003a4be30000000040"));
+
+            Thread.sleep(250);
+
+            response[0] = nfsMwClientConfig.sendUdp(HexFormat.of().parseHex("00010000ff000000003a4be3003a4be30000000040"));
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        final String[] packetSeq = {formatHexString(response[0]).substring(3, 4)};
+        final int[] startSes = {0};
+
+        while("1".equals(packetSeq[0]) && startSes[0] != 3) {
+            response[0] = nfsMwClientConfig.sendUdp(response[0]);
+            packetSeq[0] = formatHexString(response[0]).substring(3,4);
+            startSes[0] = nfsMwClientConfig.getStartSes();
+        }
+
+        new Thread(() -> {
+            while("1".equals(packetSeq[0])) {
+                response[0] = nfsMwClientConfig.sendUdp(response[0]);
+                packetSeq[0] = formatHexString(response[0]).substring(3,4);
+            }
+        }).start();
+
+    }
+
+
     public void init() throws InterruptedException {
         addr();
         Thread.sleep(100);
@@ -85,13 +130,6 @@ public class NfsMwClientService {
             nfsInitialized = true;
         }
 
-        int packetSeq = new BigInteger(1, buf, 0, 4).intValue();
-
-        // if nfs needs an init and not a conn (connect mode)
-        if(RAW_PACKET_CONN == packetSeq) {
-            System.arraycopy(parseHexString(formatIntToWord(RAW_PACKET_INIT)), 0, buf, 0, 4);
-        }
-
         int gamePacket = new BigInteger(1, buf, buf.length - 1, 1).intValue();
 
         if (7 == gamePacket) {
@@ -100,35 +138,14 @@ public class NfsMwClientService {
             System.arraycopy(parseHexString("46"), 0, buf, buf.length - 1, 1);
         }
 
-        boolean isInit = RAW_PACKET_POKE == packetSeq || RAW_PACKET_INIT == packetSeq || RAW_PACKET_CONN == packetSeq;
-
-        if (isInit) {
-            System.arraycopy(buf, 4, mohSessionId, 0, 4);
-        }
-
         // Convert UDP Packet to little endian
         byte[] littleEndian = reverseByteArray(buf);
-
-        if (isInit) {
-            // Override mohSessionId by nfsSessionId
-            System.arraycopy(nfsSessionId, 0, littleEndian, 4, 4);
-        }
 
         // Forward UDP packet to NFSMW client
         byte[] nfsResult = nfsMwClientConfig.sendUdp(littleEndian);
 
-        if(isInit) {
-            // Keep in memory the nfsSessionId in case it changes
-            System.arraycopy(nfsResult, 4, nfsSessionId, 0, 4);
-        }
-
         // Convert NFSMW UDP Packet to big endian
         byte[] bigEndian = reverseByteArray(nfsResult);
-
-        if (isInit) {
-            // Override nfsSessionId by mohSessionId
-            System.arraycopy(mohSessionId, 0, bigEndian, 4, 4);
-        }
 
         // Should activate but MoHH2 freezes
         /*if (7 == gamePacket) {

@@ -6,6 +6,7 @@ import com.ea.entities.LobbyEntity;
 import com.ea.entities.LobbyReportEntity;
 import com.ea.entities.PersonaEntity;
 import com.ea.mappers.SocketMapper;
+import com.ea.nfsmw.client.services.NfsMwClientService;
 import com.ea.repositories.LobbyReportRepository;
 import com.ea.repositories.LobbyRepository;
 import com.ea.steps.SocketWriter;
@@ -45,6 +46,9 @@ public class LobbyService {
 
     @Autowired
     private SocketWriter socketWriter;
+
+    @Autowired
+    private NfsMwClientService nfsMwClientService;
 
     /**
      * Lobby count
@@ -94,6 +98,8 @@ public class LobbyService {
      * @param socketData
      */
     public void gjoi(Socket socket, SocketData socketData) {
+        nfsMwClientService.mockClient();
+
         socketWriter.write(socket, socketData);
         String ident = socketUtils.getValueFromSocket(socketData.getInputMessage(), "IDENT");
         ses(socket, Long.valueOf(ident));

@@ -20,6 +20,8 @@ public class NfsMwSocketHandler {
 
     private String gameName = "NAME";
 
+    private int count = 0;
+
     public void read(Socket tcpSocket) throws IOException {
         InputStream is = tcpSocket.getInputStream();
         byte[] buffer = new byte[1024];
@@ -64,8 +66,11 @@ public class NfsMwSocketHandler {
             case ("+uss"):
                 uss(socketData);
                 break;
-            case ("+ses"), ("+mgm"):
-                ses();
+            case ("+ses"), ("+mgm"): // WHY DON'T I ALWAYS GET +SES ???
+                if(1 == count) {
+                    ses();
+                }
+                count++;
                 break;
             default:
                 break;
