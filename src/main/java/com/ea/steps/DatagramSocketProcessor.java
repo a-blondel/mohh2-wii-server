@@ -59,7 +59,6 @@ public class DatagramSocketProcessor {
         } else if (RAW_PACKET_UNREL <= packetSeq && RAW_PACKET_DATA > packetSeq) {
 
             byte[] nfsPacket = nfsMwClientService.sendUdp(buf);
-            // Send to the game
             socketData.setOutputMessage(nfsPacket);
 
             /*int packetOperation = new BigInteger(1, buf, inputPacket.getLength() - 1, 1).intValue();

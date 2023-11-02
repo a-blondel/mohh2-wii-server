@@ -2,6 +2,7 @@ package com.ea.nfsmw.client.steps;
 
 import com.ea.dto.SocketData;
 import com.ea.nfsmw.client.config.NfsMwClientConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 @Component
 public class NfsMwSocketHandler {
 
@@ -19,8 +21,6 @@ public class NfsMwSocketHandler {
     private NfsMwClientConfig nfsMwClientConfig;
 
     private String gameName = "NAME";
-
-    private int count = 0;
 
     public void read(Socket tcpSocket) throws IOException {
         InputStream is = tcpSocket.getInputStream();
@@ -66,11 +66,10 @@ public class NfsMwSocketHandler {
             case ("+uss"):
                 uss(socketData);
                 break;
-            case ("+ses"), ("+mgm"): // WHY DON'T I ALWAYS GET +SES ???
-                if(1 == count) {
+            case ("+ses"), ("+mgm"):
+                if("+ses" == socketData.getIdMessage() || socketData.getInputMessage().contains("+ses")) {
                     ses();
                 }
-                count++;
                 break;
             default:
                 break;

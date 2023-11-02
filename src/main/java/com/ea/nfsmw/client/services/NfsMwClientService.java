@@ -65,14 +65,14 @@ public class NfsMwClientService {
         final String[] packetSeq = {formatHexString(response[0]).substring(3, 4)};
         final int[] startSes = {0};
 
-        while("1".equals(packetSeq[0]) && startSes[0] != 3) {
+        while("1".equals(packetSeq[0]) && startSes[0] != 5) {
             response[0] = nfsMwClientConfig.sendUdp(response[0]);
             packetSeq[0] = formatHexString(response[0]).substring(3,4);
             startSes[0] = nfsMwClientConfig.getStartSes();
         }
 
         new Thread(() -> {
-            while("1".equals(packetSeq[0])) {
+            while(true) {
                 response[0] = nfsMwClientConfig.sendUdp(response[0]);
                 packetSeq[0] = formatHexString(response[0]).substring(3,4);
             }
