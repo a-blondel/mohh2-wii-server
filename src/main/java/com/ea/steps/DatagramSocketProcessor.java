@@ -54,6 +54,10 @@ public class DatagramSocketProcessor {
 
         int packetSeq = new BigInteger(1, buf, 0, 4).intValue();
 
+        /*if (RAW_PACKET_INIT == packetSeq) {
+            System.arraycopy(parseHexString(formatIntToWord(RAW_PACKET_CONN)), 0, buf, 0, 4);
+        }*/
+
         if (RAW_PACKET_DISC == packetSeq) {
             lobbyService.endLobbyReport();
         } else if (RAW_PACKET_UNREL <= packetSeq && RAW_PACKET_DATA > packetSeq) {

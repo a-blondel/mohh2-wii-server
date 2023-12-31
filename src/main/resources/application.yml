@@ -14,7 +14,7 @@ tcp:
 udp:
   port: 21173
   debug:
-    enabled: false
+    enabled: true
 
 nfs:
   ip: '192.168.1.11' # Requires machine IP

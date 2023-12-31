@@ -73,7 +73,9 @@ public class NfsMwClientService {
 
         new Thread(() -> {
             while(true) {
-                response[0] = nfsMwClientConfig.sendUdp(response[0]);
+                if(!"0".equals(packetSeq[0])) {
+                    response[0] = nfsMwClientConfig.sendUdp(response[0]);
+                }
                 packetSeq[0] = formatHexString(response[0]).substring(3,4);
             }
         }).start();
@@ -147,12 +149,13 @@ public class NfsMwClientService {
         // Convert NFSMW UDP Packet to big endian
         byte[] bigEndian = reverseByteArray(nfsResult);
 
-        // Should activate but MoHH2 freezes
-        /*if (7 == gamePacket) {
+        int nfsGamePacket = new BigInteger(1, bigEndian, bigEndian.length - 1, 1).intValue();
+
+        if (6 == nfsGamePacket) {
             System.arraycopy(parseHexString("07"), 0, bigEndian, bigEndian.length - 1, 1);
-        } else if (71 == gamePacket) {
+        } else if (70 == nfsGamePacket) {
             System.arraycopy(parseHexString("47"), 0, bigEndian, bigEndian.length - 1, 1);
-        }*/
+        }
 
         return bigEndian;
     }

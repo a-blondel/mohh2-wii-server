@@ -53,7 +53,7 @@ public class ServerApp implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         Security.setProperty("jdk.tls.disabledAlgorithms", "");
         System.setProperty("https.protocols", props.getSslProtocols());
         System.setProperty("https.cipherSuites", props.getSslCipherSuites());

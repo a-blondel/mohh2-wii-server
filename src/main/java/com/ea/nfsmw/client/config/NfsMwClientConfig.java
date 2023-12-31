@@ -55,16 +55,14 @@ public class NfsMwClientConfig {
 
             String packet = formatHexString(input);
             String packetSeq = packet.substring(0, 4);
+            String packetEndSeq = packet.substring(packet.length() - 2, packet.length());
 
             String lastPacketStr;
             String lastPacketTypeStr = "";
             if(lastPacket != null) {
                 lastPacketStr = formatHexString(lastPacket);
-                log.info(lastPacketStr);
                 lastPacketTypeStr = lastPacketStr.substring(lastPacketStr.length() - 2, lastPacketStr.length());
             }
-
-            log.info("startSes: " + startSes);
 
             if(startSes < 3 && lastPacket != null) {
                 if(startSes == 1 && (lastPacketTypeStr.equals("24") || lastPacketTypeStr.equals("0d") || lastPacketTypeStr.equals("17") || lastPacketTypeStr.equals("18"))) {
@@ -100,6 +98,18 @@ public class NfsMwClientConfig {
             } else if (startSes == 5 && !packetSeq.endsWith("1")) {
                 byte[] newInput = input;
                 System.arraycopy(lastPacket, 0, newInput, 4, 4);
+
+                if(packetSeq.endsWith("00")) {
+                    if (packetEndSeq.equals("06")) {
+                        newInput = HexFormat.of().parseHex("8000000025010000f8b424e9c006");
+                        System.arraycopy(input, 0, newInput, 0, 4);
+                        System.arraycopy(lastPacket, 0, newInput, 4, 4);
+                    } else if (packetEndSeq.equals("46")) {
+                        newInput = HexFormat.of().parseHex("8300000025010000f8b7dd053000166a28000a1ef10008000046");
+                        System.arraycopy(input, 0, newInput, 0, 4);
+                        System.arraycopy(lastPacket, 0, newInput, 4, 4);
+                    }
+                }
                 input = newInput;
             }
 
