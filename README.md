@@ -1,21 +1,89 @@
-# MoHH2 Wii Server
+# Medal Of Honor Heroes 2 Server [Wii]
 
-Designed to replace EA's closed ones.
+Designed to replace EA's closed ones.  
+
+## Discord
+
+Link : https://discord.gg/fwrQHHxrQQ  
+
+It is used to :
+- Talk about the game
+- Share technical knowledge
+- Centralize documentation
+- Regroup the community and organize events when we'll be ready (hopefully)
+
+Fell free to join !
+
+## Development Status
+
+**Work In Progress**
+
+<img src="doc/img/player-details.png" alt="player-details" width="400"/> <img src="doc/img/lobbies.png" alt="lobbies" width="400"/><br/>
+*Player details / Lobbies*
+
+<img src="doc/img/game-join.png" alt="game-join" width="400"/> <img src="doc/img/game-disconnect.png" alt="game-disconnect" width="400"/><br/>
+*Game joining / Game disconnection*
+
+**Features**
+- [x] Access Nintendo WFC (Riivolution patch with Wiimmfi)
+- [ ] EA account management
+  - [x] Create account
+  - [x] Update account
+  - [x] Use account
+  - [x] Create persona
+  - [x] Delete persona
+  - [x] Use persona
+  - [ ] Account recovery (require SMTP)
+  - [ ] Password reset (require SMTP)
+- [ ] Main menu
+  - [x] Player info (Country, Kills, Deaths, Score, Rank, Reputation)
+  - [ ] Online player count
+- [ ] Lobby
+  - [x] Games available
+  - [x] Players in game (partially : player list is done, players details isn't)
+  - [ ] Filter options
+  - [x] Create game (almost complete : password protected lobbies isn't handled yet)
+  - [x] Join game (almost complete : password protected lobbies isn't handled yet)
+- [ ] In game
+  - [ ] Team, uniform and weapon selection screen (disconnected just before)
+  - [ ] --anything else to handle that we are not aware of yet--
+- [ ] Leaderboards
+  - [ ] My EA Leaderboard
+  - [ ] EA Top 100
+  - [ ] EA Weapon Leaders
+- [ ] My profile
+  - [ ] FAQ
+  - [ ] Terms and conditions
+- [ ] EA Messenger
+  - [ ] List recently met people (unsure ?)
+  - [ ] List online/offline people and which game they play (friends/blocked/friend request)
+  - [ ] Send message
+  - [ ] Send friend request
+  - [ ] Block
+  - [ ] Comment
+
+Note that error messages eg 'invalid password'/'unknown account' are more or less complete.
+
 
 ## Requirements
 
-### 1/ Hosts file
+### 1/ Riivolution patches
 
-In order to intercept messages from the server, you must add this line to your hosts file (`C:\Windows\System32\drivers\etc`) :
+To make the game to use this server you need to activate Riivolution patches when starting the game.  
+Patches can be found here : https://github.com/a-blondel/mohh2-wii-patch
+
+### 2/ Hosts file
+
+In order to intercept requests from the game, you must add this line to your hosts file (`C:\Windows\System32\drivers\etc`) :
 ```
 127.0.0.1 wiimoh08.ea.com
 ```
 
-### 2/ JDK
+### 3/ JDK
 
 This project has been initiated with the `JDK 17`, download it if needed.
 
-### 3/ Maven
+### 4/ Maven
 
 If you downloaded Intellij, Maven comes bundled with one, otherwise download the latest version of Maven.
 
@@ -28,6 +96,7 @@ A maven profile exists for each region:
 
 Currently, all profiles are located in *application.yml* as there won't be many region-based properties.  
 **When you don't specify any maven profile, it fallbacks to `pal`.**
+
 
 ## Run the server
 
