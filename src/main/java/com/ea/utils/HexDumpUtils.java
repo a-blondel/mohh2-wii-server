@@ -24,8 +24,8 @@ public final class HexDumpUtils {
                 int asciiWidth = Math.min(width, array.length - rowOffset);
                 builder.append("  |  ");
                 try {
-                    builder.append(new String(array, rowOffset, asciiWidth, "UTF-8").replaceAll("\r\n", " ").replaceAll("\n", " "));
-                    //builder.append(new String(array, rowOffset, asciiWidth, "UTF-8").replaceAll("[^\\x20-\\x7E]", "."));
+                    //builder.append(new String(array, rowOffset, asciiWidth, "UTF-8").replaceAll("\r\n", " ").replaceAll("\n", " "));
+                    builder.append(new String(array, rowOffset, asciiWidth, "UTF-8").replaceAll("[^\\x20-\\x7E]", "."));
                 } catch (UnsupportedEncodingException e) {
                     //If UTF-8 isn't available as an encoding then what can we do?!
                     e.printStackTrace();
