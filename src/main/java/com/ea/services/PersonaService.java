@@ -119,8 +119,10 @@ public class PersonaService {
      */
     public void endPersonaConnection() {
         PersonaConnectionEntity personaConnectionEntity = sessionData.getCurrentPersonaConnection();
-        personaConnectionEntity.setEndTime(Timestamp.from(Instant.now()));
-        personaConnectionRepository.save(personaConnectionEntity);
+        if(null != personaConnectionEntity) {
+            personaConnectionEntity.setEndTime(Timestamp.from(Instant.now()));
+            personaConnectionRepository.save(personaConnectionEntity);
+        }
     }
 
     /**
