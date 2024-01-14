@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Arrays;
 
 @Slf4j
 @Component
@@ -41,7 +42,8 @@ public class DatagramSocketReader {
             int port = packet.getPort();
 
             if (props.isUdpDebugEnabled()) {
-                log.info("Received from {}:{}:\n{}", address, port, HexDumpUtils.formatHexDump(packet.getData(), 0, packet.getLength()));
+                byte[] dump = Arrays.copyOfRange(packet.getData(), 0, packet.getLength());
+                log.info("Received from {}:{}:\n{}", address, port, HexDumpUtils.formatHexDump(dump));
             }
 
             datagramSocketProcessor.process(socket, new DatagramSocketData(packet, null));

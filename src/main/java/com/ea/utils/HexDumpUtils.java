@@ -4,12 +4,12 @@ import java.io.UnsupportedEncodingException;
 
 public final class HexDumpUtils {
 
-    public static String formatHexDump(byte[] array, int offset, int length) {
+    public static String formatHexDump(byte[] array) {
         final int width = 16;
 
         StringBuilder builder = new StringBuilder();
 
-        for (int rowOffset = offset; rowOffset < offset + length; rowOffset += width) {
+        for (int rowOffset = 0; rowOffset < array.length; rowOffset += width) {
             builder.append(String.format("%06d:  ", rowOffset));
 
             for (int index = 0; index < width; index++) {
