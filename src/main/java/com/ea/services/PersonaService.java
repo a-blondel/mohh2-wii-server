@@ -186,7 +186,7 @@ public class PersonaService {
                     { "CL", "511" },
                     { "LV", "1049601" },
                     { "MD", "0" },
-                    { "R", String.valueOf(personaStatsRepository.getRankById(personaStatsEntity.getPersona().getId())) }, // Rank (in decimal)
+                    { "R", String.valueOf(personaStatsRepository.getRankByPersonaId(personaStatsEntity.getPersona().getId())) }, // Rank (in decimal)
                     { "US", "0" },
                     { "HW", "0" },
                     { "RP", String.valueOf(personaEntity.getRp()) }, // Reputation (0 to 5 stars)
