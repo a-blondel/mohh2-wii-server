@@ -85,7 +85,7 @@ public class StatsService {
         Map<String, String> content = Stream.of(new String[][] {
                 { "CHAN", chan }, // <matching request value>
                 { "START", start }, // <actual start used>
-                { "RANGE", String.valueOf(personaStatsEntityList.size())}, // <actual range used>
+                { "RANGE", String.valueOf(personaStatsEntityList.size()) }, // <actual range used>
                 { "SEQN", seqn }, // <value provided in request>
                 { "CC", columnNumber }, // <number of columns>
                 { "FC", "1" }, // <number of fixed columns>
@@ -239,8 +239,8 @@ public class StatsService {
                                 String.valueOf(personaStatsEntity.getTotalDeaths()),
                                 getPrecision(personaStatsEntity.getTotalMissedShots(), personaStatsEntity.getTotalShots()),
                                 String.valueOf(totalTime),
-                                totalTime == 0 ? "0" : String.valueOf(personaStatsEntity.getTotalKills() / totalTime / 60),
-                                totalTime == 0 ? "0" : String.valueOf(personaStatsEntity.getTotalDeaths() / totalTime / 60),
+                                totalTime == 0 ? "0" : String.valueOf(new Formatter(Locale.US).format("%.3f", personaStatsEntity.getTotalKills() / (totalTime / 60f))),
+                                totalTime == 0 ? "0" : String.valueOf(new Formatter(Locale.US).format("%.3f", personaStatsEntity.getTotalDeaths() / (totalTime / 60f))),
                                 String.valueOf(personaStatsEntity.getTotalHeadshots()),
                                 getMostPlayedMap(personaStatsEntity),
                                 getMostPlayedMode(personaStatsEntity),
@@ -305,7 +305,7 @@ public class StatsService {
     private String getPrecision(long missedShots, long totalShots) {
         String precision = "100";
         if(0 != totalShots) {
-            precision = String.format("%.2f", 1 - (missedShots / totalShots) * 100);
+            precision = String.valueOf(new Formatter(Locale.US).format("%.2f", (1 - (missedShots / (float) totalShots)) * 100));
         }
         return precision;
     }
