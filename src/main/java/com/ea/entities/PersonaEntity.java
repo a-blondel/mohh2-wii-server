@@ -23,11 +23,11 @@ public class PersonaEntity {
     @JoinColumn(name="ACCOUNT_ID", nullable=false)
     private AccountEntity account;
 
+    @OneToOne(mappedBy = "persona", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @PrimaryKeyJoinColumn
+    private PersonaStatsEntity personaStats;
+
     private String pers;
-
-    private long kills;
-
-    private long deaths;
 
     private int rp;
 
@@ -35,10 +35,10 @@ public class PersonaEntity {
 
     private Timestamp deletedOn;
 
-    @OneToMany(mappedBy="persona", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="persona", fetch = FetchType.EAGER)
     private Set<LobbyReportEntity> lobbyReports;
 
-    @OneToMany(mappedBy="persona", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="persona", fetch = FetchType.EAGER)
     private Set<PersonaConnectionEntity> personaConnections;
 
 }

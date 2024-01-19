@@ -56,7 +56,7 @@ public class SocketWriter {
             byte[] bufferBytes = buffer.toByteArray();
 
             if (props.isTcpDebugEnabled() && !props.getTcpDebugExclusions().contains(socketData.getIdMessage())) {
-                log.info("Send:\n{}", HexDumpUtils.formatHexDump(bufferBytes, 0, outputLength));
+                log.info("Send:\n{}", HexDumpUtils.formatHexDump(bufferBytes));
             }
 
             socket.getOutputStream().write(bufferBytes);

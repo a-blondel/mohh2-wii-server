@@ -78,6 +78,9 @@ public class SocketProcessor {
             case ("cate"):
                 statsService.cate(socket, socketData);
                 break;
+            case ("snap"):
+                statsService.snap(socket, socketData);
+                break;
             case ("gsea"):
                 lobbyService.gsea(socket, socketData);
                 break;
