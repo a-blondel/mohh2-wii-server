@@ -14,15 +14,25 @@ It is used to :
 
 Fell free to join !
 
+## Wiki
+
+Everything to know is in the [Wiki](https://github.com/a-blondel/mohh2-wii-server/wiki).  
+It contains :
+- Generic info about the game (weapons, maps,...)
+- Technical knowledge (packet capture, ...)
+
 ## Development Status
 
 **Work In Progress**
 
-<img src="doc/img/player-details.png" alt="player-details" width="400"/> <img src="doc/img/lobbies.png" alt="lobbies" width="400"/><br/>
-*Player details / Lobbies*
+<img src="doc/img/player-details.png" alt="player-details" width="400"/> <img src="doc/img/leaderboards.png" alt="leaderboards" width="400"/><br/>
+*Player details / Leaderboards*
 
-<img src="doc/img/game-join.png" alt="game-join" width="400"/> <img src="doc/img/game-disconnect.png" alt="game-disconnect" width="400"/><br/>
-*Game joining / Game disconnection*
+<img src="doc/img/lobbies.png" alt="lobbies" width="400"/> <img src="doc/img/game-join.png" alt="game-join" width="400"/><br/>
+*Lobbies / Game joining*
+
+<img src="doc/img/game-disconnect.png" alt="game-disconnect" width="400"/><br/>
+*Disconnection*
 
 **Features**
 - [x] Access Nintendo WFC (Riivolution patch with Wiimmfi)
@@ -47,10 +57,10 @@ Fell free to join !
 - [ ] In game
   - [ ] Team, uniform and weapon selection screen (disconnected just before)
   - [ ] --anything else to handle that we are not aware of yet--
-- [ ] Leaderboards
-  - [ ] My EA Leaderboard
-  - [ ] EA Top 100
-  - [ ] EA Weapon Leaders
+- [x] Leaderboards
+  - [x] My EA Leaderboard
+  - [x] EA Top 100
+  - [x] EA Weapon Leaders
 - [ ] My profile
   - [ ] FAQ
   - [ ] Terms and conditions
@@ -131,8 +141,8 @@ java -jar -Dspring.profiles.active=ntsc mohh2-wii-server-1.0.0-SNAPSHOT.jar
 
 ## Database
 
-For development, an embedded database is used.
-See `data.sql` for available data on start.
+For development, an embedded database is used.  
+See `data.sql` (default file) & `data-full.sql` (leaderboards sample) for available data on start.  
 It can be accessed in a browser when the server is running :  
 ```
 http://localhost:8080/h2/

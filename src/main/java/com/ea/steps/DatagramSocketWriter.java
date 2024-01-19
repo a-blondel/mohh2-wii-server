@@ -41,7 +41,7 @@ public class DatagramSocketWriter {
                     port);
 
             if (props.isUdpDebugEnabled()) {
-                log.info("Send to {}:{}:\n{}", address, port, HexDumpUtils.formatHexDump(buf, 0, buf.length));
+                log.info("Send to {}:{}:\n{}", address, port, HexDumpUtils.formatHexDump(buf));
             }
 
             socket.send(outputPacket);
