@@ -8,9 +8,9 @@ public enum MapEnum {
     MONASTERY("10"),
     BASE("12");
 
-    public final String value;
+    public final String id;
 
-    MapEnum(String value) {
-        this.value = value;
+    MapEnum(String id) {
+        this.id = id;
     }
 }
