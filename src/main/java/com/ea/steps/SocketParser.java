@@ -38,7 +38,7 @@ public class SocketParser {
             int currentMessageLength = getlength(buffer, lastPos);
             if (readRemaining >= currentMessageLength) {
                 String id = new String(buffer, currentMessageBegin, 4);
-                String content = new String(buffer, currentMessageBegin + 12, currentMessageLength);
+                String content = new String(Arrays.copyOfRange(buffer, currentMessageBegin + 12, currentMessageBegin + currentMessageLength));
                 SocketData socketData = new SocketData(id, content, null);
 
                 if (props.isTcpDebugEnabled() && !props.getTcpDebugExclusions().contains(socketData.getIdMessage())) {
