@@ -16,7 +16,7 @@ Fell free to join !
 
 ## Wiki
 
-Everything to know is in the [Wiki](https://github.com/a-blondel/mohh2-wii-server/wiki).  
+Everything to know is in the [Wiki](https://github.com/a-blondel/mohh2-wii-server/wiki)  
 It contains :
 - Generic info about the game (weapons, maps,...)
 - Technical knowledge (packet capture, ...)
@@ -65,8 +65,9 @@ It contains :
   - [ ] FAQ
   - [ ] Terms and conditions
 - [ ] EA Messenger
-  - [ ] List recently met people (unsure ?)
+  - [ ] List recently met people
   - [ ] List online/offline people and which game they play (friends/blocked/friend request)
+  - [ ] Find Player
   - [ ] Send message
   - [ ] Send friend request
   - [ ] Block
