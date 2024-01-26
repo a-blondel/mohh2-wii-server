@@ -16,7 +16,7 @@ Fell free to join !
 
 ## Wiki
 
-Everything to know is in the [Wiki](https://github.com/a-blondel/mohh2-wii-server/wiki).  
+Everything to know is in the [Wiki](https://github.com/a-blondel/mohh2-wii-server/wiki)  
 It contains :
 - Generic info about the game (weapons, maps,...)
 - Technical knowledge (packet capture, ...)
@@ -65,8 +65,9 @@ It contains :
   - [ ] FAQ
   - [ ] Terms and conditions
 - [ ] EA Messenger
-  - [ ] List recently met people (unsure ?)
+  - [ ] List recently met people
   - [ ] List online/offline people and which game they play (friends/blocked/friend request)
+  - [ ] Find Player
   - [ ] Send message
   - [ ] Send friend request
   - [ ] Block
@@ -149,3 +150,8 @@ http://localhost:8080/h2/
 ```
 
 Configuration like database url, user and password can be found in `application.yml`.
+
+## Connect Mode
+
+To enable `connect mode`, set `udp.connect-mode.enabled` to `true` in `application.yml`.  
+Don't forget to replace `41` by `40` at `0x8001BEB4`.
