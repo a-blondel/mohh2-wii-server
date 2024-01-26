@@ -34,6 +34,9 @@ public class Props {
     @Value("${udp.port}")
     private int udpPort;
 
+    @Value("${udp.connect-mode.enabled}")
+    private boolean connectModeEnabled;
+
     @Value("${udp.debug.enabled}")
     private boolean udpDebugEnabled;
 

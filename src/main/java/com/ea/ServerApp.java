@@ -61,11 +61,13 @@ public class ServerApp implements CommandLineRunner {
             log.info("Starting servers...");
             SSLServerSocket sslServerSocket = serverConfig.createSslServerSocket();
             ServerSocket tcpServerSocket = serverConfig.createTcpServerSocket();
-            DatagramSocket udpServerSocket = serverConfig.createUdpServerSocket();
+            DatagramSocket udpServerSocket = null;
+            if(!props.isConnectModeEnabled()) {
+                udpServerSocket = serverConfig.createUdpServerSocket();
+            }
             log.info("Servers started. Waiting for client connections...");
 
             while(true){
-
                 sslSocketThread.setClientSocket((SSLSocket) sslServerSocket.accept());
                 Thread threadSSL = new Thread(sslSocketThread);
                 threadSSL.start();
@@ -74,9 +76,11 @@ public class ServerApp implements CommandLineRunner {
                 Thread threadTCP = new Thread(tcpSocketThread);
                 threadTCP.start();
 
-                udpSocketThread.setClientSocket(udpServerSocket);
-                Thread threadUDP = new Thread(udpSocketThread);
-                threadUDP.start();
+                if(!props.isConnectModeEnabled()) {
+                    udpSocketThread.setClientSocket(udpServerSocket);
+                    Thread threadUDP = new Thread(udpSocketThread);
+                    threadUDP.start();
+                }
 
             }
 
