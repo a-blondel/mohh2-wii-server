@@ -150,3 +150,8 @@ http://localhost:8080/h2/
 ```
 
 Configuration like database url, user and password can be found in `application.yml`.
+
+## Connect Mode
+
+To enable `connect mode`, set `udp.connect-mode.enabled` to `true` in `application.yml`.  
+Don't forget to replace `41` by `40` at `0x8001BEB4`.

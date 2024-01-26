@@ -68,9 +68,11 @@ public class AuthService {
 
     public void sele(Socket socket, SocketData socketData) {
         String stats = socketUtils.getValueFromSocket(socketData.getInputMessage(), "STATS");
+        String inGame = socketUtils.getValueFromSocket(socketData.getInputMessage(), "INGAME");
+
         Map<String, String> content;
         // Request separates attributes either by 0x20 or 0x0a...
-        if(null == stats) { // If stats is NULL, then the separator is 0x20, so we know which request was sent
+        if(null == stats && null == inGame) { // If both NULL, then the separator is 0x20, so we know which request was sent
             content = Stream.of(new String[][] {
                     { "MORE", "0" },
                     { "SLOTS", "4" },
@@ -79,7 +81,6 @@ public class AuthService {
         } else {
             String myGame = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MYGAME");
             String async = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ASYNC");
-            String inGame = socketUtils.getValueFromSocket(socketData.getInputMessage(), "INGAME");
 
             if ("1".equals(inGame)) {
                 String games = socketUtils.getValueFromSocket(socketData.getInputMessage(), "GAMES");
