@@ -3,6 +3,7 @@ package com.ea.services;
 import com.ea.dto.SocketData;
 import com.ea.steps.SocketWriter;
 import com.ea.utils.Props;
+import com.ea.utils.SocketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,9 @@ public class AuthService {
 
     @Autowired
     SocketWriter socketWriter;
+
+    @Autowired
+    private SocketUtils socketUtils;
 
     @Autowired
     Props props;
@@ -63,11 +67,46 @@ public class AuthService {
     }
 
     public void sele(Socket socket, SocketData socketData) {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "MORE", "0" },
-                { "SLOTS", "4" },
-                { "STATS", "0" },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+        String stats = socketUtils.getValueFromSocket(socketData.getInputMessage(), "STATS");
+        String inGame = socketUtils.getValueFromSocket(socketData.getInputMessage(), "INGAME");
+
+        Map<String, String> content;
+        // Request separates attributes either by 0x20 or 0x0a...
+        if(null == stats && null == inGame) { // If both NULL, then the separator is 0x20, so we know which request was sent
+            content = Stream.of(new String[][] {
+                    { "MORE", "0" },
+                    { "SLOTS", "4" },
+                    { "STATS", "0" },
+            }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+        } else {
+            String myGame = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MYGAME");
+            String async = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ASYNC");
+
+            if ("1".equals(inGame)) {
+                String games = socketUtils.getValueFromSocket(socketData.getInputMessage(), "GAMES");
+                String rooms = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ROOMS");
+                String mesgs = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MESGS");
+                String mesgTypes = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MESGTYPES");
+                String users = socketUtils.getValueFromSocket(socketData.getInputMessage(), "USERS");
+                String userSets = socketUtils.getValueFromSocket(socketData.getInputMessage(), "USERSETS");
+                content = Stream.of(new String[][] {
+                        { "INGAME", inGame },
+                        { "MESGS", mesgs },
+                        { "MESGTYPES", mesgTypes },
+                        { "USERS", users },
+                        { "GAMES", games },
+                        { "MYGAME", myGame },
+                        { "ROOMS", rooms },
+                        { "ASYNC", async },
+                        { "USERSETS", userSets },
+                        { "STATS", stats },
+                }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+            } else {
+                content = Stream.of(new String[][] {
+                        { "INGAME", inGame },
+                }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+            }
+        }
 
         socketData.setOutputData(content);
         socketWriter.write(socket, socketData);

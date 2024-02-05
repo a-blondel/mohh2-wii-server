@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.Socket;
+import java.util.Arrays;
 
 @Slf4j
 @Component
@@ -37,11 +38,12 @@ public class SocketParser {
             int currentMessageLength = getlength(buffer, lastPos);
             if (readRemaining >= currentMessageLength) {
                 String id = new String(buffer, currentMessageBegin, 4);
-                String content = new String(buffer, currentMessageBegin + 12, currentMessageLength);
+                String content = new String(Arrays.copyOfRange(buffer, currentMessageBegin + 12, currentMessageBegin + currentMessageLength));
                 SocketData socketData = new SocketData(id, content, null);
 
                 if (props.isTcpDebugEnabled() && !props.getTcpDebugExclusions().contains(socketData.getIdMessage())) {
-                    log.info("Receive:\n{}", HexDumpUtils.formatHexDump(buffer, currentMessageBegin, currentMessageLength));
+                    byte[] dump = Arrays.copyOfRange(buffer, currentMessageBegin, currentMessageBegin + currentMessageLength);
+                    log.info("Receive:\n{}", HexDumpUtils.formatHexDump(dump));
                 }
 
                 socketProcessor.process(socket, socketData);

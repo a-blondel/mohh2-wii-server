@@ -13,6 +13,7 @@ tcp:
     exclusions: '~png'
 udp:
   port: 21173
+  connect-mode.enabled: false # false = listen-mode (default), must replace '41' by '40' at 0x8001BEB4 if set to true
   debug:
     enabled: true
 

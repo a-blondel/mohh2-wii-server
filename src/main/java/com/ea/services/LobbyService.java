@@ -136,30 +136,31 @@ public class LobbyService {
             Map<String, String> content = Stream.of(new String[][] {
                     { "IDENT", String.valueOf(lobbyEntity.getId()) },
                     { "NAME", lobbyEntity.getName() },
-                    { "HOST", "BOT" },
-                    // { "GPSHOST", "BOT" },
+                    { "HOST", props.isConnectModeEnabled() ? sessionData.getCurrentPersonna().getPers() : "BOT" },
+                    // { "GPSHOST", props.isConnectModeEnabled() ? sessionData.getCurrentPersonna().getPers() : "BOT" },
                     { "PARAMS", params },
                     // { "PLATPARAMS", "0" },  // ???
                     { "ROOM", "0" },
                     { "CUSTFLAGS", "0" },
                     { "SYSFLAGS", lobbyEntity.getSysflags() },
                     { "COUNT", String.valueOf(lobbyEntity.getLobbyReports().stream().filter(report -> null == report.getEndTime()).count() + 1) },
+                    // { "GPSREGION", "2" },
                     { "PRIV", "0" },
                     { "MINSIZE", String.valueOf(lobbyEntity.getMinsize()) },
                     { "MAXSIZE", String.valueOf(lobbyEntity.getMaxsize()) },
                     { "NUMPART", "1" },
                     { "SEED", "012345" }, // random seed
                     { "WHEN", "2009.2.8-9:44:15" },
-                    // { "GAMEPORT", "1" },
-                    // { "VOIPPORT", "1" },
+                    // { "GAMEPORT", String.valueOf(props.getUdpPort())},
+                    // { "VOIPPORT", "9667" },
                     // { "GAMEMODE", "0" }, // ???
                     // { "AUTH", "0" }, // ???
 
                     // loop 0x80022058 only if COUNT>=0
-                    { "OPID0", "0" }, // OPID%d
-                    { "OPPO0", "BOT" }, // OPPO%d
+                    { "OPID0", "1" }, // OPID%d
+                    { "OPPO0", props.isConnectModeEnabled() ? sessionData.getCurrentPersonna().getPers() : "BOT" }, // OPPO%d
                     { "ADDR0", socket.getInetAddress().getHostName() }, // ADDR%d
-                    // { "LADDR0", socket.getInetAddress().getHostName() }, // LADDR%d
+                    { "LADDR0", socket.getInetAddress().getHostName() }, // LADDR%d
                     // { "MADDR0", "$0017ab8f4451" }, // MADDR%d
                     // { "OPPART0", "0" }, // OPPART%d
                     // { "OPPARAM0", "AAAAAAAAAAAAAAAAAAAAAQBuDCgAAAAC" }, // OPPARAM%d
