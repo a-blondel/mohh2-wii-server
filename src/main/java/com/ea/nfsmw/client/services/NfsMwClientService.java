@@ -32,9 +32,6 @@ public class NfsMwClientService {
 
     private boolean nfsInitialized = false;
 
-    private byte[] mohSessionId = HexFormat.of().parseHex("ed5c78dd");
-    private byte[] nfsSessionId = HexFormat.of().parseHex("26c48d86");
-
 
     public void mockClient() {
 
@@ -47,38 +44,17 @@ public class NfsMwClientService {
             nfsInitialized = true;
         }
 
-        final byte[][] response = {nfsMwClientConfig.sendUdp(HexFormat.of().parseHex("0100000026c48d86"))};
+        final byte[][] response = {nfsMwClientConfig.sendUdp(HexFormat.of().parseHex("0000000122cec37a4d17b1de34356fe2"))};
+
 
         try {
             Thread.sleep(250);
 
-            response[0] = nfsMwClientConfig.sendUdp(HexFormat.of().parseHex("00010000ff000000003a4be3003a4be30000000040"));
-
-            Thread.sleep(250);
-
-            response[0] = nfsMwClientConfig.sendUdp(HexFormat.of().parseHex("00010000ff000000003a4be3003a4be30000000040"));
+            response[0] = nfsMwClientConfig.sendUdp(HexFormat.of().parseHex("0000000222cec37a4d17b1de34356fe2"));
 
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-
-        final String[] packetSeq = {formatHexString(response[0]).substring(3, 4)};
-        final int[] startSes = {0};
-
-        while("1".equals(packetSeq[0]) && startSes[0] != 5) {
-            response[0] = nfsMwClientConfig.sendUdp(response[0]);
-            packetSeq[0] = formatHexString(response[0]).substring(3,4);
-            startSes[0] = nfsMwClientConfig.getStartSes();
-        }
-
-        new Thread(() -> {
-            while(true) {
-                if(!"0".equals(packetSeq[0])) {
-                    response[0] = nfsMwClientConfig.sendUdp(response[0]);
-                }
-                packetSeq[0] = formatHexString(response[0]).substring(3,4);
-            }
-        }).start();
 
     }
 
@@ -90,35 +66,13 @@ public class NfsMwClientService {
         Thread.sleep(100);
         news();
         Thread.sleep(100);
+        sele1();
+        Thread.sleep(100);
         auth();
         Thread.sleep(100);
         pers();
         Thread.sleep(100);
-        sele1();
-        Thread.sleep(100);
-        usea1();
-        Thread.sleep(100);
-        sele2();
-        Thread.sleep(100);
-        ujoi();
-        Thread.sleep(100);
         gjoi();
-        Thread.sleep(100);
-        auxi1();
-        Thread.sleep(100);
-        usea2();
-        Thread.sleep(100);
-        auxi2();
-        Thread.sleep(100);
-        onln();
-        Thread.sleep(100);
-        mesg();
-        Thread.sleep(100);
-        auxi2();
-        Thread.sleep(100);
-        auxi2();
-        Thread.sleep(100);
-        auxi2();
     }
 
     public byte[] sendUdp(byte[] buf) {
@@ -132,32 +86,10 @@ public class NfsMwClientService {
             nfsInitialized = true;
         }
 
-        int gamePacket = new BigInteger(1, buf, buf.length - 1, 1).intValue();
-
-        if (7 == gamePacket) {
-            System.arraycopy(parseHexString("06"), 0, buf, buf.length - 1, 1);
-        } else if (71 == gamePacket) {
-            System.arraycopy(parseHexString("46"), 0, buf, buf.length - 1, 1);
-        }
-
-        // Convert UDP Packet to little endian
-        byte[] littleEndian = reverseByteArray(buf);
-
         // Forward UDP packet to NFSMW client
-        byte[] nfsResult = nfsMwClientConfig.sendUdp(littleEndian);
+        byte[] nfsResult = nfsMwClientConfig.sendUdp(buf);
 
-        // Convert NFSMW UDP Packet to big endian
-        byte[] bigEndian = reverseByteArray(nfsResult);
-
-        int nfsGamePacket = new BigInteger(1, bigEndian, bigEndian.length - 1, 1).intValue();
-
-        if (6 == nfsGamePacket) {
-            System.arraycopy(parseHexString("07"), 0, bigEndian, bigEndian.length - 1, 1);
-        } else if (70 == nfsGamePacket) {
-            System.arraycopy(parseHexString("47"), 0, bigEndian, bigEndian.length - 1, 1);
-        }
-
-        return bigEndian;
+        return nfsResult;
     }
 
     public void addr() {
@@ -177,38 +109,85 @@ public class NfsMwClientService {
 
     public void news() {
         Map<String, String> content = Stream.of(new String[][] {
-                { "NAME", "7" },
+                { "NAME", "client.cfg" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
         nfsMwClientConfig.write(new SocketData("news", null, content));
     }
 
-    public void auth() {
+    public void news2() {
         Map<String, String> content = Stream.of(new String[][] {
-                { "REGN", "NA" },
-                { "CLST", "194010" },
-                { "NETV", "20" },
-                { "FROM", "US" },
-                { "LANG", "EN" },
-                { "MID", "$309c23d1c342" },
-                { "PROD", "nfs-pc-2006" },
-                { "VERS", "\"pc/1.3-Nov 21 2005\"" },
-                { "SLUS", "SLUS_21351" },
-                { "SKU", "14705" },
-                { "SDKVERS", "3.9.3.0" },
-                { "BUILDDATE", "\"Oct 19 2005\"" },
-                { "NAME", "CLIENT" },
-                { "REGKEY", "" },
-                { "MAC", "$309c23d1c342" },
-                { "PASS", "~$7p9%25%22TQ-1>)[d$PXk<AAcxdP]qWzd" },
+                { "NAME", "8" },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+        nfsMwClientConfig.write(new SocketData("news", null, content));
+    }
+
+    public void cate() {
+        Map<String, String> content = Stream.of(new String[][] {
+                { "VIEW", "PS2" },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+        nfsMwClientConfig.write(new SocketData("cate", null, content));
+    }
+
+    public void usld() {
+        nfsMwClientConfig.write(new SocketData("usld", null, null));
+    }
+
+
+    public void gsea() {
+        Map<String, String> content = Stream.of(new String[][] {
+                { "START", "0" },
+                { "COUNT", "10" },
+                { "ASYNC", "1" },
+                { "SYSMASK", "262144" },
+                { "SYSFLAGS", "0" },
+                { "PLAYERS", "1" },
+                { "CUSTOM", ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4,2,,,1,2,,1" },
+                { "CUSTMASK", "0" },
+                { "CUSTFLAGS", "0" },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+        nfsMwClientConfig.write(new SocketData("gsea", null, content));
+    }
+
+
+    public void auth() {
+
+        String tickStr ="5ea182808080808080f7e18080c094808480a8c489c3a68c9a8080808080808080808080808080808080808480c0e0cc99b3e680b8808082808082b4dcd7ef91af808e80c08080c0808df7ad94e09f8081809080808080808081fad982c0808090cfec9593c7eddbb0e48080808080808080808080808080808080808080808080808080808080828084c4c983808080828088d4f3868080808880e0a8858a8c98b0ecb491c4a9d5a9b3e0c0b193e69798b0808080808080808180908080808080808080808080808080e08880b08980848088c882b5c893808880fc81d3c7808ee2cab3aaeeedeabca095e4a5d19bb8abe9c188a3d4f3e9f3e5a28d8caa9391f682ba809088fb96f3efeead84ca8087cdeeb7e88ceab7dbb5bfe5b1c5bfaaeb90e98c8c86";
+        byte[] tickBytes = HexFormat.of().parseHex(tickStr);
+        String tickResult = new String(tickBytes, StandardCharsets.UTF_8);
+
+
+        String maddrStr ="4f7665726c6f61642463306138303135612430303030303030305e808080808080808080805e80808080808080808080";
+        byte[] maddrBytes = HexFormat.of().parseHex(maddrStr);
+        String maddrResult = new String(maddrBytes, StandardCharsets.UTF_8);
+
+
+        Map<String, String> content = Stream.of(new String[][] {
+                { "VERS", "BURNOUT5/31" },
+                { "SLUS", "07604772/US" },
+                { "SKU", "PS3" },
+                { "LOC", "enZZ" },
+                { "MID", "$000000000000" },
+                { "SDKVERS", "5.5.3.0" },
+                { "BUILDDATE", "\"Sep 19 2007\"" },
+                { "NAME", "" },
+                { "TICK", tickResult },
+                { "MADDR", maddrResult },
+                { "MAC", "$000000000000" },
+                { "PASS", "\"~2s,%22rYa2 K},1%3dV.0qa/4:c@hB [JX^\"" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
         nfsMwClientConfig.write(new SocketData("auth", null, content));
     }
 
     public void pers() {
+
+        String maddrStr ="4f7665726c6f61642463306138303135612430303030303030305e808080808080808080805e80808080808080808080";
+        byte[] maddrBytes = HexFormat.of().parseHex(maddrStr);
+        String maddrResult = new String(maddrBytes, StandardCharsets.UTF_8);
+
         Map<String, String> content = Stream.of(new String[][] {
                 { "PERS", "CLIENT" },
-                { "MAC", "$309c23d1c342" },
-                { "CDEV", "" },
+                { "MADDR", maddrResult },
+                { "MAC", "$000000000000" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
         nfsMwClientConfig.write(new SocketData("pers", null, content));
     }
@@ -216,100 +195,37 @@ public class NfsMwClientService {
     public void sele1() {
         Map<String, String> content = Stream.of(new String[][] {
                 { "MYGAME", "1" },
-                { "STATS", "5000" },
-                { "ASYNC", "1" },
+                { "GAMES", "0" },
+                { "MESGTYPES", "100728964" },
+                { "STATS", "500" },
+                { "RANKS", "1" },
                 { "MESGS", "1" },
-                { "ROOMS", "1" },
+                { "ROOMS", "0" },
+                { "USERS", "1" },
                 { "USERSETS", "1" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
         nfsMwClientConfig.write(new SocketData("sele", null, content));
     }
 
-    public void usea1() {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "START", "0" },
-                { "COUNT", "100" },
-                { "CUSTFLAGS", "-2147474432" },
-                { "CUSTMASK", "-2081397247" },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-        nfsMwClientConfig.write(new SocketData("usea", null, content));
-    }
-
-    public void sele2() {
-        /*String hexStr ="352e486f7374506c61796572";
-        byte[] bytes = HexFormat.of().parseHex(hexStr);
-        String str = new String(bytes, StandardCharsets.UTF_8);*/
-
-        Map<String, String> content = Stream.of(new String[][] {
-                { "USERSET0", nfsMwSocketHandler.getGameName() },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-        nfsMwClientConfig.write(new SocketData("sele", null, content));
-    }
-
-    public void ujoi() {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "NAME", nfsMwSocketHandler.getGameName() }
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-        nfsMwClientConfig.write(new SocketData("ujoi", null, content));
-    }
-
     public void gjoi() {
         Map<String, String> content = Stream.of(new String[][] {
-                { "NAME", "NAME" }
+                { "NAME", "Bat-les-Steaks" },
+                { "PASS", "" },
+                { "PARAMS", ",,,b80,d003f6e0656e47423" },
+                { "MINSIZE", "2" },
+                { "MAXSIZE", "9" },
+                { "CUSTFLAGS", "413082880" },
+                { "SYSFLAGS", "64" },
+                { "ROOM", "0" },
+                { "IDENT", "19" },
+                { "SESS", "@brobot78-Bat-les-Steaks-65c1684b" },
+                { "PRIV", "0" },
+                { "SEED", "13" },
+                { "FORCE_LEAVE", "1" },
+                { "USERPARAMS", "PUSMC01?????,,,ff-1,,d" },
+                { "USERFLAGS", "0" },
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
         nfsMwClientConfig.write(new SocketData("gjoi", null, content));
-    }
-
-    public void auxi1() {
-        String hexStr = "53434625336430253061562533643230253061";
-        byte[] bytes = HexFormat.of().parseHex(hexStr);
-        String str = new String(bytes, StandardCharsets.UTF_8);
-
-        Map<String, String> content = Stream.of(new String[][] {
-                { "TEXT", str },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-        nfsMwClientConfig.write(new SocketData("auxi", null, content));
-    }
-
-    public void usea2() {
-       /* String hexStr ="352e486f7374506c61796572";
-        byte[] bytes = HexFormat.of().parseHex(hexStr);
-        String str = new String(bytes, StandardCharsets.UTF_8);*/
-
-        Map<String, String> content = Stream.of(new String[][] {
-                { "NAME", nfsMwSocketHandler.getGameName() },
-                { "START", "0" },
-                { "COUNT", "1" },
-                { "CUSTFLAGS", "0" },
-                { "CUSTMASK", "0" },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-        nfsMwClientConfig.write(new SocketData("usea", null, content));
-    }
-
-    public void auxi2() {
-        String hexStr = "53434625336430253061434e2533642d3837313835383537372530615054253364302e383532392530615048253364312e302530615041253364302e38323033253061562533643230253061";
-        byte[] bytes = HexFormat.of().parseHex(hexStr);
-        String str = new String(bytes, StandardCharsets.UTF_8);
-
-        Map<String, String> content = Stream.of(new String[][] {
-                { "TEXT", str },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-        nfsMwClientConfig.write(new SocketData("auxi", null, content));
-    }
-
-    public void onln() {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "PERS", "NAME" }
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-        nfsMwClientConfig.write(new SocketData("onln", null, content));
-    }
-
-    public void mesg() {
-        Map<String, String> content = Stream.of(new String[][] {
-                { "TEXT", "42" },
-                { "ATTR", "EGS" },
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-        nfsMwClientConfig.write(new SocketData("mesg", null, content));
     }
 
 }

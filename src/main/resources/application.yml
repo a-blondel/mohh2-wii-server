@@ -9,7 +9,7 @@ ssl:
 tcp:
   port: 21172
   debug:
-    enabled: false
+    enabled: true
     exclusions: '~png'
 udp:
   port: 21173
@@ -18,11 +18,11 @@ udp:
     enabled: true
 
 nfs:
-  ip: '192.168.1.11' # Requires machine IP
+  ip: '31.186.250.154' # Requires machine IP
   tcp:
-    port: 9900
+    port: 21851
   udp:
-    port: 3658
+    port: 3659
 
 spring:
   profiles:

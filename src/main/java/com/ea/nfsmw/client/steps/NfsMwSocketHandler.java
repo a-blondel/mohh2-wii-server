@@ -20,7 +20,7 @@ public class NfsMwSocketHandler {
     @Autowired
     private NfsMwClientConfig nfsMwClientConfig;
 
-    private String gameName = "NAME";
+    private String gameName = "Bat-les-Steaks";
 
     public void read(Socket tcpSocket) throws IOException {
         InputStream is = tcpSocket.getInputStream();

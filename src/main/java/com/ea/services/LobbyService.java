@@ -130,7 +130,7 @@ public class LobbyService {
             String params = lobbyEntity.getParams();
             int serverPortPos = StringUtils.ordinalIndexOf(params, ",", 20);
             StringBuilder sb = new StringBuilder(params);
-            sb.insert(serverPortPos, Integer.toHexString(props.getUdpPort())); // Set game server port
+            sb.insert(serverPortPos, Integer.toHexString(props.getUdpPort())); // Set game server port // or props.getNfsUdpPort()
             params = sb.toString();
 
             Map<String, String> content = Stream.of(new String[][] {

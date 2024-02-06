@@ -71,8 +71,6 @@ public class ServerApp implements CommandLineRunner {
 
             nfsMwClientConfig.startTcpConnection();
             nfsMwClientConfig.startUdpConnection();
-            log.info("Servers started. Waiting for client connections...");
-
 
             DatagramSocket udpServerSocket = null;
             if(!props.isConnectModeEnabled()) {
