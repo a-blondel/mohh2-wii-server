@@ -8,7 +8,6 @@ import com.ea.repositories.AccountRepository;
 import com.ea.steps.SocketWriter;
 import com.ea.utils.AccountUtils;
 import com.ea.utils.PasswordUtils;
-import com.ea.utils.SocketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,14 +19,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.ea.utils.SocketUtils.getValueFromSocket;
+
 @Component
 public class AccountService {
-
-    @Autowired
-    private SocketWriter socketWriter;
-
-    @Autowired
-    private SocketUtils socketUtils;
 
     @Autowired
     private PasswordUtils passwordUtils;
@@ -38,21 +33,18 @@ public class AccountService {
     @Autowired
     private AccountRepository accountRepository;
 
-    @Autowired
-    private SessionData sessionData;
-
     /**
      * Account creation
      * @param socket
      * @param socketData
      */
     public void acct(Socket socket, SocketData socketData) {
-        String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
+        String name = getValueFromSocket(socketData.getInputMessage(), "NAME");
 
         Optional<AccountEntity> accountEntityOpt = accountRepository.findByName(name);
         if (accountEntityOpt.isPresent()) {
             socketData.setIdMessage("acctdupl"); // Duplicate account error (EC_DUPLICATE)
-            int alts = Integer.parseInt(socketUtils.getValueFromSocket(socketData.getInputMessage(), "ALTS"));
+            int alts = Integer.parseInt(getValueFromSocket(socketData.getInputMessage(), "ALTS"));
             if (alts > 0) {
                 String opts = AccountUtils.suggestNames(alts, name);
                 Map<String, String> content = Stream.of(new String[][]{
@@ -64,7 +56,7 @@ public class AccountService {
             AccountEntity accountEntity = socketMapper.toAccountEntityForCreation(socketData.getInputMessage());
             accountRepository.save(accountEntity);
         }
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
     /**
@@ -73,16 +65,16 @@ public class AccountService {
      * @param socketData
      */
     public void edit(Socket socket, SocketData socketData) {
-        String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
+        String name = getValueFromSocket(socketData.getInputMessage(), "NAME");
 
         Optional<AccountEntity> accountEntityOpt = accountRepository.findByName(name);
         if (accountEntityOpt.isPresent()) {
             AccountEntity accountEntity = accountEntityOpt.get();
 
-            String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
-            String mail = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MAIL");
-            String spam = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SPAM");
-            String chng = socketUtils.getValueFromSocket(socketData.getInputMessage(), "CHNG");
+            String pass = getValueFromSocket(socketData.getInputMessage(), "PASS");
+            String mail = getValueFromSocket(socketData.getInputMessage(), "MAIL");
+            String spam = getValueFromSocket(socketData.getInputMessage(), "SPAM");
+            String chng = getValueFromSocket(socketData.getInputMessage(), "CHNG");
 
             boolean update = false;
             boolean error = false;
@@ -112,7 +104,7 @@ public class AccountService {
             socketData.setIdMessage("editimst"); // Inexisting error (EC_INV_MASTER)
         }
 
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
     /**
@@ -120,9 +112,9 @@ public class AccountService {
      * @param socket
      * @param socketData
      */
-    public void auth(Socket socket, SocketData socketData) {
-        String name = socketUtils.getValueFromSocket(socketData.getInputMessage(), "NAME");
-        String pass = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PASS");
+    public void auth(Socket socket, SessionData sessionData, SocketData socketData) {
+        String name = getValueFromSocket(socketData.getInputMessage(), "NAME");
+        String pass = getValueFromSocket(socketData.getInputMessage(), "PASS");
 
         Optional<AccountEntity> accountEntityOpt = accountRepository.findByName(name);
         if (accountEntityOpt.isPresent()) {
@@ -142,7 +134,7 @@ public class AccountService {
                         .collect(Collectors.joining(","));
                 Map<String, String> content = Stream.of(new String[][]{
                         { "NAME", accountEntity.getName() },
-                        { "ADDR", socket.getInetAddress().getHostName() },
+                        { "ADDR", socket.getInetAddress().getHostAddress() },
                         { "PERSONAS", personas },
                         { "LOC", accountEntity.getLoc() },
                         { "MAIL", accountEntity.getMail() },
@@ -156,7 +148,7 @@ public class AccountService {
             socketData.setIdMessage("authimst"); // Inexisting error (EC_INV_MASTER)
         }
 
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
 

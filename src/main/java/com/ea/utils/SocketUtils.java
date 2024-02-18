@@ -1,14 +1,11 @@
 package com.ea.utils;
 
-import org.springframework.stereotype.Component;
-
 import java.util.HexFormat;
 import java.util.zip.CRC32;
 
-@Component
 public class SocketUtils {
 
-    public String getValueFromSocket(String data, String key) {
+    public static String getValueFromSocket(String data, String key) {
         String result = null;
         String[] entries = data.split("\\R");
         for (String entry : entries) {

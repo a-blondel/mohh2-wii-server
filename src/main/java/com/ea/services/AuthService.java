@@ -1,9 +1,9 @@
 package com.ea.services;
 
+import com.ea.dto.SessionData;
 import com.ea.dto.SocketData;
 import com.ea.steps.SocketWriter;
 import com.ea.utils.Props;
-import com.ea.utils.SocketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,14 +12,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.ea.utils.SocketUtils.getValueFromSocket;
+
 @Component
 public class AuthService {
-
-    @Autowired
-    SocketWriter socketWriter;
-
-    @Autowired
-    private SocketUtils socketUtils;
 
     @Autowired
     Props props;
@@ -40,11 +36,11 @@ public class AuthService {
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
     public void addr(Socket socket, SocketData socketData) {
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
     public void skey(Socket socket, SocketData socketData) {
@@ -53,7 +49,7 @@ public class AuthService {
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
     public void news(Socket socket, SocketData socketData) {
@@ -66,12 +62,12 @@ public class AuthService {
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
-    public void sele(Socket socket, SocketData socketData) {
-        String stats = socketUtils.getValueFromSocket(socketData.getInputMessage(), "STATS");
-        String inGame = socketUtils.getValueFromSocket(socketData.getInputMessage(), "INGAME");
+    public void sele(Socket socket, SessionData sessionData, SocketData socketData) {
+        String stats = getValueFromSocket(socketData.getInputMessage(), "STATS");
+        String inGame = getValueFromSocket(socketData.getInputMessage(), "INGAME");
 
         Map<String, String> content;
         // Request separates attributes either by 0x20 or 0x0a...
@@ -82,16 +78,16 @@ public class AuthService {
                     { "STATS", "0" },
             }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
         } else {
-            String myGame = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MYGAME");
-            String async = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ASYNC");
+            String myGame = getValueFromSocket(socketData.getInputMessage(), "MYGAME");
+            String async = getValueFromSocket(socketData.getInputMessage(), "ASYNC");
 
             if ("1".equals(inGame)) {
-                String games = socketUtils.getValueFromSocket(socketData.getInputMessage(), "GAMES");
-                String rooms = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ROOMS");
-                String mesgs = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MESGS");
-                String mesgTypes = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MESGTYPES");
-                String users = socketUtils.getValueFromSocket(socketData.getInputMessage(), "USERS");
-                String userSets = socketUtils.getValueFromSocket(socketData.getInputMessage(), "USERSETS");
+                String games = getValueFromSocket(socketData.getInputMessage(), "GAMES");
+                String rooms = getValueFromSocket(socketData.getInputMessage(), "ROOMS");
+                String mesgs = getValueFromSocket(socketData.getInputMessage(), "MESGS");
+                String mesgTypes = getValueFromSocket(socketData.getInputMessage(), "MESGTYPES");
+                String users = getValueFromSocket(socketData.getInputMessage(), "USERS");
+                String userSets = getValueFromSocket(socketData.getInputMessage(), "USERSETS");
                 content = Stream.of(new String[][] {
                         { "INGAME", inGame },
                         { "MESGS", mesgs },
@@ -112,10 +108,10 @@ public class AuthService {
         }
 
         socketData.setOutputData(content);
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
 
         if(null != stats || null != inGame) {
-            personaService.who(socket);
+            personaService.who(socket, sessionData);
         }
     }
 

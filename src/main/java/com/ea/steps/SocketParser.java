@@ -1,24 +1,18 @@
 package com.ea.steps;
 
+import com.ea.dto.SessionData;
 import com.ea.dto.SocketData;
+import com.ea.utils.BeanUtil;
 import com.ea.utils.HexDumpUtils;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.net.Socket;
 import java.util.Arrays;
 
 @Slf4j
-@Component
 public class SocketParser {
-
-    @Autowired
-    private Props props;
-
-    @Autowired
-    private SocketProcessor socketProcessor;
+    private static Props props = BeanUtil.getBean(Props.class);
 
     /**
      * Parses input messages based on current content of the stream
@@ -28,7 +22,7 @@ public class SocketParser {
      * @param buffer the buffer to read from
      * @param readLength the size of written content in buffer
      */
-    public void parse(Socket socket, byte[] buffer, int readLength) {
+    public static void parse(Socket socket, SessionData sessionData, byte[] buffer, int readLength) {
         boolean loop = true;
         int readRemaining = Integer.valueOf(readLength);
         int lastPos = 0;
@@ -43,10 +37,10 @@ public class SocketParser {
 
                 if (props.isTcpDebugEnabled() && !props.getTcpDebugExclusions().contains(socketData.getIdMessage())) {
                     byte[] dump = Arrays.copyOfRange(buffer, currentMessageBegin, currentMessageBegin + currentMessageLength);
-                    log.info("Receive:\n{}", HexDumpUtils.formatHexDump(dump));
+                    log.info("Received from {}:{} :\n{}", socket.getInetAddress().getHostAddress(), socket.getPort(), HexDumpUtils.formatHexDump(dump));
                 }
 
-                socketProcessor.process(socket, socketData);
+                SocketProcessor.process(socket, sessionData, socketData);
                 readRemaining -= currentMessageLength;
                 lastPos += currentMessageLength;
             } else {
@@ -62,7 +56,7 @@ public class SocketParser {
      * @param lastPos the position to begin in the buffer (there can be multiple messages in a buffer)
      * @return int - the size of the content
      */
-    private int getlength(byte[] buffer, int lastPos) {
+    private static int getlength(byte[] buffer, int lastPos) {
         String size = "";
         for (int i = lastPos + 8; i < lastPos + 12; i++) {
             size += String.format("%02x", buffer[i]);

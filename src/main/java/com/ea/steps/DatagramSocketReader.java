@@ -1,11 +1,11 @@
 package com.ea.steps;
 
 import com.ea.dto.DatagramSocketData;
+import com.ea.dto.SessionData;
+import com.ea.utils.BeanUtil;
 import com.ea.utils.HexDumpUtils;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -14,14 +14,9 @@ import java.net.InetAddress;
 import java.util.Arrays;
 
 @Slf4j
-@Component
 public class DatagramSocketReader {
 
-    @Autowired
-    private Props props;
-
-    @Autowired
-    private DatagramSocketProcessor datagramSocketProcessor;
+    private static Props props = BeanUtil.getBean(Props.class);
 
     /**
      * Waits for data to come from the client
@@ -29,7 +24,7 @@ public class DatagramSocketReader {
      * @param socket the socket to read
      * @throws IOException
      */
-    public void read(DatagramSocket socket) throws IOException {
+    public static void read(DatagramSocket socket, SessionData sessionData) throws IOException {
         // TODO find the best way to exit
         while (true) {
 
@@ -46,7 +41,7 @@ public class DatagramSocketReader {
                 log.info("Received from {}:{}:\n{}", address, port, HexDumpUtils.formatHexDump(dump));
             }
 
-            datagramSocketProcessor.process(socket, new DatagramSocketData(packet, null));
+            DatagramSocketProcessor.process(socket, sessionData, new DatagramSocketData(packet, null));
 
         }
     }

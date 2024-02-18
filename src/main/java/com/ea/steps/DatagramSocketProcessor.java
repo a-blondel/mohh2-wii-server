@@ -1,10 +1,10 @@
 package com.ea.steps;
 
 import com.ea.dto.DatagramSocketData;
+import com.ea.dto.SessionData;
 import com.ea.services.LobbyService;
+import com.ea.utils.BeanUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.net.DatagramPacket;
@@ -15,7 +15,6 @@ import static com.ea.utils.SocketUtils.parseHexString;
 import static com.ea.utils.SocketUtils.formatIntToWord;
 
 @Slf4j
-@Component
 public class DatagramSocketProcessor {
 
     public static final int RAW_PACKET_CONN = 2;
@@ -26,20 +25,16 @@ public class DatagramSocketProcessor {
     public static final int GAME_PACKET_SYNC = 64;
     public static final int RAW_PACKET_DATA = 256;
     public static final int RAW_PACKET_UNREL = 128;
-
-    @Autowired
-    private LobbyService lobbyService;
-
-    @Autowired
-    private DatagramSocketWriter datagramSocketWriter;
+    private static LobbyService lobbyService = BeanUtil.getBean(LobbyService.class);
 
     /**
      * Prepares the output message based on request type,
      * then calls the writer
      * @param socket the socket to give to the writer
+     * @param sessionData the sessionData of connected persona
      * @param socketData the object to process
      */
-    public void process(DatagramSocket socket, DatagramSocketData socketData) {
+    public static void process(DatagramSocket socket, SessionData sessionData, DatagramSocketData socketData) {
 
         DatagramPacket inputPacket = socketData.getInputPacket();
         byte[] buf = Arrays.copyOf(inputPacket.getData(), inputPacket.getLength());
@@ -49,7 +44,7 @@ public class DatagramSocketProcessor {
         if (RAW_PACKET_POKE == packetSeq) {
             System.arraycopy(parseHexString(formatIntToWord(RAW_PACKET_CONN)), 0, buf, 0, 4);
         } else if (RAW_PACKET_DISC == packetSeq) {
-            lobbyService.endLobbyReport();
+            lobbyService.endLobbyReport(sessionData);
         } else if (RAW_PACKET_UNREL <= packetSeq && RAW_PACKET_DATA > packetSeq) {
             int packetOperation = new BigInteger(1, buf, inputPacket.getLength() - 1, 1).intValue();
             if (GAME_PACKET_USER_UNRELIABLE == packetOperation) {
@@ -101,7 +96,7 @@ public class DatagramSocketProcessor {
 
         socketData.setOutputMessage(buf);
 
-        datagramSocketWriter.write(socket, socketData);
+        DatagramSocketWriter.write(socket, socketData);
 
     }
 

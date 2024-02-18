@@ -11,7 +11,6 @@ import com.ea.repositories.PersonaRepository;
 import com.ea.repositories.PersonaStatsRepository;
 import com.ea.steps.SocketWriter;
 import com.ea.utils.AccountUtils;
-import com.ea.utils.SocketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +21,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.ea.utils.SocketUtils.getValueFromSocket;
 
 @Component
 public class PersonaService {
@@ -35,27 +36,19 @@ public class PersonaService {
     @Autowired
     private PersonaStatsRepository personaStatsRepository;
 
-    @Autowired
-    private SessionData sessionData;
-
-    @Autowired
-    private SocketWriter socketWriter;
-
-    @Autowired
-    private SocketUtils socketUtils;
-
     /**
      * Persona creation
      * @param socket
+     * @param sessionData
      * @param socketData
      */
-    public void cper(Socket socket, SocketData socketData) {
-        String pers = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PERS");
+    public void cper(Socket socket, SessionData sessionData, SocketData socketData) {
+        String pers = getValueFromSocket(socketData.getInputMessage(), "PERS");
 
         Optional<PersonaEntity> personaEntityOpt = personaRepository.findByPers(pers);
         if (personaEntityOpt.isPresent()) {
             socketData.setIdMessage("cperdupl"); // Duplicate persona error (EC_DUPLICATE)
-            int alts = Integer.parseInt(socketUtils.getValueFromSocket(socketData.getInputMessage(), "ALTS"));
+            int alts = Integer.parseInt(getValueFromSocket(socketData.getInputMessage(), "ALTS"));
             if (alts > 0) {
                 String opts = AccountUtils.suggestNames(alts, pers);
                 Map<String, String> content = Stream.of(new String[][]{
@@ -76,7 +69,7 @@ public class PersonaService {
             personaRepository.save(personaEntity);
         }
 
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
     /**
@@ -84,8 +77,8 @@ public class PersonaService {
      * @param socket
      * @param socketData
      */
-    public void pers(Socket socket, SocketData socketData) {
-        String pers = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PERS");
+    public void pers(Socket socket, SessionData sessionData, SocketData socketData) {
+        String pers = getValueFromSocket(socketData.getInputMessage(), "PERS");
 
         Optional<PersonaEntity> personaEntityOpt = personaRepository.findByPers(pers);
         if (personaEntityOpt.isPresent()) {
@@ -96,27 +89,28 @@ public class PersonaService {
                     { "LKEY", "" },
                     { "EX-ticker", "" },
                     { "LOC", personaEntity.getAccount().getLoc() },
-                    { "A", socket.getInetAddress().getHostName() },
-                    { "LA", socket.getInetAddress().getHostName() },
+                    { "A", socket.getInetAddress().getHostAddress() },
+                    { "LA", socket.getInetAddress().getHostAddress() },
                     { "IDLE", "35000" },
             }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
             socketData.setOutputData(content);
-            socketWriter.write(socket, socketData);
+            SocketWriter.write(socket, socketData);
 
-            startPersonaConnection(socket, personaEntity);
+            startPersonaConnection(socket, sessionData, personaEntity);
         }
     }
 
     /**
      * Registers a connection of the persona
      * @param socket
+     * @param sessionData
      * @param personaEntity
      */
-    private void startPersonaConnection(Socket socket, PersonaEntity personaEntity) {
+    private void startPersonaConnection(Socket socket, SessionData sessionData, PersonaEntity personaEntity) {
         // Close current connection if the user got a "soft" disconnection (TCP connection is still active)
         if(null != sessionData.getCurrentPersonaConnection()) {
-            endPersonaConnection();
+            endPersonaConnection(sessionData);
         }
 
         PersonaConnectionEntity personaConnectionEntity = new PersonaConnectionEntity();
@@ -130,7 +124,7 @@ public class PersonaService {
     /**
      * Ends the current connection of the persona
      */
-    public void endPersonaConnection() {
+    public void endPersonaConnection(SessionData sessionData) {
         PersonaConnectionEntity personaConnectionEntity = sessionData.getCurrentPersonaConnection();
         if(null != personaConnectionEntity) {
             personaConnectionEntity.setEndTime(Timestamp.from(Instant.now()));
@@ -144,17 +138,17 @@ public class PersonaService {
      * @param socketData
      */
     public void dper(Socket socket, SocketData socketData) {
-        String pers = socketUtils.getValueFromSocket(socketData.getInputMessage(), "PERS");
+        String pers = getValueFromSocket(socketData.getInputMessage(), "PERS");
         Optional<PersonaEntity> personaEntityOpt = personaRepository.findByPers(pers);
         if (personaEntityOpt.isPresent()) {
             PersonaEntity personaEntity = personaEntityOpt.get();
             personaEntity.setDeletedOn(Timestamp.from(Instant.now()));
             personaRepository.save(personaEntity);
         }
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
-    public void llvl(Socket socket, SocketData socketData) {
+    public void llvl(Socket socket, SessionData sessionData, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 { "SKILL_PTS", "211" },
                 { "SKILL_LVL", "1049601" },
@@ -162,12 +156,12 @@ public class PersonaService {
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
 
-        who(socket);
+        who(socket, sessionData);
     }
 
-    public void who(Socket socket) {
+    public void who(Socket socket, SessionData sessionData) {
         PersonaEntity personaEntity = sessionData.getCurrentPersonna();
         AccountEntity accountEntity = sessionData.getCurrentAccount();
 
@@ -197,8 +191,8 @@ public class PersonaService {
                     { "CI", "0" },
                     { "CT", "0" },
                     // 0x800225E0
-                    { "A", socket.getInetAddress().getHostName() },
-                    { "LA", socket.getInetAddress().getHostName() },
+                    { "A", socket.getInetAddress().getHostAddress() },
+                    { "LA", socket.getInetAddress().getHostAddress() },
                     // 0x80021384
                     { "C", "4000,,7,1,1,,1,1,5553" },
                     { "RI", "0" },
@@ -209,7 +203,7 @@ public class PersonaService {
                     { "RM", "0" },
                     { "RF", "0" },
             }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-            socketWriter.write(socket, new SocketData("+who", null, content));
+            SocketWriter.write(socket, new SocketData("+who", null, content));
         }
     }
 

@@ -7,7 +7,6 @@ import com.ea.enums.MapEnum;
 import com.ea.enums.RankingCategory;
 import com.ea.repositories.PersonaStatsRepository;
 import com.ea.steps.SocketWriter;
-import com.ea.utils.SocketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,17 +15,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.ea.utils.SocketUtils.getValueFromSocket;
+
 @Component
 public class StatsService {
-
-    @Autowired
-    private SocketWriter socketWriter;
-
-    @Autowired
-    private SocketUtils socketUtils;
-
-    @Autowired
-    private SessionData sessionData;
 
     @Autowired
     private PersonaStatsRepository personaStatsRepository;
@@ -48,20 +40,20 @@ public class StatsService {
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
     /**
      * Request ranking snapshot
      * @param socket
      */
-    public void snap(Socket socket, SocketData socketData) {
+    public void snap(Socket socket, SessionData sessionData, SocketData socketData) {
 
-        String chan = socketUtils.getValueFromSocket(socketData.getInputMessage(), "CHAN");
-        String seqn = socketUtils.getValueFromSocket(socketData.getInputMessage(), "SEQN");
-        String cols = socketUtils.getValueFromSocket(socketData.getInputMessage(), "COLS"); // send column information or not
-        String start = socketUtils.getValueFromSocket(socketData.getInputMessage(), "START"); // <start ranking> (index)
-        String categoryIndex = socketUtils.getValueFromSocket(socketData.getInputMessage(), "CI"); // <category-index>
+        String chan = getValueFromSocket(socketData.getInputMessage(), "CHAN");
+        String seqn = getValueFromSocket(socketData.getInputMessage(), "SEQN");
+        String cols = getValueFromSocket(socketData.getInputMessage(), "COLS"); // send column information or not
+        String start = getValueFromSocket(socketData.getInputMessage(), "START"); // <start ranking> (index)
+        String categoryIndex = getValueFromSocket(socketData.getInputMessage(), "CI"); // <category-index>
 
         String columnNumber = "18";
         if (RankingCategory.WEAPON_LEADERS.id.equals(categoryIndex)) {
@@ -208,7 +200,7 @@ public class StatsService {
         }
 
         socketData.setOutputData(content);
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
 
         snp(socket, categoryIndex, personaStatsEntityList, offset);
     }
@@ -298,7 +290,7 @@ public class StatsService {
 
         for (Map<String, String> ranking : rankingList) {
             SocketData socketData = new SocketData("+snp", null, ranking);
-            socketWriter.write(socket, socketData);
+            SocketWriter.write(socket, socketData);
         }
     }
 

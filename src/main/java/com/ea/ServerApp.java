@@ -31,15 +31,6 @@ public class ServerApp implements CommandLineRunner {
     @Autowired
     ServerConfig serverConfig;
 
-    @Autowired
-    SslSocketThread sslSocketThread;
-
-    @Autowired
-    TcpSocketThread tcpSocketThread;
-
-    @Autowired
-    UdpSocketThread udpSocketThread;
-
     public static void main(String[] args) {
         SpringApplication.run(ServerApp.class, args);
     }
@@ -57,7 +48,6 @@ public class ServerApp implements CommandLineRunner {
         }
 
         try {
-
             log.info("Starting servers...");
             SSLServerSocket sslServerSocket = serverConfig.createSslServerSocket();
             ServerSocket tcpServerSocket = serverConfig.createTcpServerSocket();
@@ -67,23 +57,25 @@ public class ServerApp implements CommandLineRunner {
             }
             log.info("Servers started. Waiting for client connections...");
 
-            while(true){
+            while(true) {
+                SslSocketThread sslSocketThread = new SslSocketThread();
                 sslSocketThread.setClientSocket((SSLSocket) sslServerSocket.accept());
                 Thread threadSSL = new Thread(sslSocketThread);
                 threadSSL.start();
 
+                TcpSocketThread tcpSocketThread = new TcpSocketThread();
                 tcpSocketThread.setClientSocket(tcpServerSocket.accept());
                 Thread threadTCP = new Thread(tcpSocketThread);
                 threadTCP.start();
 
                 if(!props.isConnectModeEnabled()) {
+                    UdpSocketThread udpSocketThread = new UdpSocketThread();
                     udpSocketThread.setClientSocket(udpServerSocket);
+                    udpSocketThread.setTcpSocketTread(tcpSocketThread);
                     Thread threadUDP = new Thread(udpSocketThread);
                     threadUDP.start();
                 }
-
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

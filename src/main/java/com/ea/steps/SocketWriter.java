@@ -1,11 +1,10 @@
 package com.ea.steps;
 
 import com.ea.dto.SocketData;
+import com.ea.utils.BeanUtil;
 import com.ea.utils.HexDumpUtils;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -16,11 +15,9 @@ import java.nio.charset.StandardCharsets;
 import static java.util.stream.Collectors.joining;
 
 @Slf4j
-@Component
 public class SocketWriter {
 
-    @Autowired
-    private Props props;
+    private static Props props = BeanUtil.getBean(Props.class);
 
     /**
      * Builds the full output message based on the data id and content
@@ -29,7 +26,7 @@ public class SocketWriter {
      * @param socketData the object to use to write the message
      * @throws IOException
      */
-    public void write(Socket socket, SocketData socketData) {
+    public static void write(Socket socket, SocketData socketData) {
 
         try (ByteArrayOutputStream buffer = new ByteArrayOutputStream();
              DataOutputStream writer = new DataOutputStream(buffer)) {
@@ -56,7 +53,7 @@ public class SocketWriter {
             byte[] bufferBytes = buffer.toByteArray();
 
             if (props.isTcpDebugEnabled() && !props.getTcpDebugExclusions().contains(socketData.getIdMessage())) {
-                log.info("Send:\n{}", HexDumpUtils.formatHexDump(bufferBytes));
+                log.info("Send to {}:{} :\n{}", socket.getInetAddress().getHostAddress(), socket.getPort(), HexDumpUtils.formatHexDump(bufferBytes));
             }
 
             socket.getOutputStream().write(bufferBytes);

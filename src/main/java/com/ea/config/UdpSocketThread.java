@@ -1,37 +1,34 @@
 package com.ea.config;
 
+import com.ea.dto.SessionData;
 import com.ea.steps.DatagramSocketReader;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
+import java.net.Socket;
 
 /**
  * Thread to handle a unique udp socket
  */
 @Slf4j
-@Component
 public class UdpSocketThread implements Runnable {
 
+    @Setter
     private DatagramSocket clientSocket;
 
-    @Autowired
-    private DatagramSocketReader datagramSocketReader;
-
-    public void setClientSocket(DatagramSocket clientSocket) {
-        this.clientSocket = clientSocket;
-    }
+    @Setter
+    private TcpSocketThread tcpSocketTread;
 
     public void run() {
         log.info("UDP client session started: {}", clientSocket.hashCode());
         try {
-            datagramSocketReader.read(clientSocket);
+            DatagramSocketReader.read(clientSocket, tcpSocketTread.getSessionData());
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            log.info("UDP client session ended: " + clientSocket.hashCode());
+            log.info("UDP client session ended: {}", clientSocket.hashCode());
         }
     }
 
