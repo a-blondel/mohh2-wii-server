@@ -104,8 +104,6 @@ public class PersonaService {
             socketData.setOutputData(content);
             socketWriter.write(socket, socketData);
 
-            who(socket);
-
             startPersonaConnection(socket, personaEntity);
         }
     }

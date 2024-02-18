@@ -24,6 +24,9 @@ public class AuthService {
     @Autowired
     Props props;
 
+    @Autowired
+    private PersonaService personaService;
+
     public void dir(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 // { "DIRECT", "0" }, // 0x8001FC04
@@ -110,6 +113,10 @@ public class AuthService {
 
         socketData.setOutputData(content);
         socketWriter.write(socket, socketData);
+
+        if(null != stats || null != inGame) {
+            personaService.who(socket);
+        }
     }
 
 }
