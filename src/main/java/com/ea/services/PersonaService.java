@@ -116,6 +116,11 @@ public class PersonaService {
      * @param personaEntity
      */
     private void startPersonaConnection(Socket socket, PersonaEntity personaEntity) {
+        // Close current connection if the user got a "soft" disconnection (TCP connection is still active)
+        if(null != sessionData.getCurrentPersonaConnection()) {
+            endPersonaConnection();
+        }
+
         PersonaConnectionEntity personaConnectionEntity = new PersonaConnectionEntity();
         personaConnectionEntity.setIp(socket.getInetAddress().getHostAddress());
         personaConnectionEntity.setPersona(personaEntity);
