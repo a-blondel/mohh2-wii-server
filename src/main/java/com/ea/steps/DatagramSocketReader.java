@@ -1,7 +1,6 @@
 package com.ea.steps;
 
 import com.ea.dto.DatagramSocketData;
-import com.ea.dto.SessionData;
 import com.ea.utils.BeanUtil;
 import com.ea.utils.HexDumpUtils;
 import com.ea.utils.Props;
@@ -24,15 +23,11 @@ public class DatagramSocketReader {
      * @param socket the socket to read
      * @throws IOException
      */
-    public static void read(DatagramSocket socket, SessionData sessionData) throws IOException {
-        // TODO find the best way to exit
+    public static void read(DatagramSocket socket) throws IOException {
         while (true) {
-
             byte[] buf = new byte[256];
-
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             socket.receive(packet);
-
             InetAddress address = packet.getAddress();
             int port = packet.getPort();
 
@@ -41,8 +36,7 @@ public class DatagramSocketReader {
                 log.info("Received from {}:{}:\n{}", address, port, HexDumpUtils.formatHexDump(dump));
             }
 
-            DatagramSocketProcessor.process(socket, sessionData, new DatagramSocketData(packet, null));
-
+            DatagramSocketProcessor.process(socket, new DatagramSocketData(packet, null));
         }
     }
 

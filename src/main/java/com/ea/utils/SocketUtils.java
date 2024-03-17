@@ -1,8 +1,13 @@
 package com.ea.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HexFormat;
 import java.util.zip.CRC32;
 
+@Slf4j
 public class SocketUtils {
 
     public static String getValueFromSocket(String data, String key) {
@@ -71,6 +76,23 @@ public class SocketUtils {
      */
     public static String formatIntToWord(int value) {
         return String.format("%08X", value);
+    }
+
+    /**
+     * Handle localhost IP
+     * @param socketIp
+     * @return machine IP instead of 127.0.0.1, or socketIp if != 127.0.0.1
+     */
+    public static String handleLocalhostIp(String socketIp) {
+        String ip = socketIp;
+        if (socketIp.equals("127.0.0.1")) {
+            try {
+                ip = InetAddress.getLocalHost().getHostAddress();
+            } catch (UnknownHostException e) {
+                log.error(e.getMessage());
+            }
+        }
+        return ip;
     }
 
 }

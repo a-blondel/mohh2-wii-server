@@ -60,8 +60,7 @@ public class ServerConfig {
      * @throws IOException
      */
     public ServerSocket createTcpServerSocket() throws IOException {
-        ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(props.getTcpPort());
-        return serverSocket;
+        return ServerSocketFactory.getDefault().createServerSocket(props.getTcpPort());
     }
 
     /**
@@ -70,8 +69,7 @@ public class ServerConfig {
      * @throws IOException
      */
     public DatagramSocket createUdpServerSocket() throws IOException {
-        DatagramSocket serverSocket = new DatagramSocket(props.getUdpPort());
-        return serverSocket;
+        return new DatagramSocket(props.getUdpPort());
     }
 
 }

@@ -14,8 +14,11 @@ import java.net.SocketException;
 @Slf4j
 public class SslSocketThread implements Runnable {
 
-    @Setter
-    private SSLSocket clientSocket;
+    private final SSLSocket clientSocket;
+
+    public SslSocketThread(SSLSocket clientSocket) {
+        this.clientSocket = clientSocket;
+    }
 
     public void run() {
         log.info("SSL client session started: {}:{}", clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort());

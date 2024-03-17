@@ -4,6 +4,7 @@ import com.ea.config.ServerConfig;
 import com.ea.config.SslSocketThread;
 import com.ea.config.TcpSocketThread;
 import com.ea.config.UdpSocketThread;
+import com.ea.dto.SessionData;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class ServerApp implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         Security.setProperty("jdk.tls.disabledAlgorithms", "");
         System.setProperty("https.protocols", props.getSslProtocols());
         System.setProperty("https.cipherSuites", props.getSslCipherSuites());
@@ -51,30 +52,16 @@ public class ServerApp implements CommandLineRunner {
             log.info("Starting servers...");
             SSLServerSocket sslServerSocket = serverConfig.createSslServerSocket();
             ServerSocket tcpServerSocket = serverConfig.createTcpServerSocket();
-            DatagramSocket udpServerSocket = null;
             if(!props.isConnectModeEnabled()) {
-                udpServerSocket = serverConfig.createUdpServerSocket();
+                DatagramSocket udpServerSocket = serverConfig.createUdpServerSocket();
+                new Thread(new UdpSocketThread(udpServerSocket)).start();
             }
             log.info("Servers started. Waiting for client connections...");
 
             while(true) {
-                SslSocketThread sslSocketThread = new SslSocketThread();
-                sslSocketThread.setClientSocket((SSLSocket) sslServerSocket.accept());
-                Thread threadSSL = new Thread(sslSocketThread);
-                threadSSL.start();
-
-                TcpSocketThread tcpSocketThread = new TcpSocketThread();
-                tcpSocketThread.setClientSocket(tcpServerSocket.accept());
-                Thread threadTCP = new Thread(tcpSocketThread);
-                threadTCP.start();
-
-                if(!props.isConnectModeEnabled()) {
-                    UdpSocketThread udpSocketThread = new UdpSocketThread();
-                    udpSocketThread.setClientSocket(udpServerSocket);
-                    udpSocketThread.setTcpSocketTread(tcpSocketThread);
-                    Thread threadUDP = new Thread(udpSocketThread);
-                    threadUDP.start();
-                }
+                SessionData sessionData = new SessionData();
+                new Thread(new SslSocketThread((SSLSocket) sslServerSocket.accept())).start();
+                new Thread(new TcpSocketThread(tcpServerSocket.accept(), sessionData)).start();
             }
         } catch (IOException e) {
             e.printStackTrace();

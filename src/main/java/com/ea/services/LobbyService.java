@@ -12,6 +12,7 @@ import com.ea.repositories.LobbyRepository;
 import com.ea.repositories.PersonaConnectionRepository;
 import com.ea.steps.SocketWriter;
 import com.ea.utils.Props;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ import java.util.stream.Stream;
 import static com.ea.utils.SocketUtils.getValueFromSocket;
 
 @Component
+@Slf4j
 public class LobbyService {
 
     @Autowired
@@ -149,7 +151,7 @@ public class LobbyService {
                 { "IDENT", String.valueOf(lobbyEntity.getId()) },
                 { "NAME", lobbyEntity.getName() },
                 { "HOST", props.isConnectModeEnabled() ? sessionData.getCurrentPersonna().getPers() : "@brobot15" },
-                { "GPSHOST", props.isConnectModeEnabled() ? sessionData.getCurrentPersonna().getPers() : "@brobot15" },
+                // { "GPSHOST", props.isConnectModeEnabled() ? sessionData.getCurrentPersonna().getPers() : "@brobot15" },
                 { "PARAMS", params },
                 // { "PARAMS", ",,,b80,d003f6e0656e47423" },
                 // { "PLATPARAMS", "0" },  // ???
@@ -172,7 +174,7 @@ public class LobbyService {
                 // loop 0x80022058 only if COUNT>=0
                 { "OPID0", "0" }, // OPID%d
                 { "OPPO0", "@brobot15" }, // OPPO%d
-                { "ADDR0", "127.0.0.1" },
+                { "ADDR0", props.getUdpHost() },
                 { "LADDR0", "127.0.0.1" },
                 { "MADDR0", "" }, // MADDR%d
                 { "OPPART0", "0" }, // OPPART%d
@@ -220,6 +222,9 @@ public class LobbyService {
      * @param lobbyEntity
      */
     private void startLobbyReport(SessionData sessionData, LobbyEntity lobbyEntity) {
+        // Close any lobby report that wasn't property ended (e.g. use Dolphin save state to leave)
+        endLobbyReport(sessionData);
+
         LobbyReportEntity lobbyReportEntity = new LobbyReportEntity();
         lobbyReportEntity.setLobby(lobbyEntity);
         lobbyReportEntity.setPersona(sessionData.getCurrentPersonna());
@@ -235,12 +240,16 @@ public class LobbyService {
      * Ends the lobby report because the player has left the lobby
      */
     public void endLobbyReport(SessionData sessionData) {
-        LobbyReportEntity lobbyReportEntity = sessionData.getCurrentLobbyReport();
-        if (lobbyReportEntity != null) {
-            lobbyReportEntity.setEndTime(Timestamp.from(Instant.now()));
-            lobbyReportRepository.save(lobbyReportEntity);
-            sessionData.setCurrentLobby(null);
-            sessionData.setCurrentLobbyReport(null);
+        if(sessionData != null) {
+            LobbyReportEntity lobbyReportEntity = sessionData.getCurrentLobbyReport();
+            if (lobbyReportEntity != null) {
+                lobbyReportEntity.setEndTime(Timestamp.from(Instant.now()));
+                lobbyReportRepository.save(lobbyReportEntity);
+                sessionData.setCurrentLobby(null);
+                sessionData.setCurrentLobbyReport(null);
+            }
+        } else {
+            log.error("sessionData is null ?!");
         }
     }
 

@@ -6,10 +6,8 @@ import com.ea.services.LobbyService;
 import com.ea.services.PersonaService;
 import com.ea.steps.SocketReader;
 import com.ea.steps.SocketWriter;
-import lombok.Getter;
-import lombok.Setter;
+import com.ea.utils.BeanUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.net.Socket;
@@ -23,24 +21,24 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class TcpSocketThread implements Runnable {
 
-    @Autowired
-    private PersonaService personaService;
+    private static PersonaService personaService = BeanUtil.getBean(PersonaService.class);
 
-    @Autowired
-    private LobbyService lobbyService;
+    private static LobbyService lobbyService = BeanUtil.getBean(LobbyService.class);
 
-    @Setter
-    private Socket clientSocket;
+    private final Socket clientSocket;
 
-    @Getter
-    private SessionData sessionData;
+    private final SessionData sessionData;
 
     private ScheduledExecutorService pingExecutor;
+
+    public TcpSocketThread(Socket clientSocket, SessionData sessionData) {
+        this.clientSocket = clientSocket;
+        this.sessionData = sessionData;
+    }
 
     public void run() {
         log.info("TCP client session started: {}:{}", clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort());
         try {
-            sessionData = new SessionData();
             pingExecutor = Executors.newSingleThreadScheduledExecutor();
             pingExecutor.scheduleAtFixedRate(() -> png(clientSocket), 30, 30, TimeUnit.SECONDS);
 

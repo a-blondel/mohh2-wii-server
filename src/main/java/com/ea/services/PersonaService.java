@@ -11,6 +11,8 @@ import com.ea.repositories.PersonaRepository;
 import com.ea.repositories.PersonaStatsRepository;
 import com.ea.steps.SocketWriter;
 import com.ea.utils.AccountUtils;
+import com.ea.utils.SocketUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,7 @@ import java.util.stream.Stream;
 
 import static com.ea.utils.SocketUtils.getValueFromSocket;
 
+@Slf4j
 @Component
 public class PersonaService {
 
@@ -110,11 +113,17 @@ public class PersonaService {
     private void startPersonaConnection(Socket socket, SessionData sessionData, PersonaEntity personaEntity) {
         // Close current connection if the user got a "soft" disconnection (TCP connection is still active)
         if(null != sessionData.getCurrentPersonaConnection()) {
+            log.error("User wasn't properly disconnected");
             endPersonaConnection(sessionData);
         }
-
+        Optional<PersonaConnectionEntity> personaConnectionEntityOpt = personaConnectionRepository.findCurrentPersonaConnection(personaEntity);
+        if(personaConnectionEntityOpt.isPresent()) {
+            PersonaConnectionEntity personaConnectionEntity = personaConnectionEntityOpt.get();
+            personaConnectionEntity.setEndTime(Timestamp.from(Instant.now()));
+            personaConnectionRepository.save(personaConnectionEntity);
+        }
         PersonaConnectionEntity personaConnectionEntity = new PersonaConnectionEntity();
-        personaConnectionEntity.setIp(socket.getInetAddress().getHostAddress());
+        personaConnectionEntity.setIp(SocketUtils.handleLocalhostIp(socket.getInetAddress().getHostAddress()));
         personaConnectionEntity.setPersona(personaEntity);
         personaConnectionEntity.setStartTime(Timestamp.from(Instant.now()));
         personaConnectionRepository.save(personaConnectionEntity);

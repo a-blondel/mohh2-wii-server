@@ -1,15 +1,19 @@
 package com.ea.steps;
 
 import com.ea.dto.DatagramSocketData;
-import com.ea.dto.SessionData;
-import com.ea.services.LobbyService;
+import com.ea.entities.LobbyReportEntity;
+import com.ea.repositories.LobbyReportRepository;
 import com.ea.utils.BeanUtil;
+import com.ea.utils.SocketUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static com.ea.utils.SocketUtils.parseHexString;
 import static com.ea.utils.SocketUtils.formatIntToWord;
@@ -25,16 +29,15 @@ public class DatagramSocketProcessor {
     public static final int GAME_PACKET_SYNC = 64;
     public static final int RAW_PACKET_DATA = 256;
     public static final int RAW_PACKET_UNREL = 128;
-    private static LobbyService lobbyService = BeanUtil.getBean(LobbyService.class);
+    private static LobbyReportRepository lobbyReportRepository = BeanUtil.getBean(LobbyReportRepository.class);
 
     /**
      * Prepares the output message based on request type,
      * then calls the writer
      * @param socket the socket to give to the writer
-     * @param sessionData the sessionData of connected persona
      * @param socketData the object to process
      */
-    public static void process(DatagramSocket socket, SessionData sessionData, DatagramSocketData socketData) {
+    public static void process(DatagramSocket socket, DatagramSocketData socketData) {
 
         DatagramPacket inputPacket = socketData.getInputPacket();
         byte[] buf = Arrays.copyOf(inputPacket.getData(), inputPacket.getLength());
@@ -44,7 +47,14 @@ public class DatagramSocketProcessor {
         if (RAW_PACKET_POKE == packetSeq) {
             System.arraycopy(parseHexString(formatIntToWord(RAW_PACKET_CONN)), 0, buf, 0, 4);
         } else if (RAW_PACKET_DISC == packetSeq) {
-            lobbyService.endLobbyReport(sessionData);
+            Optional<LobbyReportEntity> lobbyReportEntityOpt =
+                    lobbyReportRepository.findCurrentLobbyReportByIP(
+                            SocketUtils.handleLocalhostIp(inputPacket.getAddress().getHostAddress()));
+            if(lobbyReportEntityOpt.isPresent()) {
+                LobbyReportEntity lobbyReportEntity = lobbyReportEntityOpt.get();
+                lobbyReportEntity.setEndTime(Timestamp.from(Instant.now()));
+                lobbyReportRepository.save(lobbyReportEntity);
+            }
         } else if (RAW_PACKET_UNREL <= packetSeq && RAW_PACKET_DATA > packetSeq) {
             int packetOperation = new BigInteger(1, buf, inputPacket.getLength() - 1, 1).intValue();
             if (GAME_PACKET_USER_UNRELIABLE == packetOperation) {
