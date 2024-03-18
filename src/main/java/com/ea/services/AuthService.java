@@ -1,9 +1,9 @@
 package com.ea.services;
 
+import com.ea.dto.SessionData;
 import com.ea.dto.SocketData;
 import com.ea.steps.SocketWriter;
 import com.ea.utils.Props;
-import com.ea.utils.SocketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,23 +12,22 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.ea.utils.SocketUtils.getValueFromSocket;
+
 @Component
 public class AuthService {
 
     @Autowired
-    SocketWriter socketWriter;
-
-    @Autowired
-    private SocketUtils socketUtils;
-
-    @Autowired
     Props props;
+
+    @Autowired
+    private PersonaService personaService;
 
     public void dir(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
                 // { "DIRECT", "0" }, // 0x8001FC04
                 // if DIRECT == 0 then read ADDR and PORT
-                { "ADDR", socket.getLocalAddress().getHostName() }, // 0x8001FC18
+                { "ADDR", socket.getLocalAddress().getHostAddress() }, // 0x8001FC18
                 { "PORT", String.valueOf(props.getTcpPort()) }, // 0x8001fc30
                 // { "SESS", "0" }, // 0x8001fc48 %s-%s-%08x 0--498ea96f
                 // { "MASK", "0" }, // 0x8001fc60
@@ -37,11 +36,11 @@ public class AuthService {
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
     public void addr(Socket socket, SocketData socketData) {
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
     public void skey(Socket socket, SocketData socketData) {
@@ -50,12 +49,12 @@ public class AuthService {
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
     public void news(Socket socket, SocketData socketData) {
         Map<String, String> content = Stream.of(new String[][] {
-                { "BUDDY_SERVER", socket.getLocalAddress().getHostName() },
+                { "BUDDY_SERVER", socket.getLocalAddress().getHostAddress() },
                 { "BUDDY_PORT", String.valueOf(props.getTcpPort()) },
                 { "TOSAC_URL", "https://tos.ea.com/legalapp/webterms/us/fr/pc/" },
                 { "TOSA_URL", "https://tos.ea.com/legalapp/webterms/us/fr/pc/" },
@@ -63,12 +62,12 @@ public class AuthService {
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
         socketData.setOutputData(content);
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
     }
 
-    public void sele(Socket socket, SocketData socketData) {
-        String stats = socketUtils.getValueFromSocket(socketData.getInputMessage(), "STATS");
-        String inGame = socketUtils.getValueFromSocket(socketData.getInputMessage(), "INGAME");
+    public void sele(Socket socket, SessionData sessionData, SocketData socketData) {
+        String stats = getValueFromSocket(socketData.getInputMessage(), "STATS");
+        String inGame = getValueFromSocket(socketData.getInputMessage(), "INGAME");
 
         Map<String, String> content;
         // Request separates attributes either by 0x20 or 0x0a...
@@ -79,16 +78,16 @@ public class AuthService {
                     { "STATS", "0" },
             }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
         } else {
-            String myGame = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MYGAME");
-            String async = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ASYNC");
+            String myGame = getValueFromSocket(socketData.getInputMessage(), "MYGAME");
+            String async = getValueFromSocket(socketData.getInputMessage(), "ASYNC");
 
             if ("1".equals(inGame)) {
-                String games = socketUtils.getValueFromSocket(socketData.getInputMessage(), "GAMES");
-                String rooms = socketUtils.getValueFromSocket(socketData.getInputMessage(), "ROOMS");
-                String mesgs = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MESGS");
-                String mesgTypes = socketUtils.getValueFromSocket(socketData.getInputMessage(), "MESGTYPES");
-                String users = socketUtils.getValueFromSocket(socketData.getInputMessage(), "USERS");
-                String userSets = socketUtils.getValueFromSocket(socketData.getInputMessage(), "USERSETS");
+                String games = getValueFromSocket(socketData.getInputMessage(), "GAMES");
+                String rooms = getValueFromSocket(socketData.getInputMessage(), "ROOMS");
+                String mesgs = getValueFromSocket(socketData.getInputMessage(), "MESGS");
+                String mesgTypes = getValueFromSocket(socketData.getInputMessage(), "MESGTYPES");
+                String users = getValueFromSocket(socketData.getInputMessage(), "USERS");
+                String userSets = getValueFromSocket(socketData.getInputMessage(), "USERSETS");
                 content = Stream.of(new String[][] {
                         { "INGAME", inGame },
                         { "MESGS", mesgs },
@@ -109,7 +108,11 @@ public class AuthService {
         }
 
         socketData.setOutputData(content);
-        socketWriter.write(socket, socketData);
+        SocketWriter.write(socket, socketData);
+
+        if(null != stats || null != inGame) {
+            personaService.who(socket, sessionData);
+        }
     }
 
 }

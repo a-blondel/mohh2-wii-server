@@ -10,23 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.sql.Timestamp;
 import java.time.Instant;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", imports = {SocketUtils.class})
 public abstract class SocketMapper {
-
-    @Autowired
-    protected SocketUtils socketUtils;
 
     @Autowired
     protected PasswordUtils passwordUtils;
 
     @BeanMapping(qualifiedByName = "LobbyEntityForCreation")
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "name", expression = "java(socketUtils.getValueFromSocket(socket, \"NAME\"))")
-    @Mapping(target = "params", expression = "java(socketUtils.getValueFromSocket(socket, \"PARAMS\"))")
-    @Mapping(target = "sysflags", expression = "java(socketUtils.getValueFromSocket(socket, \"SYSFLAGS\"))")
-    @Mapping(target = "pass", expression = "java(socketUtils.getValueFromSocket(socket, \"PASS\"))")
-    @Mapping(target = "minsize", expression = "java(Integer.parseInt(socketUtils.getValueFromSocket(socket, \"MINSIZE\")))")
-    @Mapping(target = "maxsize", expression = "java(Integer.parseInt(socketUtils.getValueFromSocket(socket, \"MAXSIZE\")))")
+    @Mapping(target = "name", expression = "java(SocketUtils.getValueFromSocket(socket, \"NAME\"))")
+    @Mapping(target = "params", expression = "java(SocketUtils.getValueFromSocket(socket, \"PARAMS\"))")
+    @Mapping(target = "sysflags", expression = "java(SocketUtils.getValueFromSocket(socket, \"SYSFLAGS\"))")
+    @Mapping(target = "pass", expression = "java(SocketUtils.getValueFromSocket(socket, \"PASS\"))")
+    @Mapping(target = "minsize", expression = "java(Integer.parseInt(SocketUtils.getValueFromSocket(socket, \"MINSIZE\")))")
+    @Mapping(target = "maxsize", expression = "java(Integer.parseInt(SocketUtils.getValueFromSocket(socket, \"MAXSIZE\")))")
     @Mapping(target = "startTime", ignore = true)
     @Mapping(target = "endTime", ignore = true)
     @Mapping(target = "lobbyReports", ignore = true)
@@ -34,22 +31,22 @@ public abstract class SocketMapper {
 
     @BeanMapping(qualifiedByName = "AccountEntityForCreation")
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "name", expression = "java(socketUtils.getValueFromSocket(socket, \"NAME\"))")
-    @Mapping(target = "pass", expression = "java(socketUtils.getValueFromSocket(socket, \"PASS\"))")
-    @Mapping(target = "loc", expression = "java(socketUtils.getValueFromSocket(socket, \"LOC\"))")
-    @Mapping(target = "mail", expression = "java(socketUtils.getValueFromSocket(socket, \"MAIL\"))")
-    @Mapping(target = "born", expression = "java(socketUtils.getValueFromSocket(socket, \"BORN\"))")
-    @Mapping(target = "zip", expression = "java(socketUtils.getValueFromSocket(socket, \"ZIP\"))")
-    @Mapping(target = "gend", expression = "java(socketUtils.getValueFromSocket(socket, \"GEND\"))")
-    @Mapping(target = "spam", expression = "java(socketUtils.getValueFromSocket(socket, \"SPAM\"))")
-    @Mapping(target = "tos", expression = "java(Integer.parseInt(socketUtils.getValueFromSocket(socket, \"TOS\")))")
-    @Mapping(target = "tick", expression = "java(socketUtils.getValueFromSocket(socket, \"TICK\"))")
-    @Mapping(target = "gamecode", expression = "java(socketUtils.getValueFromSocket(socket, \"GAMECODE\"))")
-    @Mapping(target = "vers", expression = "java(socketUtils.getValueFromSocket(socket, \"VERS\"))")
-    @Mapping(target = "sku", expression = "java(socketUtils.getValueFromSocket(socket, \"SKU\"))")
-    @Mapping(target = "slus", expression = "java(socketUtils.getValueFromSocket(socket, \"SLUS\"))")
-    @Mapping(target = "sdkvers", expression = "java(socketUtils.getValueFromSocket(socket, \"SDKVERS\"))")
-    @Mapping(target = "builddate", expression = "java(socketUtils.getValueFromSocket(socket, \"BUILDDATE\"))")
+    @Mapping(target = "name", expression = "java(SocketUtils.getValueFromSocket(socket, \"NAME\"))")
+    @Mapping(target = "pass", expression = "java(SocketUtils.getValueFromSocket(socket, \"PASS\"))")
+    @Mapping(target = "loc", expression = "java(SocketUtils.getValueFromSocket(socket, \"LOC\"))")
+    @Mapping(target = "mail", expression = "java(SocketUtils.getValueFromSocket(socket, \"MAIL\"))")
+    @Mapping(target = "born", expression = "java(SocketUtils.getValueFromSocket(socket, \"BORN\"))")
+    @Mapping(target = "zip", expression = "java(SocketUtils.getValueFromSocket(socket, \"ZIP\"))")
+    @Mapping(target = "gend", expression = "java(SocketUtils.getValueFromSocket(socket, \"GEND\"))")
+    @Mapping(target = "spam", expression = "java(SocketUtils.getValueFromSocket(socket, \"SPAM\"))")
+    @Mapping(target = "tos", expression = "java(Integer.parseInt(SocketUtils.getValueFromSocket(socket, \"TOS\")))")
+    @Mapping(target = "tick", expression = "java(SocketUtils.getValueFromSocket(socket, \"TICK\"))")
+    @Mapping(target = "gamecode", expression = "java(SocketUtils.getValueFromSocket(socket, \"GAMECODE\"))")
+    @Mapping(target = "vers", expression = "java(SocketUtils.getValueFromSocket(socket, \"VERS\"))")
+    @Mapping(target = "sku", expression = "java(SocketUtils.getValueFromSocket(socket, \"SKU\"))")
+    @Mapping(target = "slus", expression = "java(SocketUtils.getValueFromSocket(socket, \"SLUS\"))")
+    @Mapping(target = "sdkvers", expression = "java(SocketUtils.getValueFromSocket(socket, \"SDKVERS\"))")
+    @Mapping(target = "builddate", expression = "java(SocketUtils.getValueFromSocket(socket, \"BUILDDATE\"))")
     @Mapping(target = "createdOn", ignore = true)
     @Mapping(target = "updatedOn", ignore = true)
     @Mapping(target = "personas", ignore = true)

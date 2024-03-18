@@ -1,21 +1,24 @@
 package com.ea.steps;
 
 import com.ea.dto.DatagramSocketData;
-import com.ea.services.LobbyService;
+import com.ea.entities.LobbyReportEntity;
+import com.ea.repositories.LobbyReportRepository;
+import com.ea.utils.BeanUtil;
+import com.ea.utils.SocketUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static com.ea.utils.SocketUtils.parseHexString;
 import static com.ea.utils.SocketUtils.formatIntToWord;
 
 @Slf4j
-@Component
 public class DatagramSocketProcessor {
 
     public static final int RAW_PACKET_CONN = 2;
@@ -26,12 +29,7 @@ public class DatagramSocketProcessor {
     public static final int GAME_PACKET_SYNC = 64;
     public static final int RAW_PACKET_DATA = 256;
     public static final int RAW_PACKET_UNREL = 128;
-
-    @Autowired
-    private LobbyService lobbyService;
-
-    @Autowired
-    private DatagramSocketWriter datagramSocketWriter;
+    private static LobbyReportRepository lobbyReportRepository = BeanUtil.getBean(LobbyReportRepository.class);
 
     /**
      * Prepares the output message based on request type,
@@ -39,7 +37,7 @@ public class DatagramSocketProcessor {
      * @param socket the socket to give to the writer
      * @param socketData the object to process
      */
-    public void process(DatagramSocket socket, DatagramSocketData socketData) {
+    public static void process(DatagramSocket socket, DatagramSocketData socketData) {
 
         DatagramPacket inputPacket = socketData.getInputPacket();
         byte[] buf = Arrays.copyOf(inputPacket.getData(), inputPacket.getLength());
@@ -49,7 +47,14 @@ public class DatagramSocketProcessor {
         if (RAW_PACKET_POKE == packetSeq) {
             System.arraycopy(parseHexString(formatIntToWord(RAW_PACKET_CONN)), 0, buf, 0, 4);
         } else if (RAW_PACKET_DISC == packetSeq) {
-            lobbyService.endLobbyReport();
+            Optional<LobbyReportEntity> lobbyReportEntityOpt =
+                    lobbyReportRepository.findCurrentLobbyReportByIP(
+                            SocketUtils.handleLocalhostIp(inputPacket.getAddress().getHostAddress()));
+            if(lobbyReportEntityOpt.isPresent()) {
+                LobbyReportEntity lobbyReportEntity = lobbyReportEntityOpt.get();
+                lobbyReportEntity.setEndTime(Timestamp.from(Instant.now()));
+                lobbyReportRepository.save(lobbyReportEntity);
+            }
         } else if (RAW_PACKET_UNREL <= packetSeq && RAW_PACKET_DATA > packetSeq) {
             int packetOperation = new BigInteger(1, buf, inputPacket.getLength() - 1, 1).intValue();
             if (GAME_PACKET_USER_UNRELIABLE == packetOperation) {
@@ -101,7 +106,7 @@ public class DatagramSocketProcessor {
 
         socketData.setOutputMessage(buf);
 
-        datagramSocketWriter.write(socket, socketData);
+        DatagramSocketWriter.write(socket, socketData);
 
     }
 

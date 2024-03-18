@@ -1,9 +1,8 @@
 package com.ea.config;
 
 import com.ea.steps.SocketReader;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.net.ssl.SSLSocket;
 import java.io.*;
@@ -13,26 +12,23 @@ import java.net.SocketException;
  * Thread to handle a unique SSL socket
  */
 @Slf4j
-@Component
 public class SslSocketThread implements Runnable {
 
-    private SSLSocket clientSocket;
+    private final SSLSocket clientSocket;
 
-    @Autowired
-    private SocketReader socketReader;
-
-    public void setClientSocket(SSLSocket clientSocket) throws SocketException {
+    public SslSocketThread(SSLSocket clientSocket) {
         this.clientSocket = clientSocket;
     }
 
     public void run() {
-        log.info("SSL client session started: {} | {}", clientSocket.hashCode(), clientSocket.getRemoteSocketAddress());
+        log.info("SSL client session started: {}:{}", clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort());
         try {
-            socketReader.read(clientSocket);
+            SocketReader socketReader = new SocketReader();
+            socketReader.read(clientSocket, null);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            log.info("SSL client session ended: " + clientSocket.hashCode());
+            log.info("SSL client session ended: {}:{}", clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort());
         }
     }
 

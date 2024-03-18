@@ -1,11 +1,10 @@
 package com.ea.steps;
 
 import com.ea.dto.DatagramSocketData;
+import com.ea.utils.BeanUtil;
 import com.ea.utils.HexDumpUtils;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -13,10 +12,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 @Slf4j
-@Component
 public class DatagramSocketWriter {
-    @Autowired
-    private Props props;
+    private static Props props = BeanUtil.getBean(Props.class);
 
     /**
      * Sends packet
@@ -24,7 +21,7 @@ public class DatagramSocketWriter {
      * @param socketData the object to use to write the message
      * @throws IOException
      */
-    public void write(DatagramSocket socket, DatagramSocketData socketData) {
+    public static void write(DatagramSocket socket, DatagramSocketData socketData) {
 
         try {
 
