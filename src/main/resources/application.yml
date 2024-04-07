@@ -8,12 +8,13 @@ ssl:
     enabled: false
 tcp:
   port: 21172
+  host: 127.0.0.1 # Must be machine IP if hosting for other machines. Must be WSL IP if using docker through WSL (local only).
   debug:
     enabled: true
     exclusions: '~png'
 udp:
   port: 21173
-  host: 127.0.0.1
+  host: 127.0.0.1 # Must be machine IP if hosting for other machines. Must be WSL IP if using docker through WSL (local only).
   connect-mode.enabled: false # false = listen-mode (default), must replace '41' by '40' at 0x8001BEB4 if set to true
   debug:
     enabled: true
@@ -40,6 +41,8 @@ spring:
     console:
       enabled: true
       path: /h2
+      settings:
+        web-allow-others: true
   sql:
     init:
       mode: always

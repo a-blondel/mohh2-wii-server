@@ -83,12 +83,53 @@ Note that error messages eg 'invalid password'/'unknown account' are more or les
 To make the game to use this server you need to activate Riivolution patches when starting the game.  
 Patches can be found here : https://github.com/a-blondel/mohh2-wii-patch
 
-### 2/ Hosts file
+### 2/ Hosts file or DNS
 
-In order to intercept requests from the game, you must add this line to your hosts file (`C:\Windows\System32\drivers\etc`) :
+In order to intercept requests from the game, you must either use a DNS server or edit your hosts file.
+
+- Hosts file (for Dolphin)
+
+Add this line to your hosts file (`C:\Windows\System32\drivers\etc`) :
 ```
 127.0.0.1 wiimoh08.ea.com
 ```
+
+- DNS (for the Wii)
+
+  - Host a DNS server (i.e. [Unbound](https://nlnetlabs.nl/projects/unbound/about/)) to redirect `wiimoh08.ea.com` packets to the machine hosting the server.
+  - Configure the Wii to use the DNS server
+
+Unbound configuration (`service.conf`) :
+```
+server:
+	# verbosity level 0-4 of logging
+	verbosity: 1
+
+	# On windows you may want to make all the paths relative to the
+	# directory that has the executable in it (unbound.exe).  Use this.
+	directory: "%EXECUTABLE%"
+
+	# if you want to log to a file use
+	logfile: "unbound.log"
+	
+	interface: ::1
+	interface: 127.0.0.1
+	interface: 192.168.1.1 # CHANGE IT !
+	
+	port: 53
+	
+	access-control: 127.0.0.0/24 allow
+	access-control: 192.168.0.0/16 allow
+	access-control: ::1 allow
+	
+	root-hints: "named.cache"
+	
+	local-zone: "wiimoh08.ea.com" static
+	local-data: "wiimoh08.ea.com A 192.168.1.1" # CHANGE IT !
+```
+
+Change `192.168.1.1` to your server's IP address.
+
 
 ### 3/ JDK
 
@@ -108,6 +149,16 @@ A maven profile exists for each region:
 Currently, all profiles are located in *application.yml* as there won't be many region-based properties.  
 **When you don't specify any maven profile, it fallbacks to `pal`.**
 
+### 5/ Define the host machine
+
+Configuration is defined in `application.yml`.
+
+Currently, multiplayer isn't supported (only single player online), so `udp.host` can remain `127.0.0.1`, players will "host themselves".
+
+As for `tcp.host`, it depends on your use case :
+- If you are running the server (not in WSL) and the game on the same machine (using Dolphin), and you don't need to host for other machines, then no changes are needed.
+- If you are running the server (in WSL) and the game on the same machine (using Dolphin), and you don't need to host for other machines, then you must set the WSL's eth0 IP.
+- If you are running the server for other machines (i.e. a Wii, or another computer using Dolphin), then you must set the machine IP (works for private and public networks).
 
 ## Run the server
 
@@ -138,6 +189,35 @@ java -jar mohh2-wii-server-1.0.0-SNAPSHOT.jar
 If you need to specify a profile, use :
 ```
 java -jar -Dspring.profiles.active=ntsc mohh2-wii-server-1.0.0-SNAPSHOT.jar
+```
+
+### 2.c Start with Docker
+
+Open a terminal at the root of the project (where the Dockerfile is located). If you are using WSL :
+```
+cd /mnt/c/path/to/the/project
+```
+
+Create the image
+```
+docker build --tag mohh2-wii-server:latest .
+```
+
+Start the image (add `-d` option to run in background)
+- PAL
+```
+docker run --name mohh2-wii-pal --rm -it -p 8080:8080 -p 21171:21171 -p 21172:21172 -p 21173:21173 -e "SPRING_PROFILES_ACTIVE=pal" mohh2-wii-server:latest
+```
+
+- NTSC
+```
+docker run --name mohh2-wii-ntsc --rm -it -p 8080:8080 -p 21121:21121 -p 21172:21172 -p 21173:21173 -e "SPRING_PROFILES_ACTIVE=ntsc" mohh2-wii-server:latest
+```
+
+If started in background, here is how to open a bash in the container :
+```
+docker container ls
+docker exec -it <container-id> bash
 ```
 
 ## Database

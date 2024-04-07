@@ -25,6 +25,9 @@ public class Props {
     @Value("${tcp.port}")
     private int tcpPort;
 
+    @Value("${tcp.host}")
+    private String tcpHost;
+
     @Value("${tcp.debug.enabled}")
     private boolean tcpDebugEnabled;
 
