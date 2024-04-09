@@ -25,6 +25,7 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <apache-commons-lang3.version>3.13.0</apache-commons-lang3.version>
+        <boucy-castle.version>1.70</boucy-castle.version>
     </properties>
 
     <dependencies>
@@ -58,6 +59,21 @@
             <groupId>io.github.hakky54</groupId>
             <artifactId>sslcontext-kickstart-for-pem</artifactId>
             <version>${sslcontext.pem.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>${boucy-castle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bctls-jdk15on</artifactId>
+            <version>${boucy-castle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>${boucy-castle.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
