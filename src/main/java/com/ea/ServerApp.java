@@ -15,7 +15,6 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocket;
-import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.security.Security;
@@ -59,12 +58,18 @@ public class ServerApp implements CommandLineRunner {
             log.info("Servers started. Waiting for client connections...");
 
             while(true) {
-                SessionData sessionData = new SessionData();
-                new Thread(new SslSocketThread((SSLSocket) sslServerSocket.accept())).start();
-                new Thread(new TcpSocketThread(tcpServerSocket.accept(), sessionData)).start();
+                final SessionData sessionData = new SessionData();
+                new Thread(() -> {
+                    try {
+                        new Thread(new SslSocketThread((SSLSocket) sslServerSocket.accept())).start();
+                        new Thread(new TcpSocketThread(tcpServerSocket.accept(), sessionData)).start();
+                    } catch (Exception e) {
+                        log.error("Error handling a client connection", e);
+                    }
+                }).start();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("Error starting servers", e);
         }
     }
 }
