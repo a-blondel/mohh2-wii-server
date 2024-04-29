@@ -97,6 +97,18 @@
             <artifactId>commons-lang3</artifactId>
             <version>${apache-commons-lang3.version}</version>
         </dependency>
+        <!-- Unit tests -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${org.springframework.boot.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
