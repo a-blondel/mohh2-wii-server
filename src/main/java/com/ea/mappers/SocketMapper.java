@@ -2,16 +2,19 @@ package com.ea.mappers;
 
 import com.ea.entities.AccountEntity;
 import com.ea.entities.LobbyEntity;
-import com.ea.utils.PasswordUtils;
-import com.ea.utils.SocketUtils;
+import com.ea.utils.*;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.HexFormat;
 
 @Mapper(componentModel = "spring", imports = {SocketUtils.class})
 public abstract class SocketMapper {
+
+    @Autowired
+    private Props props;
 
     @Autowired
     protected PasswordUtils passwordUtils;
@@ -56,11 +59,13 @@ public abstract class SocketMapper {
     @AfterMapping
     public void updateAccountEntityForCreation(@MappingTarget AccountEntity accountEntity) {
         String pass = accountEntity.getPass();
-        // The game sends a tilde before the password
-        if (pass.charAt(0) == '~') {
-            pass = pass.substring(1);
-        }
-        accountEntity.setPass(passwordUtils.encode(pass));
+        pass = passwordUtils.sanitizeInput(pass);
+        String ssc2Key = props.getSsc2Key();
+        byte[] decodeHexKey = HexFormat.of().parseHex(ssc2Key);
+        byte[] decodeBuffer = new byte[32];
+        CryptSSC2.cryptSSC2StringDecrypt(decodeBuffer, decodeBuffer.length, pass.getBytes(), decodeHexKey, decodeHexKey.length, decodeHexKey.length);
+        String decodedPass = passwordUtils.truncateAtNull(new String(decodeBuffer));
+        accountEntity.setPass(passwordUtils.encode(decodedPass));
         accountEntity.setCreatedOn(Timestamp.from(Instant.now()));
     }
     

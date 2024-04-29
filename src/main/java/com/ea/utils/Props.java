@@ -46,4 +46,7 @@ public class Props {
     @Value("${udp.debug.enabled}")
     private boolean udpDebugEnabled;
 
+    @Value("${ssc2.key}")
+    private String ssc2Key;
+
 }
