@@ -7,16 +7,13 @@ import com.ea.mappers.SocketMapper;
 import com.ea.repositories.AccountRepository;
 import com.ea.steps.SocketWriter;
 import com.ea.utils.AccountUtils;
-import com.ea.utils.CryptSSC2;
 import com.ea.utils.PasswordUtils;
-import com.ea.utils.Props;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.Socket;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.HexFormat;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,9 +23,6 @@ import static com.ea.utils.SocketUtils.getValueFromSocket;
 
 @Component
 public class AccountService {
-
-    @Autowired
-    private Props props;
 
     @Autowired
     private PasswordUtils passwordUtils;
@@ -91,8 +85,8 @@ public class AccountService {
             }
 
             if (!pass.equals(chng)) {
-                if (passwordUtils.matches(pass, accountEntity.getPass())) {
-                    accountEntity.setPass(passwordUtils.encode(chng));
+                if (passwordUtils.bCryptMatches(pass, accountEntity.getPass())) {
+                    accountEntity.setPass(passwordUtils.bCryptEncode(chng));
                     update = true;
                 } else {
                     socketData.setIdMessage("editpass"); // Invalid password error (EC_INV_PASS)
@@ -125,13 +119,8 @@ public class AccountService {
         Optional<AccountEntity> accountEntityOpt = accountRepository.findByName(name);
         if (accountEntityOpt.isPresent()) {
             AccountEntity accountEntity = accountEntityOpt.get();
-            pass = passwordUtils.sanitizeInput(pass);
-            String ssc2Key = props.getSsc2Key();
-            byte[] decodeHexKey = HexFormat.of().parseHex(ssc2Key);
-            byte[] decodeBuffer = new byte[32];
-            CryptSSC2.cryptSSC2StringDecrypt(decodeBuffer, decodeBuffer.length, pass.getBytes(), decodeHexKey, decodeHexKey.length, decodeHexKey.length);
-            String decodedPass = passwordUtils.truncateAtNull(new String(decodeBuffer));
-            if (passwordUtils.matches(decodedPass, accountEntity.getPass())) {
+            String decodedPass = passwordUtils.ssc2Decode(pass);
+            if (passwordUtils.bCryptMatches(decodedPass, accountEntity.getPass())) {
                 sessionData.setCurrentAccount(accountEntity);
 
                 String personas = accountEntity.getPersonas().stream()

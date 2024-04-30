@@ -4,18 +4,48 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.HexFormat;
+
 @Component
 public class PasswordUtils {
 
     @Autowired
+    private Props props;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public String encode(String password) {
+    /**
+     * Encode a password using BCrypt
+     * @param password The password to encode
+     * @return The encoded password
+     */
+    public String bCryptEncode(String password) {
         return passwordEncoder.encode(password);
     }
 
-    public boolean matches(String password, String dbPassword) {
+    /**
+     * Check if a password matches a BCrypt encoded password
+     * @param password The password to check
+     * @param dbPassword The BCrypt encoded password
+     * @return True if the password matches, false otherwise
+     */
+    public boolean bCryptMatches(String password, String dbPassword) {
         return passwordEncoder.matches(password, dbPassword);
+    }
+
+    /**
+     * Decode a SSC2 encoded password
+     * @param encodedPassword The encoded password
+     * @return The decoded password
+     */
+    public String ssc2Decode(String encodedPassword) {
+        encodedPassword = sanitizeInput(encodedPassword);
+        String ssc2Key = props.getSsc2Key();
+        byte[] decodeHexKey = HexFormat.of().parseHex(ssc2Key);
+        byte[] decodeBuffer = new byte[32];
+        CryptSSC2.cryptSSC2StringDecrypt(decodeBuffer, decodeBuffer.length, encodedPassword.getBytes(), decodeHexKey, decodeHexKey.length, decodeHexKey.length);
+        return truncateAtNull(new String(decodeBuffer));
     }
 
     /**
