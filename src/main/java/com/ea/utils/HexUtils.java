@@ -2,8 +2,40 @@ package com.ea.utils;
 
 import java.io.UnsupportedEncodingException;
 
-public final class HexDumpUtils {
+public final class HexUtils {
 
+    /**
+     * Convert a string to a hex string
+     * @param text The string
+     * @return The hex string
+     */
+    public static String stringToHex(String text) {
+        StringBuilder hexString = new StringBuilder();
+        for (char ch : text.toCharArray()) {
+            hexString.append(Integer.toHexString(ch));
+        }
+        return hexString.toString();
+    }
+
+    /**
+     * Convert a hex string to a string
+     * @param hex The hex string
+     * @return The string
+     */
+    public static String hexToString(String hex) {
+        StringBuilder output = new StringBuilder();
+        for (int i = 0; i < hex.length(); i+=2) {
+            String str = hex.substring(i, i+2);
+            output.append((char)Integer.parseInt(str, 16));
+        }
+        return output.toString();
+    }
+
+    /**
+     * Format a byte array as a hex dump
+     * @param array The byte array
+     * @return The hex dump
+     */
     public static String formatHexDump(byte[] array) {
         final int width = 16;
 
