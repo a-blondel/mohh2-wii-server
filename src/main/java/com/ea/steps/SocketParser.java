@@ -3,7 +3,7 @@ package com.ea.steps;
 import com.ea.dto.SessionData;
 import com.ea.dto.SocketData;
 import com.ea.utils.BeanUtil;
-import com.ea.utils.HexDumpUtils;
+import com.ea.utils.HexUtils;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,7 +37,7 @@ public class SocketParser {
 
                 if (props.isTcpDebugEnabled() && !props.getTcpDebugExclusions().contains(socketData.getIdMessage())) {
                     byte[] dump = Arrays.copyOfRange(buffer, currentMessageBegin, currentMessageBegin + currentMessageLength);
-                    log.info("Received from {}:{} :\n{}", socket.getInetAddress().getHostAddress(), socket.getPort(), HexDumpUtils.formatHexDump(dump));
+                    log.info("Received from {}:{} :\n{}", socket.getInetAddress().getHostAddress(), socket.getPort(), HexUtils.formatHexDump(dump));
                 }
 
                 SocketProcessor.process(socket, sessionData, socketData);

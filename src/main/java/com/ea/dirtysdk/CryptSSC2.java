@@ -1,4 +1,4 @@
-package com.ea.utils;
+package com.ea.dirtysdk;
 
 import lombok.Getter;
 import lombok.Setter;

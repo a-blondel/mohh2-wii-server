@@ -1,5 +1,6 @@
-package com.ea.utils;
+package com.ea.dirtysdk;
 
+import com.ea.utils.Props;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;

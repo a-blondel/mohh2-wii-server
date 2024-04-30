@@ -2,7 +2,7 @@ package com.ea.steps;
 
 import com.ea.dto.DatagramSocketData;
 import com.ea.utils.BeanUtil;
-import com.ea.utils.HexDumpUtils;
+import com.ea.utils.HexUtils;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +38,7 @@ public class DatagramSocketWriter {
                     port);
 
             if (props.isUdpDebugEnabled()) {
-                log.info("Send to {}:{}:\n{}", address, port, HexDumpUtils.formatHexDump(buf));
+                log.info("Send to {}:{}:\n{}", address, port, HexUtils.formatHexDump(buf));
             }
 
             socket.send(outputPacket);
