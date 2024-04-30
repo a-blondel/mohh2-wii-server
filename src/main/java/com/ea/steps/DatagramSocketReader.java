@@ -2,7 +2,7 @@ package com.ea.steps;
 
 import com.ea.dto.DatagramSocketData;
 import com.ea.utils.BeanUtil;
-import com.ea.utils.HexDumpUtils;
+import com.ea.utils.HexUtils;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +33,7 @@ public class DatagramSocketReader {
 
             if (props.isUdpDebugEnabled()) {
                 byte[] dump = Arrays.copyOfRange(packet.getData(), 0, packet.getLength());
-                log.info("Received from {}:{}:\n{}", address, port, HexDumpUtils.formatHexDump(dump));
+                log.info("Received from {}:{}:\n{}", address, port, HexUtils.formatHexDump(dump));
             }
 
             DatagramSocketProcessor.process(socket, new DatagramSocketData(packet, null));

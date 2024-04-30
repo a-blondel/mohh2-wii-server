@@ -2,7 +2,7 @@ package com.ea.steps;
 
 import com.ea.dto.SocketData;
 import com.ea.utils.BeanUtil;
-import com.ea.utils.HexDumpUtils;
+import com.ea.utils.HexUtils;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,7 +53,7 @@ public class SocketWriter {
             byte[] bufferBytes = buffer.toByteArray();
 
             if (props.isTcpDebugEnabled() && !props.getTcpDebugExclusions().contains(socketData.getIdMessage())) {
-                log.info("Send to {}:{} :\n{}", socket.getInetAddress().getHostAddress(), socket.getPort(), HexDumpUtils.formatHexDump(bufferBytes));
+                log.info("Send to {}:{} :\n{}", socket.getInetAddress().getHostAddress(), socket.getPort(), HexUtils.formatHexDump(bufferBytes));
             }
 
             socket.getOutputStream().write(bufferBytes);

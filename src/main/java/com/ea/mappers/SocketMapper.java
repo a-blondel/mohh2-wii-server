@@ -8,13 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.HexFormat;
 
 @Mapper(componentModel = "spring", imports = {SocketUtils.class})
 public abstract class SocketMapper {
-
-    @Autowired
-    private Props props;
 
     @Autowired
     protected PasswordUtils passwordUtils;
@@ -58,14 +54,7 @@ public abstract class SocketMapper {
     @Named("AccountEntityForCreation")
     @AfterMapping
     public void updateAccountEntityForCreation(@MappingTarget AccountEntity accountEntity) {
-        String pass = accountEntity.getPass();
-        pass = passwordUtils.sanitizeInput(pass);
-        String ssc2Key = props.getSsc2Key();
-        byte[] decodeHexKey = HexFormat.of().parseHex(ssc2Key);
-        byte[] decodeBuffer = new byte[32];
-        CryptSSC2.cryptSSC2StringDecrypt(decodeBuffer, decodeBuffer.length, pass.getBytes(), decodeHexKey, decodeHexKey.length, decodeHexKey.length);
-        String decodedPass = passwordUtils.truncateAtNull(new String(decodeBuffer));
-        accountEntity.setPass(passwordUtils.encode(decodedPass));
+        accountEntity.setPass(passwordUtils.bCryptEncode(passwordUtils.ssc2Decode(accountEntity.getPass())));
         accountEntity.setCreatedOn(Timestamp.from(Instant.now()));
     }
     

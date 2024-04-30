@@ -1,7 +1,7 @@
 package com.ea.config;
 
 import com.ea.utils.Props;
-import com.ea.utils.ProtoSSL;
+import com.ea.dirtysdk.ProtoSSL;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
