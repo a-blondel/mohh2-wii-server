@@ -57,7 +57,7 @@ public class StatsService {
 
         String columnNumber = "18";
         if (RankingCategory.WEAPON_LEADERS.id.equals(categoryIndex)) {
-            columnNumber = "30";
+            columnNumber = "32";
         }
 
         // Must be fetched here to know the actual size
@@ -192,10 +192,14 @@ public class StatsService {
                     { "CD26", "\"Gewehr Kills\"" },
                     { "CN27", "\"GEWR Acc\"" },
                     { "CD27", "\"Gewehr Accuracy\"" },
-                    { "CN28", "\"GRND Kill\"" },
-                    { "CD28", "\"Grenade Kills\"" },
-                    { "CN29", "\"Melee Kill\"" },
-                    { "CD29", "\"Melee Kills\"" },
+                    { "CN28", "\"PANZ Kill\"" },
+                    { "CD28", "\"Panzerschreck Kills\"" },
+                    { "CN29", "\"PANZ Acc\"" },
+                    { "CD29", "\"Panzerschreck Accuracy\"" },
+                    { "CN30", "\"GRND Kill\"" },
+                    { "CD30", "\"Grenade Kills\"" },
+                    { "CN31", "\"Melee Kill\"" },
+                    { "CD31", "\"Melee Kills\"" },
             }).collect(Collectors.toMap(data -> data[0], data -> data[1])));
         }
 
@@ -280,6 +284,8 @@ public class StatsService {
                                 getPrecision(personaStatsEntity.getKarabinerHit(), personaStatsEntity.getKarabinerMiss()),
                                 String.valueOf(personaStatsEntity.getGewehrKills()),
                                 getPrecision(personaStatsEntity.getGewehrHit(), personaStatsEntity.getGewehrMiss()),
+                                String.valueOf(personaStatsEntity.getPanzerschreckKills()),
+                                getPrecision(personaStatsEntity.getPanzerschreckHit(), personaStatsEntity.getPanzerschreckMiss()),
                                 String.valueOf(personaStatsEntity.getGrenadeKills()),
                                 String.valueOf(personaStatsEntity.getMeleeKills())
                               )

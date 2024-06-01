@@ -84,6 +84,9 @@ public class PersonaStatsEntity {
     private int gewehrKills;
     private int gewehrHit;
     private int gewehrMiss;
+    private int panzerschreckKills;
+    private int panzerschreckHit;
+    private int panzerschreckMiss;
     private int grenadeKills;
     private int meleeKills;
 
