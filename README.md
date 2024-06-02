@@ -180,15 +180,9 @@ If you need to specify a profile, be sure to check `Add VM options` (or use Alt+
 -Dspring.profiles.active=ntsc
 ```
 
-Define the environment variables matching your need, mostly for the database you choose (see `Database` chapter).  
-I advise two run configurations :
-- Use the in-memory h2 database (no need to install anything)
+Define the environment variables matching your need, mostly for the database (see `Database` chapter), e.g. :
 ```
-LOGS=C:/logs;HOST_IP=127.0.0.1;DB_MASTER_CHANGELOG=classpath:db/changelog/db.changelog-master-populate.yaml
-```
-- Use a postgres database (you need to install it)
-```
-DB_DRIVER=org.postgresql.Driver;DB_URL=jdbc:postgresql://localhost:5432/mohh2db;DB_USERNAME=user;DB_PASSWORD=password;LOGS=C:/logs;HOST_IP=127.0.0.1
+DB_URL=jdbc:postgresql://localhost:5432/mohh2db;DB_USERNAME=user;DB_PASSWORD=password;LOGS=C:/moh/logs;HOST_IP=127.0.0.1
 ```
 
 Replace with your own values.
@@ -196,14 +190,8 @@ Replace with your own values.
 ### 2.b Start as a standalone jar
 
 After a successful build, get into the target folder and execute one the following commands:
-- For h2 :
 ```
-java -DLOGS=C:/logs -DHOST_IP=127.0.0.1 -DDB_MASTER_CHANGELOG=classpath:db/changelog/db.changelog-master-populate.yaml -jar mohh2-wii-server-1.0.0-SNAPSHOT.jar
-```
-
-- For postgres :
-```
-java -DDB_DRIVER=org.postgresql.Driver -DDB_URL=jdbc:postgresql://localhost:5432/mohh2db -DDB_USERNAME=user -DDB_PASSWORD=password -DLOGS=C:/logs -DHOST_IP=127.0.0.1 -jar mohh2-wii-server-1.0.0-SNAPSHOT.jar
+java -DDB_URL=jdbc:postgresql://localhost:5432/mohh2db -DDB_USERNAME=user -DDB_PASSWORD=password -DLOGS=C:/moh/logs -DHOST_IP=127.0.0.1 -jar mohh2-wii-server-1.0.0-SNAPSHOT.jar
 ```
 
 If you need to specify a profile, add the following option :
@@ -221,16 +209,6 @@ cd /mnt/c/path/to/the/project
 Create the image
 ```
 docker build --tag mohh2-wii-server:latest .
-```
-
-Start the image (add `-d` option to run in background)
-- PAL with h2 in-memory
-```
-docker run --name mohh2-wii-pal --rm -it \
-  -p 8080:8080 -p 21171:21171  -p 21172:21172 -p 21173:21173 \
-  -e "SPRING_PROFILES_ACTIVE=pal" -e "LOGS=./logs" -e "HOST_IP=127.0.0.1" \
-  -e "DB_MASTER_CHANGELOG=classpath:db/changelog/db.changelog-master-populate.yaml" \
-  mohh2-wii-server:latest
 ```
 
 - PAL with postgres
@@ -253,42 +231,21 @@ Then, you can start the server using the network :
 docker run --name mohh2-wii-pal --rm -it \
   -p 21171:21171 -p 21172:21172 -p 21173:21173 \
   -e "SPRING_PROFILES_ACTIVE=pal" -e "LOGS=./logs" -e "HOST_IP=127.0.0.1" \
-  -e "DB_DRIVER=org.postgresql.Driver" -e "DB_URL=jdbc:postgresql://postgres:5432/mohh2db" \
+  -e "DB_URL=jdbc:postgresql://postgres:5432/mohh2db" \
   -e "DB_USERNAME=user" -e "DB_PASSWORD=password" \
   --network mohh2-network \
   mohh2-wii-server:latest
 ```
 
-- NTSC with h2 in-memory
-```
-docker run --name mohh2-wii-ntsc --rm -it \
-  -p 8080:8080 -p 21121:21121 -p 21172:21172 -p 21173:21173 \
-  -e "SPRING_PROFILES_ACTIVE=ntsc" -e "LOGS=./logs" -e "HOST_IP=127.0.0.1" \
-  -e "DB_MASTER_CHANGELOG=classpath:db/changelog/db.changelog-master-populate.yaml" \
-  mohh2-wii-server:latest
-```
-
 - NTSC with postgres
 
-First, you need to start a postgres container after creating a network :
-```
-docker network create mohh2-network
-
-docker run -d --rm --network mohh2-network \
-  -e POSTGRES_USER=user \
-  -e POSTGRES_PASSWORD=password \
-  -e POSTGRES_DB=mohh2db \
-  -p 5432:5432 \
-  --name postgres \
-  postgres:latest
-```
-
+Follow the same steps as above to define the network and add postgres to it.  
 Then, you can start the server using the network :
 ```
 docker run --name mohh2-wii-ntsc --rm -it \
   -p 21121:21121 -p 21172:21172 -p 21173:21173 \
   -e "SPRING_PROFILES_ACTIVE=ntsc" -e "LOGS=./logs" -e "HOST_IP=127.0.0.1" \
-  -e "DB_DRIVER=org.postgresql.Driver" -e "DB_URL=jdbc:postgresql://postgres:5432/mohh2db" \
+  -e "DB_URL=jdbc:postgresql://postgres:5432/mohh2db" \
   -e "DB_USERNAME=user" -e "DB_PASSWORD=password" \
   --network mohh2-network \
   mohh2-wii-server:latest
@@ -300,10 +257,8 @@ docker container ls
 docker exec -it <container-id> bash
 ```
 
-Note that you can use a volume to persist the data of the postgres container by adding the following option :
-```
--v /path/to/data:/var/lib/postgresql/data
-```
+Note that you can use a volume to persist the data of the postgres container and 
+automatically restart the container when you boot WSL, see the `Database` chapter for more information.
 
 ## Database
 To manage the database schema, **liquibase** is used.  
@@ -311,30 +266,9 @@ To manage the database schema, **liquibase** is used.
 It is recommended to use a **postgres** database.  
 You can install it on your machine or use a docker container.  
 
-You can also use the h2 database if you don't want to install postgres.  
-
-Database configuration can be set in `application.yml` (`DB_DRIVER`, `DB_URL`, `DB_USER` and `DB_PASSWORD` environment variables).  
-**If not set, the server falls back to the h2 database with in-memory mode.**  
-
 Data samples are provided in the `db/samples` folder for a quick start :
 - `basic.sql` (lightweight, suitable for most cases)
 - `full.sql` (mainly for leaderboards testing)
-
-### h2
-h2 can be used either in memory (use fallback config) or as a file (use `jdbc:h2:file:/my/path`).  
-Keep in mind that data is lost when the server is stopped if you use the in-memory mode, 
-so you would need to re-import the data each time.  
-To avoid that and populate the data on each start of the in-memory mode, 
-you can override the `DB_MASTER_CHANGELOG` environment variable to use `classpath:db/changelog/db.changelog-master-populate.yaml`.  
-
-The h2 console can be accessed in a browser when the server is running :  
-```
-http://localhost:8080/h2/
-```
-(Information like database url, user and password can be found in `application.yml`)
-
-### postgres
-For production, a postgres database is used (see the docker compose of [mohh2-deploy](https://github.com/a-blondel/mohh2-deploy)).  
 
 You can use a docker container to run an instance of postgres :
 ```
@@ -349,7 +283,23 @@ docker run -d --rm \
   postgres:latest
 ```
 
-Don't forget to set the environment variables (`DB_DRIVER`, `DB_URL`, `DB_USER` and `DB_PASSWORD`) !  
+To persist the data and automatically restart the container when you boot WSL, you can use :
+```
+docker pull postgres:latest
+
+mkdir ~/postgres_data
+
+docker run -d --restart=unless-stopped \
+-e POSTGRES_USER=user \
+-e POSTGRES_PASSWORD=password \
+-e POSTGRES_DB=mohh2db \
+-p 5432:5432 \
+-v ~/postgres_data:/var/lib/postgresql/data \
+--name postgres \
+postgres:latest
+```
+
+Don't forget to set the environment variables (`DB_URL`, `DB_USER` and `DB_PASSWORD`) of the server !  
 See "Run the server" chapter for a full example.
 
 ## Connect Mode

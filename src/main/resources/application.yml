@@ -21,19 +21,13 @@ spring:
   profiles:
     active:
       - pal
-  h2:
-    console:
-      enabled: true
-      path: /h2
-      settings:
-        web-allow-others: true
   datasource:
-    url: ${DB_URL:jdbc:h2:mem:mohh2db;DB_CLOSE_DELAY=-1}
-    username: ${DB_USERNAME:sa}
-    password: ${DB_PASSWORD:sa}
-    driver-class-name: ${DB_DRIVER:org.h2.Driver}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   liquibase:
-    change-log: ${DB_MASTER_CHANGELOG:classpath:db/changelog/db.changelog-master.yaml}
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 #  jpa:
 #    hibernate:
 #    show-sql: true
