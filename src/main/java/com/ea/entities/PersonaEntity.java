@@ -17,7 +17,7 @@ public class PersonaEntity {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name="ACCOUNT_ID", nullable=false)

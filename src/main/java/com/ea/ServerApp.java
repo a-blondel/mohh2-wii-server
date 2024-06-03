@@ -59,14 +59,8 @@ public class ServerApp implements CommandLineRunner {
 
             while(true) {
                 final SessionData sessionData = new SessionData();
-                new Thread(() -> {
-                    try {
-                        new Thread(new SslSocketThread((SSLSocket) sslServerSocket.accept())).start();
-                        new Thread(new TcpSocketThread(tcpServerSocket.accept(), sessionData)).start();
-                    } catch (Exception e) {
-                        log.error("Error handling a client connection", e);
-                    }
-                }).start();
+                new Thread(new SslSocketThread((SSLSocket) sslServerSocket.accept())).start();
+                new Thread(new TcpSocketThread(tcpServerSocket.accept(), sessionData)).start();
             }
         } catch (Exception e) {
             log.error("Error starting servers", e);
