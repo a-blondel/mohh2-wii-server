@@ -7,46 +7,33 @@ ssl:
   debug:
     enabled: false
 tcp:
-  port: 21172
-  host: 127.0.0.1 # Must be machine IP if hosting for other machines. Must be WSL IP if using docker through WSL (local only).
+  host: ${HOST_IP:127.0.0.1} # Must be machine IP if hosting for other machines. Must be WSL IP if using docker through WSL (local only).
   debug:
-    enabled: true
+    enabled: false
     exclusions: '~png'
 udp:
-  port: 21173
-  host: 127.0.0.1 # Must be machine IP if hosting for other machines. Must be WSL IP if using docker through WSL (local only).
+  host: ${HOST_IP:127.0.0.1} # Must be machine IP if hosting for other machines. Must be WSL IP if using docker through WSL (local only).
   connect-mode.enabled: false # false = listen-mode (default), must replace '41' by '40' at 0x8001BEB4 if set to true
   debug:
-    enabled: true
+    enabled: false
 
 spring:
   profiles:
     active:
       - pal
   datasource:
-    url: jdbc:h2:mem:mohh2db
-    username: sa
-    password: sa
-    driverClassName: org.h2.Driver
-  jpa:
-    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
-    defer-datasource-initialization: true
-    hibernate:
-       ddl-auto: none
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+#  jpa:
+#    hibernate:
 #    show-sql: true
 #    properties:
 #      hibernate:
 #        format_sql: true
-  h2:
-    console:
-      enabled: true
-      path: /h2
-      settings:
-        web-allow-others: true
-  sql:
-    init:
-      mode: always
-      platform: h2
 
 ssc2:
   key: 51ba8aee64ddfacae5baefa6bf61e009
@@ -59,6 +46,10 @@ spring:
 
 ssl:
   port: 21171
+tcp:
+  port: ${PAL_TCP_PORT:21172}
+udp:
+  port: ${PAL_UDP_PORT:21173}
 
 ---
 spring:
@@ -68,3 +59,7 @@ spring:
 
 ssl:
   port: 21121
+tcp:
+  port: ${NTSC_TCP_PORT:21172}
+udp:
+  port: ${NTSC_UDP_PORT:21173}
