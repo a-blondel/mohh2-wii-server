@@ -4,15 +4,21 @@ server:
 ssl:
   protocols: 'SSLv3'
   cipher-suites: 'SSL_RSA_WITH_RC4_128_MD5,SSL_RSA_WITH_RC4_128_SHA'
+  certificate:
+    cipher-algorithm: 'MD5WITHRSA'
+    issuer: 'OU=Online Technology Group, O=Electronic Arts, Inc., L=Redwood City, ST=California, C=US, CN=OTG3 Certificate Authority'
+    subject: 'CN=wiimoh08.ea.com, OU=Global Online Studio, O=Electronic Arts, Inc., ST=California, C=US'
   debug:
     enabled: false
 tcp:
   host: ${HOST_IP:127.0.0.1} # Must be machine IP if hosting for other machines. Must be WSL IP if using docker through WSL (local only).
+  port: 21172
   debug:
     enabled: false
     exclusions: '~png'
 udp:
   host: ${HOST_IP:127.0.0.1} # Must be machine IP if hosting for other machines. Must be WSL IP if using docker through WSL (local only).
+  port: 21173
   connect-mode.enabled: false # false = listen-mode (default), must replace '41' by '40' at 0x8001BEB4 if set to true
   debug:
     enabled: false
@@ -20,7 +26,7 @@ udp:
 spring:
   profiles:
     active:
-      - pal
+      - wii-pal
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -42,24 +48,27 @@ ssc2:
 spring:
   config:
     activate:
-      on-profile: pal
+      on-profile: wii-pal
 
 ssl:
   port: 21171
-tcp:
-  port: ${PAL_TCP_PORT:21172}
-udp:
-  port: ${PAL_UDP_PORT:21173}
 
 ---
 spring:
   config:
     activate:
-      on-profile: ntsc
+      on-profile: wii-ntsc
 
 ssl:
   port: 21121
-tcp:
-  port: ${NTSC_TCP_PORT:21172}
-udp:
-  port: ${NTSC_UDP_PORT:21173}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: psp-pal
+
+ssl:
+  port: 21181
+  certificate:
+    subject: 'CN=pspmoh08.ea.com, OU=Global Online Studio, O=Electronic Arts, Inc., ST=California, C=US'

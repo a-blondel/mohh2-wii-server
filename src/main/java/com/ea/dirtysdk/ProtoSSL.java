@@ -35,9 +35,6 @@ public class ProtoSSL {
 
     private final Props props;
 
-    private static final String MD5_CIPHER_ALGORITHM = "MD5WITHRSA";
-    private static final String ISSUER = "OU=Online Technology Group, O=Electronic Arts, Inc., L=Redwood City, ST=California, C=US, CN=OTG3 Certificate Authority";
-    private static final String SUBJECT = "CN=wiimoh08.ea.com, OU=Global Online Studio, O=Electronic Arts, Inc., ST=California, C=US";
     private static final String RDN_REGEX = ",(?=\\s[A-Z]+=)";
     private static final Map<String, ASN1ObjectIdentifier> RDN_NAME_TO_BC_STYLE = Map.of(
             "C", BCStyle.C,
@@ -51,7 +48,7 @@ public class ProtoSSL {
     private final ConcurrentHashMap<String, Pair<KeyPair, Certificate>> certCache = new ConcurrentHashMap<>();
 
     public Pair<KeyPair, Certificate> getEaCert() throws Exception {
-        String cacheKey = "wiimoh08.ea.com";
+        String cacheKey = "cert_ea";
         if (certCache.containsKey(cacheKey)) {
             return certCache.get(cacheKey);
         }
@@ -63,7 +60,7 @@ public class ProtoSSL {
 
     private Pair<KeyPair, Certificate> generateVulnerableCert() throws Exception {
         KeyPair cKeyPair = generateKeyPair();
-        Certificate cCertificate = generateCertificate(SUBJECT, cKeyPair, cKeyPair.getPrivate(), ISSUER);
+        Certificate cCertificate = generateCertificate(props.getSslCertificateSubject(), cKeyPair, cKeyPair.getPrivate(), props.getSslCertificateIssuer());
         Certificate patchedCCertificate = patchCertificateSignaturePattern(cCertificate);
         return Pair.of(cKeyPair, patchedCCertificate);
     }
@@ -94,7 +91,7 @@ public class ProtoSSL {
                 subjectDn,
                 subjectKeyPair.getPublic());
 
-        ContentSigner signer = new JcaContentSignerBuilder(MD5_CIPHER_ALGORITHM).setProvider(new BouncyCastleProvider()).build(issuerPrivKey);
+        ContentSigner signer = new JcaContentSignerBuilder(props.getSslCertificateCipherAlgorithm()).setProvider(new BouncyCastleProvider()).build(issuerPrivKey);
 
         X509Certificate certificate = new JcaX509CertificateConverter().setProvider(new BouncyCastleProvider()).getCertificate(certBuilder.build(signer));
         return certificate;
