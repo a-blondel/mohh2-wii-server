@@ -1,4 +1,4 @@
-# Medal Of Honor Heroes 2 Server [Wii]
+# Medal Of Honor Heroes 2 Server [Wii/PSP]
 
 Designed to replace EA's closed ones.  
 
@@ -16,14 +16,14 @@ Fell free to join !
 
 ## Wiki
 
-Everything to know is in the [Wiki](https://github.com/a-blondel/mohh2-wii-server/wiki)  
+Everything to know is in the [Wiki](https://github.com/a-blondel/mohh2-server/wiki)  
 It contains :
 - Generic info about the game (weapons, maps,...)
 - Technical knowledge (packet capture, ...)
 
 ## Development Status
 
-**Work In Progress**
+**Work In Progress** - The Wii version allows to access the main menu, leaderboards and lobbies while the PSP version disconnects before login screen.
 
 <img src="doc/img/player-details.png" alt="player-details" width="400"/> <img src="doc/img/leaderboards.png" alt="leaderboards" width="400"/><br/>
 *Player details / Leaderboards*
@@ -78,7 +78,7 @@ Note that error messages eg 'invalid password'/'unknown account' are more or les
 
 ## Requirements
 
-### 1/ Riivolution patches
+### 1/ Riivolution patches (Wii only)
 
 To make the game to use this server you need to activate Riivolution patches when starting the game.  
 Patches can be found here : https://github.com/a-blondel/mohh2-wii-patch
@@ -89,15 +89,17 @@ In order to intercept requests from the game, you must either use a DNS server o
 
 - Hosts file (for Dolphin)
 
-Add this line to your hosts file (`C:\Windows\System32\drivers\etc`) :
+Add these lines to your hosts file (`C:\Windows\System32\drivers\etc`) :
 ```
 127.0.0.1 wiimoh08.ea.com
+127.0.0.1 pspmoh08.ea.com
+127.0.0.1 naswii.nintendowifi.net
 ```
 
-- DNS (for the Wii)
+- DNS (for the Wii / PSP)
 
-  - Host a DNS server (i.e. [Unbound](https://nlnetlabs.nl/projects/unbound/about/)) to redirect `wiimoh08.ea.com` packets to the machine hosting the server.
-  - Configure the Wii to use the DNS server
+  - Host a DNS server (i.e. [Unbound](https://nlnetlabs.nl/projects/unbound/about/)) to redirect packets to the machine hosting the server.
+  - Configure the console to use the DNS server
 
 Unbound configuration (`service.conf`) :
 ```
@@ -126,6 +128,12 @@ server:
 	
 	local-zone: "wiimoh08.ea.com" static
 	local-data: "wiimoh08.ea.com A 192.168.1.1" # CHANGE IT !
+	
+	local-zone: "pspmoh08.ea.com" static
+    local-data: "pspmoh08.ea.com A 192.168.1.1" # CHANGE IT !
+    
+    local-zone: "naswii.nintendowifi.net" static
+    local-data: "naswii.nintendowifi.net A 192.168.1.1" # CHANGE IT !
 ```
 
 Change `192.168.1.1` to your server's IP address.
@@ -137,17 +145,17 @@ This project has been initiated with the `JDK 17`, download it if needed.
 
 ### 4/ Maven
 
-If you downloaded Intellij, Maven comes bundled with, otherwise download the latest version of Maven.
+If you have downloaded Intellij, Maven comes bundled with, otherwise download the latest version of Maven.
 
 #### Maven profile
 
 **Some properties like the SSL port are region-dependant, therefore they must be changed accordingly to the version of the game.**  
 A maven profile exists for each region:
-- `pal` : RM2X69 and RM2P69
-- `ntsc` : RM2E69
+- `wii-pal` : RM2X69 and RM2P69
+- `wii-ntsc` : RM2E69
 
 Currently, all profiles are located in *application.yml* as there won't be many region-based properties.  
-**When you don't specify any maven profile, it fallbacks to `pal`.**
+**When you don't specify any maven profile, it fallbacks to `wii-pal`.**
 
 ### 5/ Define the host machine
 
@@ -158,7 +166,7 @@ Currently, multiplayer isn't supported (only single player online), so `udp.host
 As for `tcp.host`, it depends on your use case :
 - If you are running the server (not in WSL) and the game on the same machine (using Dolphin), and you don't need to host for other machines, then no changes are needed.
 - If you are running the server (in WSL) and the game on the same machine (using Dolphin), and you don't need to host for other machines, then you must set the WSL's eth0 IP.
-- If you are running the server for other machines (i.e. a Wii, or another computer using Dolphin), then you must set the machine IP (works for private and public networks).
+- If you are running the server for other machines (i.e. Wii/PSP, or another computer using Dolphin), then you must set the machine IP (works for private and public networks).
 
 ## Run the server
 
@@ -174,10 +182,10 @@ Create a new Application config in Intellij and set the following entry-point (m
 com.ea.ServerApp
 ```
 
-The default profile is `pal`.  
+The default profile is `wii-pal`.  
 If you need to specify a profile, be sure to check `Add VM options` (or use Alt+V), then fill the field with :
 ```
--Dspring.profiles.active=ntsc
+-Dspring.profiles.active=wii-ntsc
 ```
 
 Define the environment variables matching your need, mostly for the database (see `Database` chapter), e.g. :
@@ -191,12 +199,12 @@ Replace with your own values.
 
 After a successful build, get into the target folder and execute one the following commands:
 ```
-java -DDB_URL=jdbc:postgresql://localhost:5432/mohh2db -DDB_USERNAME=user -DDB_PASSWORD=password -DLOGS=C:/moh/logs -DHOST_IP=127.0.0.1 -jar mohh2-wii-server-1.0.0-SNAPSHOT.jar
+java -DDB_URL=jdbc:postgresql://localhost:5432/mohh2db -DDB_USERNAME=user -DDB_PASSWORD=password -DLOGS=C:/moh/logs -DHOST_IP=127.0.0.1 -jar mohh2-server-1.0.0-SNAPSHOT.jar
 ```
 
 If you need to specify a profile, add the following option :
 ```
--Dspring.profiles.active=ntsc
+-Dspring.profiles.active=wii-ntsc
 ```
 
 ### 2.c Start with Docker
@@ -208,10 +216,10 @@ cd /mnt/c/path/to/the/project
 
 Create the image
 ```
-docker build --tag mohh2-wii-server:latest .
+docker build --tag mohh2-server:latest .
 ```
 
-- PAL with postgres
+- Wii PAL with postgres
 
 First, you need to start a postgres container after creating a network :
 ```
@@ -230,25 +238,25 @@ Then, you can start the server using the network :
 ```
 docker run --name mohh2-wii-pal --rm -it \
   -p 21171:21171 -p 21172:21172 -p 21173:21173 \
-  -e "SPRING_PROFILES_ACTIVE=pal" -e "LOGS=./logs" -e "HOST_IP=127.0.0.1" \
+  -e "SPRING_PROFILES_ACTIVE=wii-pal" -e "LOGS=./logs" -e "HOST_IP=127.0.0.1" \
   -e "DB_URL=jdbc:postgresql://postgres:5432/mohh2db" \
   -e "DB_USERNAME=user" -e "DB_PASSWORD=password" \
   --network mohh2-network \
-  mohh2-wii-server:latest
+  mohh2-server:latest
 ```
 
-- NTSC with postgres
+- Wii NTSC with postgres
 
 Follow the same steps as above to define the network and add postgres to it.  
 Then, you can start the server using the network :
 ```
 docker run --name mohh2-wii-ntsc --rm -it \
   -p 21121:21121 -p 21172:21172 -p 21173:21173 \
-  -e "SPRING_PROFILES_ACTIVE=ntsc" -e "LOGS=./logs" -e "HOST_IP=127.0.0.1" \
+  -e "SPRING_PROFILES_ACTIVE=wii-ntsc" -e "LOGS=./logs" -e "HOST_IP=127.0.0.1" \
   -e "DB_URL=jdbc:postgresql://postgres:5432/mohh2db" \
   -e "DB_USERNAME=user" -e "DB_PASSWORD=password" \
   --network mohh2-network \
-  mohh2-wii-server:latest
+  mohh2-server:latest
 ```
 
 If started in background, here is how to open a bash in the container :
