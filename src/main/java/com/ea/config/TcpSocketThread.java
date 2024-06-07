@@ -44,7 +44,7 @@ public class TcpSocketThread implements Runnable {
 
             SocketReader.read(clientSocket, sessionData);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error reading from socket", e);
         } finally {
             pingExecutor.shutdown();
             lobbyService.endLobbyReport(sessionData); // If the player doesn't leave from the game

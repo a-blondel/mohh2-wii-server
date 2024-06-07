@@ -1,7 +1,10 @@
 package com.ea.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.UnsupportedEncodingException;
 
+@Slf4j
 public final class HexUtils {
 
     /**
@@ -60,7 +63,7 @@ public final class HexUtils {
                     builder.append(new String(array, rowOffset, asciiWidth, "UTF-8").replaceAll("[^\\x20-\\x7E]", "."));
                 } catch (UnsupportedEncodingException e) {
                     //If UTF-8 isn't available as an encoding then what can we do?!
-                    e.printStackTrace();
+                    log.error("UTF-8 encoding not available", e);
                 }
             }
 

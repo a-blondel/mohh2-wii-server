@@ -15,6 +15,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocket;
+import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.security.Security;
@@ -55,13 +56,28 @@ public class ServerApp implements CommandLineRunner {
                 DatagramSocket udpServerSocket = serverConfig.createUdpServerSocket();
                 new Thread(new UdpSocketThread(udpServerSocket)).start();
             }
-            log.info("Servers started. Waiting for client connections...");
 
-            while(true) {
-                final SessionData sessionData = new SessionData();
-                new Thread(new SslSocketThread((SSLSocket) sslServerSocket.accept())).start();
-                new Thread(new TcpSocketThread(tcpServerSocket.accept(), sessionData)).start();
-            }
+            new Thread(() -> {
+                try {
+                    while (true) {
+                        new Thread(new SslSocketThread((SSLSocket) sslServerSocket.accept())).start();
+                    }
+                } catch (IOException e) {
+                    log.error("Error accepting SSL connections", e);
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    while (true) {
+                        new Thread(new TcpSocketThread(tcpServerSocket.accept(), new SessionData())).start();
+                    }
+                } catch (IOException e) {
+                    log.error("Error accepting TCP connections", e);
+                }
+            }).start();
+
+            log.info("Servers started. Waiting for client connections...");
         } catch (Exception e) {
             log.error("Error starting servers", e);
         }
