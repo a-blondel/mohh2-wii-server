@@ -23,7 +23,8 @@ It contains :
 
 ## Development Status
 
-**Work In Progress** - The Wii version allows to access the main menu, leaderboards and lobbies while the PSP version disconnects before login screen.
+**Work In Progress** - The Wii version allows to access the main menu, leaderboards and lobbies while the PSP version disconnects before login screen.  
+You can follow the progress on the [project board](https://github.com/users/a-blondel/projects/2/views/1).  
 
 <img src="doc/img/player-details.png" alt="player-details" width="400"/> <img src="doc/img/leaderboards.png" alt="leaderboards" width="400"/><br/>
 *Player details / Leaderboards*
