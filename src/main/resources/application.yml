@@ -9,19 +9,17 @@ ssl:
     issuer: 'OU=Online Technology Group, O=Electronic Arts, Inc., L=Redwood City, ST=California, C=US, CN=OTG3 Certificate Authority'
     subject: 'CN=wiimoh08.ea.com, OU=Global Online Studio, O=Electronic Arts, Inc., ST=California, C=US'
   debug:
-    enabled: false
+    enabled: ${SSL_DEBUG_ENABLED:false}
 tcp:
   host: ${TCP_HOST_IP:127.0.0.1} # Must be machine IP if hosting for other machines. Must be WSL IP if using docker through WSL (local only).
-  port: 21172
   debug:
-    enabled: false
+    enabled: ${TCP_DEBUG_ENABLED:false}
     exclusions: '~png'
 udp:
   host: ${UDP_HOST_IP:127.0.0.1} # Must be machine IP if hosting for other machines. Must be WSL IP if using docker through WSL (local only).
-  port: 21173
   connect-mode.enabled: false # false = listen-mode (default), must replace '41' by '40' at 0x8001BEB4 if set to true
   debug:
-    enabled: false
+    enabled: ${UDP_DEBUG_ENABLED:false}
 
 spring:
   profiles:
@@ -29,6 +27,7 @@ spring:
       - wii-pal
   datasource:
     url: ${DB_URL}
+    port: ${DB_PORT:5432}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -52,6 +51,10 @@ spring:
 
 ssl:
   port: 21171
+tcp:
+  port: 21172
+udp:
+  port: 21173
 
 ---
 spring:
@@ -61,6 +64,10 @@ spring:
 
 ssl:
   port: 21121
+tcp:
+  port: 21122
+udp:
+  port: 21123
 
 ---
 spring:
@@ -72,3 +79,22 @@ ssl:
   port: 21181
   certificate:
     subject: 'CN=pspmoh08.ea.com, OU=Global Online Studio, O=Electronic Arts, Inc., ST=California, C=US'
+tcp:
+  port: 21182
+udp:
+  port: 21183
+
+---
+spring:
+  config:
+    activate:
+      on-profile: psp-ntsc
+
+ssl:
+  port: 21191
+  certificate:
+    subject: 'CN=pspmoh08.ea.com, OU=Global Online Studio, O=Electronic Arts, Inc., ST=California, C=US'
+tcp:
+  port: 21192
+udp:
+  port: 21193
