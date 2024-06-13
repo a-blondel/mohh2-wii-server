@@ -1,5 +1,6 @@
 package com.ea.dirtysdk;
 
+import com.ea.enums.CertificateKind;
 import com.ea.utils.Props;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
@@ -47,20 +48,21 @@ public class ProtoSSL {
 
     private final ConcurrentHashMap<String, Pair<KeyPair, Certificate>> certCache = new ConcurrentHashMap<>();
 
-    public Pair<KeyPair, Certificate> getEaCert() throws Exception {
-        String cacheKey = "cert_ea";
+    public Pair<KeyPair, Certificate> getEaCert(CertificateKind certificateKind) throws Exception {
+        String cacheKey = certificateKind.getName();
         if (certCache.containsKey(cacheKey)) {
             return certCache.get(cacheKey);
         }
 
-        Pair<KeyPair, Certificate> creds = generateVulnerableCert();
+        Pair<KeyPair, Certificate> creds = generateVulnerableCert(certificateKind);
         certCache.put(cacheKey, creds);
+
         return creds;
     }
 
-    private Pair<KeyPair, Certificate> generateVulnerableCert() throws Exception {
+    private Pair<KeyPair, Certificate> generateVulnerableCert(CertificateKind certificateKind) throws Exception {
         KeyPair cKeyPair = generateKeyPair();
-        Certificate cCertificate = generateCertificate(props.getSslCertificateSubject(), cKeyPair, cKeyPair.getPrivate(), props.getSslCertificateIssuer());
+        Certificate cCertificate = generateCertificate(certificateKind.getSubject(), cKeyPair, cKeyPair.getPrivate(), certificateKind.getIssuer());
         Certificate patchedCCertificate = patchCertificateSignaturePattern(cCertificate);
         return Pair.of(cKeyPair, patchedCCertificate);
     }

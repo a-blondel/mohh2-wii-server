@@ -1,0 +1,7 @@
+﻿ %{START CMD=news TITLE="Welcome" BTN1="OK" BTN1-GOTO="$quit" TELE=TOSVVIEWen %}
+Official servers were shut down on August 11, 2011.
+
+This is a community run server, please be respectful and have fun !
+
+- l ch ti, SolidSnakeRu, and everyone making it possible <3
+%{%}

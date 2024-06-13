@@ -22,12 +22,6 @@ public class Props {
     @Value("${ssl.certificate.cipher-algorithm}")
     private String sslCertificateCipherAlgorithm;
 
-    @Value("${ssl.certificate.issuer}")
-    private String sslCertificateIssuer;
-
-    @Value("${ssl.certificate.subject}")
-    private String sslCertificateSubject;
-
     @Value("${ssl.debug.enabled}")
     private boolean sslDebugEnabled;
 

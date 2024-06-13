@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.util.Optional;
+import java.net.SocketException;
 
 @Slf4j
 public class SocketReader {
@@ -17,12 +17,18 @@ public class SocketReader {
      * @param socket the socket to read
      * @throws IOException
      */
-    public static void read(Socket socket, SessionData sessionData) throws IOException {
-        InputStream is = socket.getInputStream();
-        byte[] buffer = new byte[1024];
-        int readLength;
-        while((readLength = is.read(buffer)) != -1) {
-            SocketParser.parse(socket, sessionData, buffer, readLength);
+    public static void read(Socket socket, SessionData sessionData) {
+        try {
+            InputStream is = socket.getInputStream();
+            byte[] buffer = new byte[1024];
+            int readLength;
+            while((readLength = is.read(buffer)) != -1) {
+                SocketParser.parse(socket, sessionData, buffer, readLength);
+            }
+        } catch (SocketException e) {
+            log.warn("Socket closed, stopping reading");
+        } catch (IOException e) {
+            log.error("Error reading from socket", e);
         }
     }
 
