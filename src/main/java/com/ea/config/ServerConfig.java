@@ -1,5 +1,6 @@
 package com.ea.config;
 
+import com.ea.enums.CertificateKind;
 import com.ea.utils.Props;
 import com.ea.dirtysdk.ProtoSSL;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +32,12 @@ public class ServerConfig {
      * @return SSLServerSocket
      * @throws IOException
      */
-    public SSLServerSocket createSslServerSocket() throws Exception {
-        Pair<KeyPair, Certificate> eaCert = protoSSL.getEaCert();
+    public SSLServerSocket createSslServerSocket(int port, CertificateKind certificateKind) throws Exception {
+        Pair<KeyPair, Certificate> eaCert = protoSSL.getEaCert(certificateKind);
 
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(null, null);
-        keyStore.setKeyEntry("wiimoh08.ea.com", eaCert.getLeft().getPrivate(), "password".toCharArray(), new Certificate[]{eaCert.getRight()});
+        keyStore.setKeyEntry(certificateKind.getName(), eaCert.getLeft().getPrivate(), "password".toCharArray(), new Certificate[]{eaCert.getRight()});
 
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         keyManagerFactory.init(keyStore, "password".toCharArray());
@@ -45,7 +46,7 @@ public class ServerConfig {
         sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
 
         SSLServerSocketFactory sslServerSocketFactory = sslContext.getServerSocketFactory();
-        SSLServerSocket sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(props.getSslPort());
+        SSLServerSocket sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(port);
 
         sslServerSocket.setEnabledProtocols(props.getSslProtocols().split(","));
         sslServerSocket.setEnabledCipherSuites(props.getSslCipherSuites().split(","));
@@ -58,8 +59,8 @@ public class ServerConfig {
      * @return ServerSocket
      * @throws IOException
      */
-    public ServerSocket createTcpServerSocket() throws IOException {
-        return ServerSocketFactory.getDefault().createServerSocket(props.getTcpPort());
+    public ServerSocket createTcpServerSocket(int port) throws IOException {
+        return ServerSocketFactory.getDefault().createServerSocket(port);
     }
 
     /**

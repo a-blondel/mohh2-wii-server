@@ -25,8 +25,6 @@ public class SslSocketThread implements Runnable {
         try {
             SocketReader socketReader = new SocketReader();
             socketReader.read(clientSocket, null);
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             log.info("SSL client session ended: {}:{}", clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort());
         }

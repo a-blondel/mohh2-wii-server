@@ -5,6 +5,7 @@ import com.ea.config.SslSocketThread;
 import com.ea.config.TcpSocketThread;
 import com.ea.config.UdpSocketThread;
 import com.ea.dto.SessionData;
+import com.ea.enums.CertificateKind;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +13,16 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.core.env.Environment;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocket;
+import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.security.Security;
+import java.util.function.BiFunction;
 
 /**
  * Entry point
@@ -25,11 +30,17 @@ import java.security.Security;
 @Slf4j
 @SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
 public class ServerApp implements CommandLineRunner {
-    @Autowired
-    Props props;
+
+    private static final String WII = "wii";
 
     @Autowired
-    ServerConfig serverConfig;
+    private Props props;
+
+    @Autowired
+    private Environment env;
+
+    @Autowired
+    private ServerConfig serverConfig;
 
     public static void main(String[] args) {
         SpringApplication.run(ServerApp.class, args);
@@ -49,21 +60,42 @@ public class ServerApp implements CommandLineRunner {
 
         try {
             log.info("Starting servers...");
-            SSLServerSocket sslServerSocket = serverConfig.createSslServerSocket();
-            ServerSocket tcpServerSocket = serverConfig.createTcpServerSocket();
+
+            CertificateKind certificateKind = env.getActiveProfiles().length > 0
+                   && env.getActiveProfiles()[0].contains(WII) ? CertificateKind.MOH_WII : CertificateKind.MOH_PSP;
+
+            SSLServerSocket sslServerSocket = serverConfig.createSslServerSocket(props.getSslPort(), certificateKind);
+            SSLServerSocket sslTosServerSocket = serverConfig.createSslServerSocket(443, CertificateKind.TOS);
+            ServerSocket tcpServerSocket = serverConfig.createTcpServerSocket(props.getTcpPort());
+            ServerSocket tcpTosServerSocket = serverConfig.createTcpServerSocket(80);
+
             if(!props.isConnectModeEnabled()) {
                 DatagramSocket udpServerSocket = serverConfig.createUdpServerSocket();
                 new Thread(new UdpSocketThread(udpServerSocket)).start();
             }
-            log.info("Servers started. Waiting for client connections...");
 
-            while(true) {
-                final SessionData sessionData = new SessionData();
-                new Thread(new SslSocketThread((SSLSocket) sslServerSocket.accept())).start();
-                new Thread(new TcpSocketThread(tcpServerSocket.accept(), sessionData)).start();
-            }
+            startServerThread(sslServerSocket, (socket, sessionData) -> new SslSocketThread((SSLSocket) socket));
+            startServerThread(sslTosServerSocket, (socket, sessionData) -> new SslSocketThread((SSLSocket) socket));
+            startServerThread(tcpServerSocket, TcpSocketThread::new);
+            startServerThread(tcpTosServerSocket, TcpSocketThread::new);
+
+            log.info("Servers started. Waiting for client connections...");
         } catch (Exception e) {
             log.error("Error starting servers", e);
         }
     }
+
+    private void startServerThread(ServerSocket serverSocket, BiFunction<Socket, SessionData, Runnable> runnableFactory) {
+        new Thread(() -> {
+            try {
+                while (true) {
+                    Socket socket = serverSocket.accept();
+                    new Thread(runnableFactory.apply(socket, new SessionData())).start();
+                }
+            } catch (IOException e) {
+                log.error("Error accepting connections", e);
+            }
+        }).start();
+    }
+
 }

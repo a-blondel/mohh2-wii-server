@@ -104,6 +104,7 @@ public class LobbyService {
     /**
      * Create lobby
      * @param socket
+     * @param sessionData
      * @param socketData
      */
     public void gpsc(Socket socket, SessionData sessionData, SocketData socketData) {
@@ -112,6 +113,14 @@ public class LobbyService {
         lobbyEntity.setStartTime(Timestamp.from(Instant.now()));
         lobbyRepository.save(lobbyEntity);
         ses(socket, sessionData, lobbyEntity.getId());
+    }
+
+    /**
+     * Leave lobby
+     * @param sessionData
+     */
+    public void glea(SessionData sessionData) {
+        endLobbyReport(sessionData);
     }
 
     /**

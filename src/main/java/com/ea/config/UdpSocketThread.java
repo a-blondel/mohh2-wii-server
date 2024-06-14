@@ -22,7 +22,7 @@ public class UdpSocketThread implements Runnable {
         try {
             DatagramSocketReader.read(clientSocket);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error reading from socket", e);
         } finally {
             log.info("UDP server closed");
         }

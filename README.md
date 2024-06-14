@@ -23,7 +23,8 @@ It contains :
 
 ## Development Status
 
-**Work In Progress** - The Wii version allows to access the main menu, leaderboards and lobbies while the PSP version disconnects before login screen.
+**Work In Progress** - The Wii version allows to access the main menu, leaderboards and lobbies while the PSP version disconnects before login screen.  
+You can follow the progress on the [project board](https://github.com/users/a-blondel/projects/2/views/1).  
 
 <img src="doc/img/player-details.png" alt="player-details" width="400"/> <img src="doc/img/leaderboards.png" alt="leaderboards" width="400"/><br/>
 *Player details / Leaderboards*
@@ -35,7 +36,7 @@ It contains :
 *Disconnection*
 
 **Features**
-- [x] Access Nintendo WFC (Riivolution patch with Wiimmfi)
+- [x] Access Nintendo WFC (Either with [nwc-server](https://github.com/a-blondel/nwc-server) or Wiimmfi)
 - [ ] EA account management
   - [x] Create account
   - [x] Update account
@@ -190,7 +191,7 @@ If you need to specify a profile, be sure to check `Add VM options` (or use Alt+
 
 Define the environment variables matching your need, mostly for the database (see `Database` chapter), e.g. :
 ```
-DB_URL=jdbc:postgresql://localhost:5432/mohh2db;DB_USERNAME=user;DB_PASSWORD=password;LOGS=C:/moh/logs;HOST_IP=127.0.0.1
+DB_URL=jdbc:postgresql://localhost:5432/mohh2db;DB_USERNAME=user;DB_PASSWORD=password;LOGS=C:/moh/logs;TCP_HOST_IP=127.0.0.1
 ```
 
 Replace with your own values.
@@ -199,7 +200,7 @@ Replace with your own values.
 
 After a successful build, get into the target folder and execute one the following commands:
 ```
-java -DDB_URL=jdbc:postgresql://localhost:5432/mohh2db -DDB_USERNAME=user -DDB_PASSWORD=password -DLOGS=C:/moh/logs -DHOST_IP=127.0.0.1 -jar mohh2-server-1.0.0-SNAPSHOT.jar
+java -DDB_URL=jdbc:postgresql://localhost:5432/mohh2db -DDB_USERNAME=user -DDB_PASSWORD=password -DLOGS=C:/moh/logs -DTCP_HOST_IP=127.0.0.1 -jar mohh2-server-1.0.0-SNAPSHOT.jar
 ```
 
 If you need to specify a profile, add the following option :
@@ -238,7 +239,7 @@ Then, you can start the server using the network :
 ```
 docker run --name mohh2-wii-pal --rm -it \
   -p 21171:21171 -p 21172:21172 -p 21173:21173 \
-  -e "SPRING_PROFILES_ACTIVE=wii-pal" -e "LOGS=./logs" -e "HOST_IP=127.0.0.1" \
+  -e "SPRING_PROFILES_ACTIVE=wii-pal" -e "LOGS=./logs" -e "TCP_HOST_IP=127.0.0.1" \
   -e "DB_URL=jdbc:postgresql://postgres:5432/mohh2db" \
   -e "DB_USERNAME=user" -e "DB_PASSWORD=password" \
   --network mohh2-network \
@@ -252,7 +253,7 @@ Then, you can start the server using the network :
 ```
 docker run --name mohh2-wii-ntsc --rm -it \
   -p 21121:21121 -p 21172:21172 -p 21173:21173 \
-  -e "SPRING_PROFILES_ACTIVE=wii-ntsc" -e "LOGS=./logs" -e "HOST_IP=127.0.0.1" \
+  -e "SPRING_PROFILES_ACTIVE=wii-ntsc" -e "LOGS=./logs" -e "TCP_HOST_IP=127.0.0.1" \
   -e "DB_URL=jdbc:postgresql://postgres:5432/mohh2db" \
   -e "DB_USERNAME=user" -e "DB_PASSWORD=password" \
   --network mohh2-network \
