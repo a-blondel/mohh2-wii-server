@@ -43,8 +43,6 @@ public class TcpSocketThread implements Runnable {
             pingExecutor.scheduleAtFixedRate(() -> png(clientSocket), 30, 30, TimeUnit.SECONDS);
 
             SocketReader.read(clientSocket, sessionData);
-        } catch (IOException e) {
-            log.error("Error reading from socket", e);
         } finally {
             pingExecutor.shutdown();
             lobbyService.endLobbyReport(sessionData); // If the player doesn't leave from the game

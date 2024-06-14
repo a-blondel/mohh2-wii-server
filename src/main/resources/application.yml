@@ -1,13 +1,8 @@
-server:
-  port: 8080
-
 ssl:
   protocols: 'SSLv3'
   cipher-suites: 'SSL_RSA_WITH_RC4_128_MD5,SSL_RSA_WITH_RC4_128_SHA'
   certificate:
     cipher-algorithm: 'MD5WITHRSA'
-    issuer: 'OU=Online Technology Group, O=Electronic Arts, Inc., L=Redwood City, ST=California, C=US, CN=OTG3 Certificate Authority'
-    subject: 'CN=wiimoh08.ea.com, OU=Global Online Studio, O=Electronic Arts, Inc., ST=California, C=US'
   debug:
     enabled: ${SSL_DEBUG_ENABLED:false}
 tcp:
@@ -77,8 +72,6 @@ spring:
 
 ssl:
   port: 21181
-  certificate:
-    subject: 'CN=pspmoh08.ea.com, OU=Global Online Studio, O=Electronic Arts, Inc., ST=California, C=US'
 tcp:
   port: 21182
 udp:
@@ -92,8 +85,6 @@ spring:
 
 ssl:
   port: 21191
-  certificate:
-    subject: 'CN=pspmoh08.ea.com, OU=Global Online Studio, O=Electronic Arts, Inc., ST=California, C=US'
 tcp:
   port: 21192
 udp:
