@@ -64,20 +64,29 @@ public class ServerApp implements CommandLineRunner {
             CertificateKind certificateKind = env.getActiveProfiles().length > 0
                    && env.getActiveProfiles()[0].contains(WII) ? CertificateKind.MOH_WII : CertificateKind.MOH_PSP;
 
-            SSLServerSocket sslServerSocket = serverConfig.createSslServerSocket(props.getSslPort(), certificateKind);
-            SSLServerSocket sslTosServerSocket = serverConfig.createSslServerSocket(443, CertificateKind.TOS);
-            ServerSocket tcpServerSocket = serverConfig.createTcpServerSocket(props.getTcpPort());
-            ServerSocket tcpTosServerSocket = serverConfig.createTcpServerSocket(80);
+            SSLServerSocket mohSslServerSocket = serverConfig.createSslServerSocket(props.getSslPort(), certificateKind);
+            startServerThread(mohSslServerSocket, (socket, sessionData) -> new SslSocketThread((SSLSocket) socket));
+            log.info("MoH SSL server started.");
 
-            if(!props.isConnectModeEnabled()) {
-                DatagramSocket udpServerSocket = serverConfig.createUdpServerSocket();
-                new Thread(new UdpSocketThread(udpServerSocket)).start();
+            ServerSocket mohTcpServerSocket = serverConfig.createTcpServerSocket(props.getTcpPort());
+            startServerThread(mohTcpServerSocket, TcpSocketThread::new);
+            log.info("MoH TCP server started.");
+
+            if(props.isUdpEnabled() && !props.isConnectModeEnabled()) {
+                DatagramSocket mohUdpServerSocket = serverConfig.createUdpServerSocket();
+                new Thread(new UdpSocketThread(mohUdpServerSocket)).start();
+                log.info("MoH UDP server started.");
             }
 
-            startServerThread(sslServerSocket, (socket, sessionData) -> new SslSocketThread((SSLSocket) socket));
-            startServerThread(sslTosServerSocket, (socket, sessionData) -> new SslSocketThread((SSLSocket) socket));
-            startServerThread(tcpServerSocket, TcpSocketThread::new);
-            startServerThread(tcpTosServerSocket, TcpSocketThread::new);
+            if (props.isTosEnabled()) {
+                ServerSocket tosTcpServerSocket = serverConfig.createTcpServerSocket(80);
+                startServerThread(tosTcpServerSocket, TcpSocketThread::new);
+                log.info("TOS TCP server started.");
+
+                SSLServerSocket tosSslServerSocket = serverConfig.createSslServerSocket(443, CertificateKind.TOS);
+                startServerThread(tosSslServerSocket, (socket, sessionData) -> new SslSocketThread((SSLSocket) socket));
+                log.info("TOS SSL server started.");
+            }
 
             log.info("Servers started. Waiting for client connections...");
         } catch (Exception e) {

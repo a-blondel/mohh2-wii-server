@@ -226,7 +226,7 @@ First, you need to start a postgres container after creating a network :
 ```
 docker network create mohh2-network
 
-docker run -d --rm --network mohh2-network \
+docker run -d --restart=unless-stopped --network mohh2-network \
   -e POSTGRES_USER=user \
   -e POSTGRES_PASSWORD=password \
   -e POSTGRES_DB=mohh2db \
