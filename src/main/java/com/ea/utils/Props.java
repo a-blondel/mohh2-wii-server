@@ -46,8 +46,14 @@ public class Props {
     @Value("${udp.connect-mode.enabled}")
     private boolean connectModeEnabled;
 
+    @Value("${udp.enabled}")
+    private boolean udpEnabled;
+
     @Value("${udp.debug.enabled}")
     private boolean udpDebugEnabled;
+
+    @Value("${tos.enabled}")
+    private boolean tosEnabled;
 
     @Value("${ssc2.key}")
     private String ssc2Key;

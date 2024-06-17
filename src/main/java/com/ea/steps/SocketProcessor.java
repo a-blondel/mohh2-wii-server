@@ -80,7 +80,7 @@ public class SocketProcessor {
                 lobbyService.gpsc(socket, sessionData, socketData);
                 break;
             case ("glea"):
-                lobbyService.glea(sessionData);
+                lobbyService.glea(socket, sessionData, socketData);
                 break;
             default:
                 log.info("Unsupported operation: {}", socketData.getIdMessage());

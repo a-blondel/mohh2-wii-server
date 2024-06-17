@@ -81,7 +81,7 @@ public class ProtoSSL {
 
         // The game doesn't perform any validation on the certificate's validity period
         // It's safer to set the validity period to a date in the past to avoid the 2050 problem :
-        // X509 certificate validity period is in UTF8STRING format until 2049, then starting from 2050 it's in GENERALIZEDTIME format
+        // X509 certificate validity period is in UTCTime format until 2049, then starting from 2050 it's in GeneralizedTime format
         // Which isn't handled by the game
         Date validity = formatter.parse("2011-08-11");
 

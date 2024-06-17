@@ -117,10 +117,13 @@ public class LobbyService {
 
     /**
      * Leave lobby
+     * @param socket
      * @param sessionData
+     * @param socketData
      */
-    public void glea(SessionData sessionData) {
+    public void glea(Socket socket, SessionData sessionData, SocketData socketData) {
         endLobbyReport(sessionData);
+        SocketWriter.write(socket, socketData);
     }
 
     /**
