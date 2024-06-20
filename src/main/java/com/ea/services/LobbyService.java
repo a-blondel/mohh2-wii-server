@@ -96,9 +96,19 @@ public class LobbyService {
      * @param socketData
      */
     public void gjoi(Socket socket, SessionData sessionData, SocketData socketData) {
-        SocketWriter.write(socket, socketData);
         String ident = getValueFromSocket(socketData.getInputMessage(), "IDENT");
-        ses(socket, sessionData, Long.valueOf(ident));
+        Optional<LobbyEntity> lobbyEntityOpt = lobbyRepository.findById(Long.valueOf(ident));
+        if(lobbyEntityOpt.isPresent()) {
+            LobbyEntity lobbyEntity = lobbyEntityOpt.get();
+            if(lobbyEntity.getEndTime() == null) {
+                SocketWriter.write(socket, socketData);
+                ses(socket, sessionData, lobbyEntity);
+            } else {
+                SocketWriter.write(socket, new SocketData("gjoiugam", null, null)); // Game closed
+            }
+        } else {
+            SocketWriter.write(socket, new SocketData("gjoiugam", null, null)); // Game unknown
+        }
     }
 
     /**
@@ -112,7 +122,7 @@ public class LobbyService {
         LobbyEntity lobbyEntity = socketMapper.toLobbyEntityForCreation(socketData.getInputMessage());
         lobbyEntity.setStartTime(Timestamp.from(Instant.now()));
         lobbyRepository.save(lobbyEntity);
-        ses(socket, sessionData, lobbyEntity.getId());
+        ses(socket, sessionData, lobbyEntity);
     }
 
     /**
@@ -127,16 +137,14 @@ public class LobbyService {
     }
 
     /**
-     * Lobby info based on IDENT
+     * Start session
      * @param socket
+     * @param sessionData
+     * @param lobbyEntity
      */
-    public void ses(Socket socket, SessionData sessionData, Long lobbyId) {
-        Optional<LobbyEntity> lobbyEntityOpt = lobbyRepository.findById(lobbyId);
-        if(lobbyEntityOpt.isPresent()) {
-            LobbyEntity lobbyEntity = lobbyEntityOpt.get();
-            startLobbyReport(sessionData, lobbyEntity);
-            SocketWriter.write(socket, new SocketData("+ses", null, getLobbyInfo(sessionData, lobbyEntity)));
-        }
+    public void ses(Socket socket, SessionData sessionData, LobbyEntity lobbyEntity) {
+        startLobbyReport(sessionData, lobbyEntity);
+        SocketWriter.write(socket, new SocketData("+ses", null, getLobbyInfo(sessionData, lobbyEntity)));
     }
 
     /**
@@ -243,6 +251,10 @@ public class LobbyService {
         lobbyReportEntity.setStartTime(Timestamp.from(Instant.now()));
         lobbyReportRepository.save(lobbyReportEntity);
 
+        if(lobbyEntity.getLobbyReports() == null) {
+            lobbyEntity.setLobbyReports(new HashSet<>());
+        }
+
         lobbyEntity.getLobbyReports().add(lobbyReportEntity);
         sessionData.setCurrentLobby(lobbyEntity);
         sessionData.setCurrentLobbyReport(lobbyReportEntity);
@@ -263,6 +275,24 @@ public class LobbyService {
         } else {
             log.error("sessionData is null ?!");
         }
+    }
+
+    /**
+     * Close expired lobbies
+     * If no one is in the lobby after 2 minutes, close it
+     */
+    public void closeExpiredLobbies() {
+        List<LobbyEntity> lobbyEntities = lobbyRepository.findByEndTime(null);
+        lobbyEntities.forEach(lobbyEntity -> {
+            Set<LobbyReportEntity> lobbyReports = lobbyEntity.getLobbyReports();
+            if(lobbyReports.stream().noneMatch(report -> null == report.getEndTime())) {
+                if(lobbyReports.stream().allMatch(report -> report.getEndTime().toInstant().plusSeconds(120).isBefore(Instant.now()))) {
+                    log.info("Closing expired lobby: {} - {}", lobbyEntity.getId(), lobbyEntity.getName());
+                    lobbyEntity.setEndTime(Timestamp.from(Instant.now()));
+                    lobbyRepository.save(lobbyEntity);
+                }
+            }
+        });
     }
 
 }

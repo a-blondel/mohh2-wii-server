@@ -6,6 +6,7 @@ import com.ea.config.TcpSocketThread;
 import com.ea.config.UdpSocketThread;
 import com.ea.dto.SessionData;
 import com.ea.enums.CertificateKind;
+import com.ea.services.LobbyService;
 import com.ea.utils.Props;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.Security;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
 /**
@@ -33,6 +37,8 @@ public class ServerApp implements CommandLineRunner {
 
     private static final String WII = "wii";
 
+    private ScheduledExecutorService closeExpiredLobbiesThread = Executors.newSingleThreadScheduledExecutor();
+
     @Autowired
     private Props props;
 
@@ -41,6 +47,9 @@ public class ServerApp implements CommandLineRunner {
 
     @Autowired
     private ServerConfig serverConfig;
+
+    @Autowired
+    private LobbyService lobbyService;
 
     public static void main(String[] args) {
         SpringApplication.run(ServerApp.class, args);
@@ -59,6 +68,19 @@ public class ServerApp implements CommandLineRunner {
         }
 
         try {
+            if(props.isCloseExpiredLobbiesEnabled()) {
+                closeExpiredLobbiesThread.scheduleAtFixedRate(() -> {
+                    try {
+                        lobbyService.closeExpiredLobbies();
+                    } catch (Exception e) {
+                        log.error("Error cleaning up expired lobbies", e);
+                    }
+                }, 30, 120, TimeUnit.SECONDS);
+                log.info("Close expired lobbies thread started.");
+            }
+
+            gracefullyExit();
+
             log.info("Starting servers...");
 
             CertificateKind certificateKind = env.getActiveProfiles().length > 0
@@ -105,6 +127,20 @@ public class ServerApp implements CommandLineRunner {
                 log.error("Error accepting connections", e);
             }
         }).start();
+    }
+
+    private void gracefullyExit() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.debug("Shutting down...");
+            closeExpiredLobbiesThread.shutdown();
+            try {
+                if (!closeExpiredLobbiesThread.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+                    closeExpiredLobbiesThread.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                closeExpiredLobbiesThread.shutdownNow();
+            }
+        }));
     }
 
 }

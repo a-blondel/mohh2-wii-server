@@ -6,8 +6,11 @@ import com.ea.dirtysdk.ProtoSSL;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.*;
@@ -25,6 +28,11 @@ public class ServerConfig {
 
     private final Props props;
     private final ProtoSSL protoSSL;
+
+    @Bean
+    public PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
 
 
     /**
