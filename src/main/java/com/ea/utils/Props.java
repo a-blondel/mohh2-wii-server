@@ -58,4 +58,7 @@ public class Props {
     @Value("${ssc2.key}")
     private String ssc2Key;
 
+    @Value("${lobby.close.expired}")
+    private boolean closeExpiredLobbiesEnabled;
+
 }
